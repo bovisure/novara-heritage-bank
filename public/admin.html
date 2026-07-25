@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Novara Heritage Bank – Admin Panel</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --primary: #1e429f;
+    --primary-light: #eff6ff;
+    --success: #057a55;
+    --danger: #c81e1e;
+    --warning: #e3a008;
+    --bg: #f3f4f6;
+    --card: #ffffff;
+    --text: #111827;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --sidebar: #111827;
+  }
+  body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  .auth-wrapper { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #111827 0%, #1e429f 100%); }
+  .auth-box { background: white; border-radius: 16px; padding: 40px; width: 100%; max-width: 400px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+  .auth-logo { text-align: center; margin-bottom: 28px; }
+  .auth-logo h1 { font-size: 26px; font-weight: 800; color: #111827; }
+  .auth-logo p { color: var(--muted); font-size: 13px; margin-top: 4px; }
+  .form-group { margin-bottom: 16px; }
+  label { display: block; font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+  input[type=text], input[type=email], input[type=password], input[type=number], select, textarea {
+    width: 100%; padding: 11px 14px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 14px; color: var(--text);
+    outline: none; transition: border-color 0.2s;
+  }
+  input:focus, select:focus { border-color: var(--primary); }
+  .btn { padding: 11px 20px; border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s; display: inline-block; }
+  .btn-block { width: 100%; }
+  .btn-primary { background: #1e429f; color: #fff; }
+  .btn-primary:hover { background: #1a3a8f; }
+  .btn-danger { background: var(--danger); color: #fff; }
+  .btn-danger:hover { background: #b91c1c; }
+  .btn-success { background: var(--success); color: #fff; }
+  .btn-success:hover { background: #046c4e; }
+  .btn-warning { background: var(--warning); color: #fff; }
+  .btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 6px; }
+  .alert { padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 14px; display: none; }
+  .alert-error { background: #fde8e8; color: var(--danger); border: 1px solid #f8b4b4; }
+  .alert-success { background: #def7ec; color: var(--success); border: 1px solid #84e1bc; }
+
+  /* APP */
+  .app-wrapper { display: none; min-height: 100vh; }
+  .topbar { background: var(--sidebar); color: white; padding: 0 24px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+  .topbar-brand { font-size: 20px; font-weight: 800; }
+  .topbar-brand span { background: #e3a008; color: #111; border-radius: 4px; padding: 2px 8px; font-size: 11px; margin-left: 8px; vertical-align: middle; }
+  .topbar-right { display: flex; align-items: center; gap: 16px; font-size: 13px; color: rgba(255,255,255,0.7); }
+  .logout-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 6px 14px; border-radius: 6px; font-size: 13px; cursor: pointer; font-weight: 600; transition: all 0.2s; }
+  .logout-btn:hover { background: rgba(255,255,255,0.2); }
+
+  .layout { display: flex; }
+  .sidebar { width: 220px; background: var(--sidebar); min-height: calc(100vh - 60px); padding: 16px 10px; position: fixed; top: 60px; left: 0; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; color: rgba(255,255,255,0.6); transition: all 0.15s; margin-bottom: 4px; }
+  .nav-item:hover { background: rgba(255,255,255,0.08); color: white; }
+  .nav-item.active { background: #1e429f; color: white; font-weight: 700; }
+  .nav-item span { font-size: 16px; }
+
+  .main { margin-left: 220px; padding: 24px; }
+  .page { display: none; }
+  .page.active { display: block; }
+
+  .page-header { margin-bottom: 22px; }
+  .page-header h2 { font-size: 22px; font-weight: 800; }
+  .page-header p { font-size: 13px; color: var(--muted); margin-top: 3px; }
+
+  .card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); border: 1px solid var(--border); margin-bottom: 20px; }
+  .card-title { font-size: 15px; font-weight: 700; margin-bottom: 16px; }
+
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 22px; }
+  .stat-card { background: white; border-radius: 10px; padding: 18px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  .stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-bottom: 6px; }
+  .stat-value { font-size: 26px; font-weight: 800; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead tr { background: var(--bg); }
+  th { padding: 10px 12px; text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); border-bottom: 1px solid var(--border); }
+  td { padding: 12px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #fafafa; }
+
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+  .badge-active { background: #def7ec; color: #057a55; }
+  .badge-frozen { background: #fde8e8; color: #c81e1e; }
+  .badge-transfer { background: #e0e7ff; color: #3730a3; }
+  .badge-credit { background: #def7ec; color: #057a55; }
+  .badge-debit { background: #fde8e8; color: #c81e1e; }
+
+  .action-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: white; border-radius: 16px; padding: 28px; width: 100%; max-width: 420px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+  .modal h3 { font-size: 18px; font-weight: 800; margin-bottom: 18px; }
+  .modal-actions { display: flex; gap: 10px; margin-top: 16px; }
+  .modal-actions .btn { flex: 1; }
+
+  .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 4px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .empty-state { text-align: center; padding: 40px 20px; color: var(--muted); }
+  .empty-state div { font-size: 40px; margin-bottom: 10px; }
+
+  .search-bar { padding: 9px 14px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 13px; width: 260px; outline: none; }
+  .search-bar:focus { border-color: var(--primary); }
+
+  @media (max-width: 768px) { .sidebar { display: none; } .main { margin-left: 0; } }
+</style>
+</head>
+<body>
+
+<!-- ADMIN LOGIN -->
+<div class="auth-wrapper" id="authWrapper">
+  <div class="auth-box">
+    <div class="auth-logo">
+      <h1>🔐 Admin Portal</h1>
+      <p>Novara Heritage Bank Administration</p>
+    </div>
+    <div class="alert alert-error" id="loginError"></div>
+    <div class="form-group">
+      <label>Admin Email</label>
+      <input type="email" id="loginEmail" placeholder="admin@bank.com" value="admin@bank.com">
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="loginPassword" placeholder="••••••••" value="admin123">
+    </div>
+    <button class="btn btn-primary btn-block" onclick="login()" id="loginBtn">Sign In to Admin</button>
+  </div>
+</div>
+
+<!-- ADMIN APP -->
+<div class="app-wrapper" id="appWrapper">
+  <div class="topbar">
+    <div class="topbar-brand">🏦 Novara Heritage Bank <span>ADMIN</span></div>
+    <div class="topbar-right">
+      <span id="adminName">Admin</span>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <div class="sidebar">
+      <div class="nav-item active" onclick="showPage('overview')" id="nav-overview"><span>📊</span> Overview</div>
+      <div class="nav-item" onclick="showPage('users')" id="nav-users"><span>👥</span> Users</div>
+      <div class="nav-item" onclick="showPage('transactions')" id="nav-transactions"><span>💳</span> Transactions</div>
+      <div class="nav-item" onclick="showPage('activity')" id="nav-activity"><span>🕵️</span> Activity Log</div>
+    </div>
+
+    <div class="main">
+      <!-- Overview -->
+      <div class="page active" id="page-overview">
+        <div class="page-header">
+          <h2>Dashboard Overview</h2>
+          <p>Real-time banking system statistics</p>
+        </div>
+        <div class="stats-grid" id="statsGrid">
+          <div class="stat-card"><div class="stat-label">Total Users</div><div class="stat-value" id="statUsers">—</div></div>
+          <div class="stat-card"><div class="stat-label">Active</div><div class="stat-value" id="statActive">—</div></div>
+          <div class="stat-card"><div class="stat-label">Frozen</div><div class="stat-value" id="statFrozen">—</div></div>
+          <div class="stat-card"><div class="stat-label">Transactions</div><div class="stat-value" id="statTxns">—</div></div>
+          <div class="stat-card"><div class="stat-label">Total Volume</div><div class="stat-value" id="statVolume">—</div></div>
+          <div class="stat-card"><div class="stat-label">Total Deposits</div><div class="stat-value" id="statBalance">—</div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Recent Transactions</div>
+          <div id="overviewTxns"><div class="empty-state"><div>💳</div><p>Loading...</p></div></div>
+        </div>
+      </div>
+
+      <!-- Users -->
+      <div class="page" id="page-users">
+        <div class="page-header" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+          <div>
+            <h2>User Management</h2>
+            <p>View and manage all registered users</p>
+          </div>
+          <input type="text" class="search-bar" id="userSearch" placeholder="🔍 Search by name or email..." oninput="filterUsers()">
+        </div>
+        <div class="card" style="padding:0; overflow:hidden;">
+          <div id="usersTableWrap" style="overflow-x:auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>User</th>
+                  <th>Account No.</th>
+                  <th>Balance</th>
+                  <th>Status</th>
+                  <th>Joined</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="usersTable"><tr><td colspan="6" style="text-align:center; padding:30px; color:var(--muted)">Loading...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Transactions -->
+      <div class="page" id="page-transactions">
+        <div class="page-header">
+          <h2>All Transactions</h2>
+          <p>Complete transaction ledger — click the date to backdate any transaction</p>
+        </div>
+        <div class="card" style="padding:0; overflow:hidden;">
+          <div style="overflow-x:auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Type</th>
+                  <th>From</th>
+                  <th>To</th>
+                  <th>Amount</th>
+                  <th>Description</th>
+                  <th>Date</th>
+                  <th>Edit Date</th>
+                </tr>
+              </thead>
+              <tbody id="txnsTable"><tr><td colspan="8" style="text-align:center; padding:30px; color:var(--muted)">Loading...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Activity Log -->
+      <div class="page" id="page-activity">
+        <div class="page-header" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+          <div>
+            <h2>🕵️ Activity Log</h2>
+            <p>Every login, transfer, click, and admin action — in real time</p>
+          </div>
+          <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+            <input type="text" class="search-bar" id="activitySearch" placeholder="🔍 Filter by user, action..." oninput="filterActivity()" style="width:220px;">
+            <button class="btn btn-primary btn-sm" onclick="loadActivity()">↻ Refresh</button>
+          </div>
+        </div>
+        <div class="card" style="padding:0; overflow:hidden;">
+          <div style="overflow-x:auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Time</th>
+                  <th>User</th>
+                  <th>Account</th>
+                  <th>Action</th>
+                  <th>Details</th>
+                  <th>Page</th>
+                </tr>
+              </thead>
+              <tbody id="activityTable"><tr><td colspan="7" style="text-align:center; padding:30px; color:var(--muted)">Loading...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Transaction Date Modal -->
+<div class="modal-overlay" id="txnDateModal">
+  <div class="modal" style="max-width:360px;">
+    <h3>📅 Backdate Transaction</h3>
+    <div style="font-size:13px; color:var(--muted); margin-bottom:16px;" id="txnDateInfo"></div>
+    <div class="alert alert-error"   id="txnDateError"></div>
+    <div class="alert alert-success" id="txnDateSuccess"></div>
+    <div class="form-group">
+      <label>New Date &amp; Time</label>
+      <input type="datetime-local" id="txnDateInput" style="width:100%; padding:10px 12px; border:1.5px solid var(--border); border-radius:8px; font-size:14px; color:var(--text); outline:none;">
+    </div>
+    <div style="display:flex; gap:10px; margin-top:12px;">
+      <button class="btn btn-primary" style="flex:1" onclick="saveTxnDate()">Update Date</button>
+      <button class="btn" style="flex:1; background:var(--bg); color:var(--muted);" onclick="closeTxnDateModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Manage User Modal -->
+<div class="modal-overlay" id="manageModal">
+  <div class="modal">
+    <h3 id="modalTitle">Manage User</h3>
+    <div style="font-size:13px; color:var(--muted); margin-bottom:16px;" id="modalInfo"></div>
+    <div class="alert alert-error" id="modalError"></div>
+    <div class="alert alert-success" id="modalSuccess"></div>
+
+    <div id="creditSection">
+      <div class="form-group">
+        <label>Amount</label>
+        <input type="number" id="modalAmount" placeholder="Enter amount" min="0.01" step="0.01">
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <input type="text" id="modalDesc" placeholder="e.g. Initial deposit">
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-success" onclick="doCredit()" id="creditBtn">Credit Account</button>
+        <button class="btn btn-danger" onclick="doDebit()" id="debitBtn">Debit Account</button>
+      </div>
+      <div style="margin-top:12px; padding-top:12px; border-top:1px solid var(--border);">
+        <button class="btn btn-warning btn-block" id="freezeBtn" onclick="toggleFreeze()">Freeze Account</button>
+      </div>
+
+      <div style="margin-top:12px; padding-top:12px; border-top:1px solid var(--border);">
+        <label style="display:block; font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px;">Change Registration Date</label>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <input type="datetime-local" id="regDateInput" min="1900-01-01T00:00" max="2099-12-31T23:59" style="flex:1; padding:9px 12px; border:1.5px solid var(--border); border-radius:8px; font-size:13px; color:var(--text); outline:none;">
+          <button class="btn btn-primary btn-sm" onclick="changeRegDate()">Update</button>
+        </div>
+        <div style="font-size:11px; color:var(--muted); margin-top:4px;">You can type the year directly in the date field to go back years quickly.</div>
+      </div>
+    </div>
+
+    <div style="margin-top:14px;">
+      <button class="btn" onclick="closeModal()" style="width:100%; background:var(--bg); color:var(--muted);">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = '';
+let token = localStorage.getItem('admin_token');
+let allUsers = [];
+let selectedUserId = null;
+
+if (token) {
+  loadApp().catch(() => { token = null; localStorage.removeItem('admin_token'); });
+}
+
+async function login() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  showAlert('loginError', '');
+  const btn = document.getElementById('loginBtn');
+  btn.innerHTML = '<span class="spinner"></span> Signing in...';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    if (data.user.role !== 'admin') throw new Error('This portal is for admins only');
+
+    token = data.token;
+    localStorage.setItem('admin_token', token);
+    document.getElementById('adminName').textContent = data.user.name;
+    document.getElementById('authWrapper').style.display = 'none';
+    document.getElementById('appWrapper').style.display = 'block';
+    loadApp();
+  } catch (e) {
+    showAlert('loginError', e.message);
+  } finally {
+    btn.innerHTML = 'Sign In to Admin'; btn.disabled = false;
+  }
+}
+
+async function loadApp() {
+  document.getElementById('authWrapper').style.display = 'none';
+  document.getElementById('appWrapper').style.display = 'block';
+  loadStats();
+  loadUsers();
+  loadTransactions();
+  loadActivity();
+}
+
+async function loadStats() {
+  try {
+    const res = await authFetch('/api/admin/stats');
+    const s = await res.json();
+    document.getElementById('statUsers').textContent = s.total_users;
+    document.getElementById('statActive').textContent = s.active_users;
+    document.getElementById('statFrozen').textContent = s.frozen_users;
+    document.getElementById('statTxns').textContent = s.total_transactions;
+    document.getElementById('statVolume').textContent = fmt(s.total_volume);
+    document.getElementById('statBalance').textContent = fmt(s.total_balance);
+  } catch(e) { console.error(e); }
+}
+
+async function loadUsers() {
+  try {
+    const res = await authFetch('/api/admin/users');
+    allUsers = await res.json();
+    renderUsers(allUsers);
+  } catch(e) { console.error(e); }
+}
+
+function renderUsers(users) {
+  const tbody = document.getElementById('usersTable');
+  if (!users.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--muted)">No users found</td></tr>'; return; }
+  tbody.innerHTML = users.filter(u => u.role !== 'admin').map(u => `
+    <tr>
+      <td><strong>${u.name}</strong><br><span style="color:var(--muted);font-size:12px">${u.email}</span></td>
+      <td style="font-family:monospace;font-size:12px">${u.account_number}</td>
+      <td><strong>${fmt(u.balance)}</strong></td>
+      <td><span class="badge badge-${u.status}">${u.status}</span></td>
+      <td style="color:var(--muted);font-size:12px">${new Date(u.created_at).toLocaleDateString()}</td>
+      <td><button class="btn btn-primary btn-sm" onclick="openManage(${u.id})">Manage</button></td>
+    </tr>
+  `).join('');
+}
+
+function filterUsers() {
+  const q = document.getElementById('userSearch').value.toLowerCase();
+  renderUsers(allUsers.filter(u => u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)));
+}
+
+async function loadTransactions() {
+  try {
+    const res = await authFetch('/api/admin/transactions');
+    const txns = await res.json();
+    const tbody = document.getElementById('txnsTable');
+    const overviewEl = document.getElementById('overviewTxns');
+
+    if (!txns.length) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--muted)">No transactions</td></tr>';
+      overviewEl.innerHTML = '<div class="empty-state"><div>💳</div><p>No transactions yet</p></div>';
+      return;
+    }
+
+    tbody.innerHTML = txns.map(t => `
+      <tr>
+        <td style="color:var(--muted)">#${t.id}</td>
+        <td><span class="badge badge-${t.type}">${t.type}</span></td>
+        <td style="font-size:12px">${t.sender_name || t.from_account || '—'}</td>
+        <td style="font-size:12px">${t.receiver_name || t.to_account || '—'}</td>
+        <td><strong>${fmt(t.amount)}</strong></td>
+        <td style="color:var(--muted);font-size:12px">${t.description || '—'}</td>
+        <td style="color:var(--muted);font-size:12px">${new Date(t.created_at).toLocaleString()}</td>
+        <td><button class="btn btn-sm" style="background:#eff6ff;color:#1e429f;border:1px solid #bfdbfe;" onclick="openTxnDateModal(${t.id}, '${t.created_at}', '${t.description || t.type}')">📅 Edit</button></td>
+      </tr>
+    `).join('');
+
+    overviewEl.innerHTML = `<table style="width:100%">
+      <thead><tr>
+        <th>Type</th><th>From</th><th>To</th><th>Amount</th><th>Date</th>
+      </tr></thead>
+      <tbody>${txns.slice(0,8).map(t => `<tr>
+        <td><span class="badge badge-${t.type}">${t.type}</span></td>
+        <td style="font-size:12px">${t.sender_name || t.from_account || '—'}</td>
+        <td style="font-size:12px">${t.receiver_name || t.to_account || '—'}</td>
+        <td><strong>${fmt(t.amount)}</strong></td>
+        <td style="color:var(--muted);font-size:12px">${new Date(t.created_at).toLocaleDateString()}</td>
+      </tr>`).join('')}</tbody>
+    </table>`;
+  } catch(e) { console.error(e); }
+}
+
+function openManage(userId) {
+  const user = allUsers.find(u => u.id === userId);
+  if (!user) return;
+  selectedUserId = userId;
+  document.getElementById('modalTitle').textContent = user.name;
+  document.getElementById('modalInfo').innerHTML = `<strong>Account:</strong> ${user.account_number} &nbsp;|&nbsp; <strong>Balance:</strong> ${fmt(user.balance)} &nbsp;|&nbsp; <strong>Status:</strong> <span class="badge badge-${user.status}">${user.status}</span>`;
+  document.getElementById('freezeBtn').textContent = user.status === 'frozen' ? '✅ Unfreeze Account' : '🔒 Freeze Account';
+  document.getElementById('freezeBtn').className = `btn btn-block ${user.status === 'frozen' ? 'btn-success' : 'btn-warning'}`;
+  document.getElementById('modalAmount').value = '';
+  document.getElementById('modalDesc').value = '';
+  if (user.created_at) {
+    const d = new Date(user.created_at);
+    const pad = n => String(n).padStart(2,'0');
+    document.getElementById('regDateInput').value = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  } else { document.getElementById('regDateInput').value = ''; }
+  showAlert('modalError', ''); showAlert('modalSuccess', '');
+  document.getElementById('manageModal').classList.add('open');
+}
+
+function closeModal() { document.getElementById('manageModal').classList.remove('open'); }
+
+async function doCredit() {
+  const amount = document.getElementById('modalAmount').value;
+  const description = document.getElementById('modalDesc').value;
+  showAlert('modalError', ''); showAlert('modalSuccess', '');
+  try {
+    const res = await authFetch(`/api/admin/users/${selectedUserId}/credit`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount: parseFloat(amount), description })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    showAlert('modalSuccess', `✅ Credited. New balance: ${fmt(data.new_balance)}`);
+    loadUsers(); loadStats(); loadTransactions();
+    document.getElementById('modalInfo').innerHTML = document.getElementById('modalInfo').innerHTML.replace(/Balance:\s*\$[\d,.]+/, `Balance: ${fmt(data.new_balance)}`);
+  } catch(e) { showAlert('modalError', e.message); }
+}
+
+async function doDebit() {
+  const amount = document.getElementById('modalAmount').value;
+  const description = document.getElementById('modalDesc').value;
+  showAlert('modalError', ''); showAlert('modalSuccess', '');
+  try {
+    const res = await authFetch(`/api/admin/users/${selectedUserId}/debit`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount: parseFloat(amount), description })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    showAlert('modalSuccess', `✅ Debited. New balance: ${fmt(data.new_balance)}`);
+    loadUsers(); loadStats(); loadTransactions();
+  } catch(e) { showAlert('modalError', e.message); }
+}
+
+async function toggleFreeze() {
+  const user = allUsers.find(u => u.id === selectedUserId);
+  const newStatus = user.status === 'frozen' ? 'active' : 'frozen';
+  showAlert('modalError', ''); showAlert('modalSuccess', '');
+  try {
+    const res = await authFetch(`/api/admin/users/${selectedUserId}/status`, {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: newStatus })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    showAlert('modalSuccess', `✅ ${data.message}`);
+    user.status = newStatus;
+    document.getElementById('freezeBtn').textContent = newStatus === 'frozen' ? '✅ Unfreeze Account' : '🔒 Freeze Account';
+    document.getElementById('freezeBtn').className = `btn btn-block ${newStatus === 'frozen' ? 'btn-success' : 'btn-warning'}`;
+    loadUsers(); loadStats();
+  } catch(e) { showAlert('modalError', e.message); }
+}
+
+// ── TRANSACTION DATE ──
+let selectedTxnId = null;
+
+function openTxnDateModal(txnId, currentDate, label) {
+  selectedTxnId = txnId;
+  document.getElementById('txnDateInfo').textContent = `Transaction #${txnId} — ${label}`;
+  // Convert ISO to datetime-local format (YYYY-MM-DDTHH:MM)
+  const d = new Date(currentDate);
+  const pad = n => String(n).padStart(2, '0');
+  const local = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  document.getElementById('txnDateInput').value = local;
+  showAlert('txnDateError', ''); showAlert('txnDateSuccess', '');
+  document.getElementById('txnDateModal').classList.add('open');
+}
+
+function closeTxnDateModal() { document.getElementById('txnDateModal').classList.remove('open'); }
+
+async function saveTxnDate() {
+  const val = document.getElementById('txnDateInput').value;
+  if (!val) return showAlert('txnDateError', 'Please select a date');
+  showAlert('txnDateError', ''); showAlert('txnDateSuccess', '');
+  try {
+    const res = await authFetch(`/api/admin/transactions/${selectedTxnId}/date`, {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ created_at: val })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    showAlert('txnDateSuccess', '✅ Transaction date updated successfully');
+    loadTransactions();
+    setTimeout(closeTxnDateModal, 1200);
+  } catch(e) { showAlert('txnDateError', e.message); }
+}
+
+// ── ACTIVITY LOG ──
+let allActivity = [];
+
+async function loadActivity() {
+  try {
+    const res = await authFetch('/api/admin/activity');
+    allActivity = await res.json();
+    renderActivity(allActivity);
+  } catch(e) { console.error(e); }
+}
+
+function filterActivity() {
+  const q = document.getElementById('activitySearch').value.toLowerCase();
+  renderActivity(allActivity.filter(a =>
+    (a.user_name||'').toLowerCase().includes(q) ||
+    (a.user_email||'').toLowerCase().includes(q) ||
+    (a.action||'').toLowerCase().includes(q) ||
+    (a.details||'').toLowerCase().includes(q)
+  ));
+}
+
+const actionBadge = {
+  login:               'background:#def7ec;color:#057a55',
+  login_failed:        'background:#fde8e8;color:#c81e1e',
+  logout:              'background:#f3f4f6;color:#6b7280',
+  register:            'background:#e0e7ff;color:#3730a3',
+  transfer:            'background:#ede9fe;color:#5b21b6',
+  transfer_failed:     'background:#fde8e8;color:#c81e1e',
+  admin_credit:        'background:#def7ec;color:#057a55',
+  admin_debit:         'background:#fde8e8;color:#c81e1e',
+  freeze_account:      'background:#fff3cd;color:#92400e',
+  unfreeze_account:    'background:#def7ec;color:#057a55',
+  backdate_transaction:'background:#fef3c7;color:#92400e',
+  change_reg_date:     'background:#fef3c7;color:#92400e',
+  page_view:           'background:#f3f4f6;color:#6b7280',
+  balance_toggle:      'background:#f3f4f6;color:#6b7280',
+};
+
+function renderActivity(logs) {
+  const tbody = document.getElementById('activityTable');
+  if (!logs.length) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--muted)">No activity recorded yet</td></tr>'; return; }
+  tbody.innerHTML = logs.map(a => {
+    const style = actionBadge[a.action] || 'background:#f3f4f6;color:#374151';
+    return `<tr>
+      <td style="color:var(--muted);font-size:12px">#${a.id}</td>
+      <td style="font-size:12px;white-space:nowrap">${new Date(a.created_at).toLocaleString()}</td>
+      <td><strong style="font-size:13px">${a.user_name||'—'}</strong><br><span style="color:var(--muted);font-size:11px">${a.user_email||''}</span></td>
+      <td style="font-family:monospace;font-size:11px;color:var(--muted)">${a.account_no||'—'}</td>
+      <td><span class="badge" style="${style};border-radius:6px;padding:4px 10px;font-size:11px;">${a.action}</span></td>
+      <td style="font-size:12px;max-width:280px;color:var(--muted)">${a.details||'—'}</td>
+      <td style="font-size:11px;color:var(--muted)">${a.page||'—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+async function changeRegDate() {
+  const dateVal = document.getElementById('regDateInput').value;
+  if (!dateVal) return showAlert('modalError', 'Please select a date');
+  showAlert('modalError', ''); showAlert('modalSuccess', '');
+  try {
+    const res = await authFetch(`/api/admin/users/${selectedUserId}/regdate`, {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ created_at: dateVal })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    showAlert('modalSuccess', '✅ Registration date updated successfully');
+    loadUsers();
+  } catch(e) { showAlert('modalError', e.message); }
+}
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  document.getElementById('nav-' + id).classList.add('active');
+  if (id === 'activity') loadActivity();
+  if (id === 'transactions') loadTransactions();
+}
+
+function logout() { localStorage.removeItem('admin_token'); token = null; location.reload(); }
+
+function fmt(n) { return '$' + parseFloat(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+
+function showAlert(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg; el.style.display = msg ? 'block' : 'none';
+}
+
+async function authFetch(url, opts = {}) {
+  return fetch(API + url, { ...opts, headers: { ...(opts.headers || {}), 'Authorization': 'Bearer ' + token } });
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('authWrapper').style.display !== 'none') login();
+  if (e.key === 'Escape') { closeModal(); closeTxnDateModal(); }
+});
+
+document.getElementById('manageModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('manageModal')) closeModal();
+});
+document.getElementById('txnDateModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('txnDateModal')) closeTxnDateModal();
+});
+</script>
+</body>
+</html>
