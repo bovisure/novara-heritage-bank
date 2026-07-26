@@ -29,7 +29,7 @@ const emailHTML = (otp, purpose) => `
     <p style="color:#475569;font-size:12px;margin:0 0 4px;">
       &#128222;&nbsp;<a href="https://wa.me/12159194436" style="color:#475569;text-decoration:none;">+1 (215) 919-4436</a>
       &nbsp;&nbsp;|&nbsp;&nbsp;
-      <a href="mailto:novaraheritagebank.oi@gmail.com" style="color:#475569;text-decoration:none;">novaraheritagebank.oi@gmail.com</a>
+      <a href="mailto:novaraheritagebank.io@gmail.com" style="color:#475569;text-decoration:none;">novaraheritagebank.io@gmail.com</a>
     </p>
     <p style="color:#334155;font-size:11px;margin:4px 0 0;">&copy; ${new Date().getFullYear()} Novara Heritage Bank. All rights reserved.</p>
   </td></tr>
