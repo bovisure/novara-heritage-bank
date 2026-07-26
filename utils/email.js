@@ -1,18 +1,3 @@
-const nodemailer = require('nodemailer');
-
-const transporter = nodemailer.createTransport({
-  host: 'smtp-relay.brevo.com',
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  },
-  connectionTimeout: 15000,
-  greetingTimeout: 10000,
-  socketTimeout: 15000
-});
-
 const emailHTML = (otp, purpose) => `
 <!DOCTYPE html>
 <html>
@@ -60,13 +45,26 @@ async function sendOTP(toEmail, otp, purpose) {
     ? '✅ Your Novara Heritage Bank Verification Code'
     : '🔐 Your Novara Heritage Bank Login Code';
 
-  await transporter.sendMail({
-    from: '"Novara Heritage Bank" <novaraheritagebank.oi@gmail.com>',
-    to: toEmail,
-    subject,
-    html: emailHTML(otp, purpose),
-    text: `Your Novara Heritage Bank verification code is: ${otp}\n\nThis code expires in 10 minutes.\n\nIf you did not request this, please ignore this email.`
+  const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+    method: 'POST',
+    headers: {
+      'accept': 'application/json',
+      'api-key': process.env.BREVO_API_KEY,
+      'content-type': 'application/json'
+    },
+    body: JSON.stringify({
+      sender: { name: 'Novara Heritage Bank', email: 'novaraheritagebank.oi@gmail.com' },
+      to: [{ email: toEmail }],
+      subject,
+      htmlContent: emailHTML(otp, purpose),
+      textContent: `Your Novara Heritage Bank verification code is: ${otp}\n\nThis code expires in 10 minutes.\n\nIf you did not request this, please ignore this email.`
+    })
   });
+
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`Brevo API error ${res.status}: ${err}`);
+  }
 }
 
 module.exports = { sendOTP };
