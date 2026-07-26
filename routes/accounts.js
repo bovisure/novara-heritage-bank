@@ -241,6 +241,59 @@ router.get('/bank-lookup', authenticate, async (req, res) => {
   }
 });
 
+// ── POST /api/accounts/external-transfer ─────────────────────────────────────
+// Deduct balance and record an outgoing external transfer (ACH, SEPA, Faster Payments)
+router.post('/external-transfer', authenticate, (req, res) => {
+  const { amount, pin, description, dest_type, recipient_name, bank_name,
+          routing, account_number, iban, sort_code, bic, account_type } = req.body;
+
+  if (!amount || !pin) return res.status(400).json({ error: 'Amount and PIN are required' });
+  const parsed = parseFloat(amount);
+  if (isNaN(parsed) || parsed <= 0) return res.status(400).json({ error: 'Invalid amount' });
+
+  const sender = db.users.findOne(u => u.id === req.user.id);
+  if (!sender) return res.status(404).json({ error: 'Account not found' });
+  if (sender.status === 'frozen') return res.status(403).json({ error: 'Your account is frozen. Contact support.' });
+  if (!sender.transaction_pin_hash)
+    return res.status(400).json({ error: 'Please set a Transfer PIN in your profile before sending money.' });
+  if (!bcrypt.compareSync(String(pin), sender.transaction_pin_hash))
+    return res.status(401).json({ error: 'Incorrect Transfer PIN. Please try again.' });
+
+  const activeAcct = sender.account_type || 'checking';
+  const balField   = activeAcct === 'savings' ? 'savings_balance' : 'balance';
+  const currentBal = parseFloat(sender[balField] || 0);
+  if (currentBal < parsed)
+    return res.status(400).json({ error: `Insufficient ${activeAcct} balance. Available: $${currentBal.toFixed(2)}` });
+
+  db.users.update(sender.id, { [balField]: Math.round((currentBal - parsed) * 100) / 100 });
+
+  const txn = db.transactions.insert({
+    from_account: sender.account_number,
+    to_account:   account_number || iban || sort_code || 'EXTERNAL',
+    amount: parsed, type: 'external_transfer',
+    description: description || `Transfer to ${recipient_name || 'external account'}`,
+    dest_type, recipient_name, bank_name, routing, iban, sort_code, bic, account_type,
+    from_account_type: activeAcct
+  });
+
+  const updated = db.users.findOne(u => u.id === sender.id);
+
+  db.activity.insert({
+    user_id: sender.id, user_name: sender.name, user_email: sender.email,
+    account_no: sender.account_number, action: 'external_transfer',
+    details: `Sent ${parsed} to ${recipient_name || 'external'} via ${(dest_type||'').toUpperCase()} (${bank_name || ''})`,
+    page: 'transfer'
+  });
+
+  res.json({
+    message: 'Transfer initiated successfully',
+    transaction_id: txn.id,
+    new_balance: updated.balance,
+    new_checking_balance: updated.balance,
+    new_savings_balance: updated.savings_balance || 0
+  });
+});
+
 // ── POST /api/accounts/activity ───────────────────────────────────────────────
 // Log user activity from the frontend
 router.post('/activity', authenticate, (req, res) => {
