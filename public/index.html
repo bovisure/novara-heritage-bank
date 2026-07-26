@@ -208,6 +208,39 @@
   .pin-modal-inner { background:var(--card-bg); border-radius:28px 28px 0 0; padding:28px 22px 40px; width:100%; max-width:480px; border-top:1px solid var(--border); }
   .pin-modal-title { font-size:18px; font-weight:800; text-align:center; margin-bottom:6px; }
   .pin-modal-sub   { font-size:13px; color:var(--muted); text-align:center; margin-bottom:20px; line-height:1.4; }
+
+  /* ── TRANSFER PAGE — destination tabs ── */
+  .dest-tabs-wrap { padding:0 16px 4px; overflow:hidden; }
+  .dest-tabs { display:flex; gap:10px; overflow-x:auto; padding-bottom:8px; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+  .dest-tabs::-webkit-scrollbar { display:none; }
+  .dest-tab { flex-shrink:0; display:flex; flex-direction:column; align-items:center; gap:5px; padding:10px 14px; background:var(--card2); border-radius:16px; cursor:pointer; border:2px solid transparent; transition:all 0.2s; min-width:72px; }
+  .dest-tab.active { background:rgba(37,99,235,0.15); border-color:var(--accent); }
+  .dest-tab-flag { font-size:26px; line-height:1; }
+  .dest-tab-name { font-size:10px; font-weight:700; color:var(--muted); text-align:center; white-space:nowrap; }
+  .dest-tab.active .dest-tab-name { color:var(--accent); }
+  /* dest form header */
+  .dest-form-header { display:flex; align-items:center; gap:14px; margin-bottom:20px; padding:14px; background:var(--card2); border-radius:14px; }
+  .dest-form-icon { font-size:30px; }
+  .dest-form-title { font-size:14px; font-weight:700; }
+  .dest-form-sub { font-size:11px; color:var(--muted); margin-top:3px; }
+  /* amount input with currency prefix */
+  .amount-input-wrap { display:flex; align-items:center; background:var(--card2); border:1.5px solid var(--border); border-radius:12px; overflow:hidden; transition:border-color 0.2s; }
+  .amount-input-wrap:focus-within { border-color:var(--accent); }
+  .amount-currency { padding:13px 0 13px 14px; font-size:15px; font-weight:700; color:var(--muted); flex-shrink:0; }
+  .amount-input { border:none !important; background:transparent !important; padding-left:6px !important; }
+  /* account type toggle */
+  .acct-type-toggle { display:flex; gap:8px; }
+  .acct-type-btn { flex:1; padding:10px; text-align:center; font-size:12px; font-weight:700; background:var(--card2); border-radius:12px; cursor:pointer; border:2px solid transparent; transition:all 0.2s; color:var(--muted); }
+  .acct-type-btn.active { background:rgba(37,99,235,0.15); border-color:var(--accent); color:var(--accent); }
+  /* lookup spinner */
+  .lookup-input-wrap { position:relative; }
+  .lookup-spinner { position:absolute; right:12px; top:50%; transform:translateY(-50%); font-size:14px; }
+  /* review modal */
+  .review-row { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--border); }
+  .review-row:last-child { border-bottom:none; }
+  .review-lbl { font-size:12px; color:var(--muted); font-weight:600; flex-shrink:0; }
+  .review-val { font-size:13px; font-weight:600; text-align:right; max-width:62%; word-break:break-all; }
+  .review-mono { font-family:monospace; font-size:12px; }
 </style>
 </head>
 <body>
@@ -395,6 +428,46 @@
   </div>
 </div>
 
+<!-- ══ TRANSFER REVIEW MODAL ══ -->
+<div id="transferReviewModal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.78);z-index:600;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(6px);">
+  <div style="background:var(--card-bg);border-radius:28px 28px 0 0;width:100%;max-width:480px;padding:20px 20px 40px;max-height:92vh;overflow-y:auto;border-top:1px solid var(--border);">
+    <div style="width:40px;height:4px;background:var(--border);border-radius:4px;margin:0 auto 18px;"></div>
+    <div style="text-align:center;margin-bottom:18px;">
+      <div style="font-size:46px;" id="review-dest-flag">🇺🇸</div>
+      <div style="font-size:17px;font-weight:800;margin-top:8px;" id="review-dest-label">United States — ACH</div>
+    </div>
+    <!-- Summary card -->
+    <div style="background:var(--card2);border-radius:16px;padding:16px;margin-bottom:18px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border);">
+        <div style="font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">You Send</div>
+        <div style="font-size:24px;font-weight:800;color:var(--text);" id="review-amount">$0.00</div>
+      </div>
+      <div class="review-row"><span class="review-lbl">Recipient</span><span class="review-val" id="review-name">—</span></div>
+      <div class="review-row" id="review-bank-row"><span class="review-lbl">Bank</span><span class="review-val" id="review-bank">—</span></div>
+      <div class="review-row" id="review-routing-row"><span class="review-lbl">Routing #</span><span class="review-val review-mono" id="review-routing">—</span></div>
+      <div class="review-row" id="review-account-row"><span class="review-lbl" id="review-acct-lbl">Account</span><span class="review-val review-mono" id="review-account">—</span></div>
+      <div class="review-row" id="review-sortcode-row"><span class="review-lbl">Sort Code</span><span class="review-val review-mono" id="review-sortcode">—</span></div>
+      <div class="review-row" id="review-iban-row"><span class="review-lbl">IBAN</span><span class="review-val review-mono" id="review-iban">—</span></div>
+      <div class="review-row" id="review-bic-row"><span class="review-lbl">BIC</span><span class="review-val review-mono" id="review-bic">—</span></div>
+      <div class="review-row" id="review-type-row"><span class="review-lbl">Account Type</span><span class="review-val" id="review-type">—</span></div>
+      <div class="review-row" id="review-desc-row"><span class="review-lbl">Note</span><span class="review-val" id="review-desc">—</span></div>
+    </div>
+    <!-- PIN entry -->
+    <div style="text-align:center;margin-bottom:16px;">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:12px;">Enter your <strong style="color:var(--text);">4-digit Transfer PIN</strong> to confirm</div>
+      <div class="alert alert-error" id="reviewPinError"></div>
+      <div class="pin-row" id="review-pin-row">
+        <input class="pin-box" type="password" maxlength="1" inputmode="numeric" pattern="[0-9]">
+        <input class="pin-box" type="password" maxlength="1" inputmode="numeric" pattern="[0-9]">
+        <input class="pin-box" type="password" maxlength="1" inputmode="numeric" pattern="[0-9]">
+        <input class="pin-box" type="password" maxlength="1" inputmode="numeric" pattern="[0-9]">
+      </div>
+    </div>
+    <button class="btn-main" id="reviewConfirmBtn" onclick="confirmTransfer()">Confirm Transfer 🔐</button>
+    <button class="btn-outline" onclick="closeReviewModal()" style="margin-top:10px;width:100%;padding:14px;border-radius:12px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font-size:14px;font-weight:600;cursor:pointer;">← Edit Details</button>
+  </div>
+</div>
+
 <!-- ══ SECURITY MODAL (Change PIN) ══ -->
 <div id="securityModal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:500;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px);">
   <div style="background:var(--card-bg);border-radius:28px 28px 0 0;padding:28px 22px 44px;width:100%;max-width:480px;border-top:1px solid var(--border);">
@@ -565,64 +638,221 @@
   <!-- TRANSFER PAGE -->
   <div class="page" id="page-transfer">
     <div class="page-title" id="page-title-transfer">Send Money</div>
-    <div class="transfer-card">
-      <div class="balance-pill">💰 <span id="transferAcctLabel">Checking</span> Balance: <span id="transferBalanceShow">$0.00</span></div>
-      <div class="alert alert-error"   id="transferError"></div>
-      <div class="alert alert-success" id="transferSuccess"></div>
-      <!-- Recipient Account / IBAN -->
-      <div class="form-group">
-        <label class="form-label" id="lbl-to-account">Recipient Account / IBAN</label>
-        <input type="text" class="form-input" id="toAccount" placeholder="ACC... or GB29NWBK60161331926819" oninput="lookupAccount(this.value)" style="font-family:monospace; font-size:13px;">
-      </div>
-      <!-- US Routing Number (editable — triggers real bank lookup) -->
-      <div class="form-group">
-        <label class="form-label">Routing Number <span style="color:var(--muted);font-weight:400;font-size:10px;">(US — type to look up bank)</span></label>
-        <input type="text" class="form-input" id="transferRouting" placeholder="e.g. 021000021" maxlength="9" inputmode="numeric" oninput="lookupRouting(this.value)" style="font-family:monospace; font-size:13px;">
-      </div>
-      <!-- Internal Novara account found -->
-      <div id="holderInfoBanner" style="display:none; padding:10px 14px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); border-radius:12px; margin-bottom:12px; font-size:13px; color:#6ee7b7; align-items:center; gap:8px;">
-        <span style="font-size:16px;">✅</span>
-        <div><strong id="holderName"></strong> &nbsp;·&nbsp; <span id="holderAcctType" style="text-transform:capitalize;"></span> Account</div>
-      </div>
-      <!-- External bank found banner -->
-      <div id="bankInfoBanner" style="display:none; padding:10px 14px; background:rgba(37,99,235,0.12); border:1px solid rgba(37,99,235,0.3); border-radius:12px; margin-bottom:12px; font-size:13px; color:#93c5fd; align-items:center; gap:8px;">
-        <span style="font-size:16px;">🏦</span>
-        <div>
-          <strong id="bankInfoName"></strong>
-          <div id="bankInfoAddr" style="font-size:11px; color:var(--muted); margin-top:2px;"></div>
+
+    <!-- Balance pill -->
+    <div style="padding:0 16px 10px;">
+      <div class="balance-pill">💰 <span id="transferAcctLabel">Checking</span>: <span id="transferBalanceShow">$0.00</span></div>
+    </div>
+
+    <!-- Destination country tabs -->
+    <div class="dest-tabs-wrap">
+      <div class="dest-tabs" id="destTabs">
+        <div class="dest-tab active" data-dest="novara" onclick="selectDest('novara')">
+          <div class="dest-tab-flag">🏦</div>
+          <div class="dest-tab-name">Novara</div>
+        </div>
+        <div class="dest-tab" data-dest="us" onclick="selectDest('us')">
+          <div class="dest-tab-flag">🇺🇸</div>
+          <div class="dest-tab-name">United States</div>
+        </div>
+        <div class="dest-tab" data-dest="uk" onclick="selectDest('uk')">
+          <div class="dest-tab-flag">🇬🇧</div>
+          <div class="dest-tab-name">United Kingdom</div>
+        </div>
+        <div class="dest-tab" data-dest="de" onclick="selectDest('de')">
+          <div class="dest-tab-flag">🇩🇪</div>
+          <div class="dest-tab-name">Germany</div>
+        </div>
+        <div class="dest-tab" data-dest="fr" onclick="selectDest('fr')">
+          <div class="dest-tab-flag">🇫🇷</div>
+          <div class="dest-tab-name">France</div>
+        </div>
+        <div class="dest-tab" data-dest="es" onclick="selectDest('es')">
+          <div class="dest-tab-flag">🇪🇸</div>
+          <div class="dest-tab-name">Spain</div>
+        </div>
+        <div class="dest-tab" data-dest="it" onclick="selectDest('it')">
+          <div class="dest-tab-flag">🇮🇹</div>
+          <div class="dest-tab-name">Italy</div>
+        </div>
+        <div class="dest-tab" data-dest="nl" onclick="selectDest('nl')">
+          <div class="dest-tab-flag">🇳🇱</div>
+          <div class="dest-tab-name">Netherlands</div>
+        </div>
+        <div class="dest-tab" data-dest="be" onclick="selectDest('be')">
+          <div class="dest-tab-flag">🇧🇪</div>
+          <div class="dest-tab-name">Belgium</div>
+        </div>
+        <div class="dest-tab" data-dest="ch" onclick="selectDest('ch')">
+          <div class="dest-tab-flag">🇨🇭</div>
+          <div class="dest-tab-name">Switzerland</div>
         </div>
       </div>
-      <!-- Recipient Name (editable — auto-filled for Novara, manual for external) -->
-      <div class="form-group">
-        <label class="form-label">Recipient Name</label>
-        <input type="text" class="form-input" id="recipientName" placeholder="Enter recipient's full name">
-      </div>
-      <div class="form-row cols-2">
+    </div>
+
+    <!-- Transfer form card -->
+    <div class="transfer-card" style="margin-top:0;">
+      <div class="alert alert-error"   id="transferError"></div>
+      <div class="alert alert-success" id="transferSuccess"></div>
+
+      <!-- NOVARA form -->
+      <div id="form-novara" class="dest-form">
+        <div class="dest-form-header">
+          <div class="dest-form-icon">🏦</div>
+          <div>
+            <div class="dest-form-title">Novara Internal Transfer</div>
+            <div class="dest-form-sub">Instant · No fees · 24/7</div>
+          </div>
+        </div>
         <div class="form-group">
-          <label class="form-label">SWIFT / BIC</label>
-          <input type="text" class="form-input" id="transferSwiftField" placeholder="Auto-filled" readonly style="opacity:0.6; cursor:default; font-size:12px; font-family:monospace;">
+          <label class="form-label">Recipient Account Number</label>
+          <input type="text" class="form-input" id="n-account" placeholder="e.g. ACC1700000000001" oninput="lookupNovara(this.value)" style="font-family:monospace;font-size:13px;" autocomplete="off">
+        </div>
+        <div id="n-holder-banner" style="display:none;padding:10px 14px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);border-radius:12px;margin-bottom:12px;font-size:13px;color:#6ee7b7;align-items:center;gap:8px;">
+          <span style="font-size:16px;">✅</span>
+          <div><strong id="n-holder-name"></strong> &nbsp;·&nbsp; <span id="n-holder-type" style="text-transform:capitalize;"></span></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Amount</label>
+          <div class="amount-input-wrap">
+            <span class="amount-currency" id="n-currency-sym">$</span>
+            <input type="number" class="form-input amount-input" id="n-amount" placeholder="0.00" min="0.01" step="0.01">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Description <span style="color:var(--muted);font-weight:400;">(optional)</span></label>
+          <input type="text" class="form-input" id="n-desc" placeholder="e.g. Rent payment">
+        </div>
+      </div>
+
+      <!-- US form -->
+      <div id="form-us" class="dest-form" style="display:none;">
+        <div class="dest-form-header">
+          <div class="dest-form-icon">🇺🇸</div>
+          <div>
+            <div class="dest-form-title">United States — ACH / Wire</div>
+            <div class="dest-form-sub">1–3 business days · Fees may apply</div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">ABA Routing Number</label>
+          <div class="lookup-input-wrap">
+            <input type="text" class="form-input" id="us-routing" placeholder="9-digit routing number" maxlength="9" inputmode="numeric" oninput="lookupUSRouting(this.value)" style="font-family:monospace;font-size:13px;" autocomplete="off">
+            <div class="lookup-spinner" id="us-routing-spin" style="display:none;">⏳</div>
+          </div>
+          <div id="us-bank-banner" style="display:none;padding:8px 12px;background:rgba(37,99,235,0.12);border:1px solid rgba(37,99,235,0.25);border-radius:10px;margin-top:8px;font-size:12px;color:#93c5fd;">
+            <strong id="us-bank-name"></strong> &nbsp;<span id="us-bank-addr" style="color:var(--muted);"></span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Account Number</label>
+          <input type="text" class="form-input" id="us-account" placeholder="e.g. 000123456789" inputmode="numeric" style="font-family:monospace;font-size:13px;" autocomplete="off">
         </div>
         <div class="form-group">
           <label class="form-label">Account Type</label>
-          <select class="form-input" id="transferAcctTypeField" style="background:var(--card2); color:var(--text);">
-            <option value="checking">🏦 Checking</option>
-            <option value="savings">💰 Savings</option>
-          </select>
+          <div class="acct-type-toggle">
+            <div class="acct-type-btn active" id="us-type-checking" onclick="setUSType('checking')">🏦 Checking</div>
+            <div class="acct-type-btn" id="us-type-savings" onclick="setUSType('savings')">💰 Savings</div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Recipient Full Name</label>
+          <input type="text" class="form-input" id="us-name" placeholder="As it appears on their account">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Amount (USD)</label>
+          <div class="amount-input-wrap">
+            <span class="amount-currency">$</span>
+            <input type="number" class="form-input amount-input" id="us-amount" placeholder="0.00" min="0.01" step="0.01">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Description <span style="color:var(--muted);font-weight:400;">(optional)</span></label>
+          <input type="text" class="form-input" id="us-desc" placeholder="e.g. Invoice payment">
         </div>
       </div>
-      <div class="form-group">
-        <label class="form-label" id="lbl-amount">Amount (USD)</label>
-        <input type="number" class="form-input" id="transferAmount" placeholder="0.00" min="0.01" step="0.01">
+
+      <!-- UK form -->
+      <div id="form-uk" class="dest-form" style="display:none;">
+        <div class="dest-form-header">
+          <div class="dest-form-icon">🇬🇧</div>
+          <div>
+            <div class="dest-form-title">United Kingdom — Faster Payments</div>
+            <div class="dest-form-sub">Same day · Fees may apply</div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Sort Code</label>
+          <input type="text" class="form-input" id="uk-sortcode" placeholder="XX-XX-XX" maxlength="8" oninput="formatSortCode(this)" style="font-family:monospace;font-size:15px;letter-spacing:2px;" autocomplete="off">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Account Number</label>
+          <input type="text" class="form-input" id="uk-account" placeholder="8-digit account number" maxlength="8" inputmode="numeric" style="font-family:monospace;font-size:13px;" autocomplete="off">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Recipient Full Name</label>
+          <input type="text" class="form-input" id="uk-name" placeholder="As it appears on their account">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Amount (GBP)</label>
+          <div class="amount-input-wrap">
+            <span class="amount-currency">£</span>
+            <input type="number" class="form-input amount-input" id="uk-amount" placeholder="0.00" min="0.01" step="0.01">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Description <span style="color:var(--muted);font-weight:400;">(optional)</span></label>
+          <input type="text" class="form-input" id="uk-desc" placeholder="e.g. Rent payment">
+        </div>
       </div>
-      <div class="form-group">
-        <label class="form-label" id="lbl-description">Description (optional)</label>
-        <input type="text" class="form-input" id="transferDesc" placeholder="e.g. Rent payment">
+
+      <!-- SEPA form (DE, FR, ES, IT, NL, BE, CH) -->
+      <div id="form-sepa" class="dest-form" style="display:none;">
+        <div class="dest-form-header">
+          <div class="dest-form-icon" id="sepa-flag">🇩🇪</div>
+          <div>
+            <div class="dest-form-title" id="sepa-title">Germany — SEPA Transfer</div>
+            <div class="dest-form-sub" id="sepa-sub">1–2 business days · SEPA Zone</div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">IBAN</label>
+          <div class="lookup-input-wrap">
+            <input type="text" class="form-input" id="sepa-iban" placeholder="e.g. DE89370400440532013000" oninput="lookupSepaIBAN(this.value)" style="font-family:monospace;font-size:12px;" autocomplete="off">
+            <div class="lookup-spinner" id="sepa-iban-spin" style="display:none;">⏳</div>
+          </div>
+          <div id="sepa-bank-banner" style="display:none;padding:8px 12px;background:rgba(37,99,235,0.12);border:1px solid rgba(37,99,235,0.25);border-radius:10px;margin-top:8px;font-size:12px;color:#93c5fd;">
+            <strong id="sepa-bank-name"></strong>
+          </div>
+          <div id="sepa-iban-error" style="display:none;font-size:11px;color:var(--danger);margin-top:4px;"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">BIC / SWIFT Code</label>
+          <input type="text" class="form-input" id="sepa-bic" placeholder="Auto-filled from IBAN" style="font-family:monospace;font-size:13px;opacity:0.65;" readonly>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Recipient Full Name</label>
+          <input type="text" class="form-input" id="sepa-name" placeholder="As it appears on their account">
+        </div>
+        <div class="form-group">
+          <label class="form-label" id="sepa-amount-label">Amount (EUR)</label>
+          <div class="amount-input-wrap">
+            <span class="amount-currency" id="sepa-currency-sym">€</span>
+            <input type="number" class="form-input amount-input" id="sepa-amount" placeholder="0.00" min="0.01" step="0.01">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Description <span style="color:var(--muted);font-weight:400;">(optional)</span></label>
+          <input type="text" class="form-input" id="sepa-desc" placeholder="e.g. Invoice #1042">
+        </div>
       </div>
-      <button class="btn-main" id="transferBtn" onclick="doTransfer()">Send Money ✈️</button>
+
+      <button class="btn-main" id="transferContinueBtn" onclick="proceedToReview()">Continue →</button>
     </div>
+
     <div class="contact-banner" style="margin-top:4px;">
       <div style="font-size:20px;">⚠️</div>
-      <div style="font-size:11px; line-height:1.5; color:var(--muted)">Transfers cannot be reversed. Always verify the account number before sending. Your Transfer PIN will be required.</div>
+      <div style="font-size:11px; line-height:1.5; color:var(--muted)">Transfers cannot be reversed. Always verify recipient details before confirming. Your Transfer PIN is required to authorize.</div>
     </div>
   </div>
 
@@ -822,6 +1052,7 @@ wireBoxes('reg-otp-row');
 wireBoxes('reg-pin-row');
 wireBoxes('reg-pin-confirm-row');
 wireBoxes('transfer-pin-row');
+wireBoxes('review-pin-row');
 wireBoxes('sec-otp-row');
 wireBoxes('sec-new-pin-row');
 wireBoxes('sec-confirm-pin-row');
@@ -1108,29 +1339,300 @@ async function switchAccount(type) {
 }
 
 // ──────────────────────────────────────────────────────
-// TRANSFER + PIN MODAL
+// TRANSFER PAGE — COUNTRY TABS + REVIEW FLOW
 // ──────────────────────────────────────────────────────
-function doTransfer() {
-  const to_account  = document.getElementById('toAccount').value.trim();
-  const amount      = document.getElementById('transferAmount').value;
-  const description = document.getElementById('transferDesc').value.trim();
-  showAlert('transferError',''); showAlert('transferSuccess','');
-  if (!to_account || !amount) { showAlert('transferError','Please enter recipient account and amount.'); return; }
-  const parsed = parseFloat(amount);
-  if (isNaN(parsed) || parsed <= 0) { showAlert('transferError','Please enter a valid amount.'); return; }
-  const activeAcct = currentUser?.account_type || 'checking';
-  const avail = activeAcct === 'savings' ? realSavings : realBalance;
-  if (parsed > avail) { showAlert('transferError', `Insufficient ${activeAcct} balance. Available: ${fmt(avail)}`); return; }
+let currentDest = 'novara';
+let usAccountType = 'checking';
+let sepaCountry = null;
+const SEPA_META = {
+  de: { flag:'🇩🇪', name:'Germany',     title:'Germany — SEPA Transfer',     currency:'EUR', sym:'€',    ibanPrefix:'DE', ibanLen:22 },
+  fr: { flag:'🇫🇷', name:'France',      title:'France — SEPA Transfer',      currency:'EUR', sym:'€',    ibanPrefix:'FR', ibanLen:27 },
+  es: { flag:'🇪🇸', name:'Spain',       title:'Spain — SEPA Transfer',       currency:'EUR', sym:'€',    ibanPrefix:'ES', ibanLen:24 },
+  it: { flag:'🇮🇹', name:'Italy',       title:'Italy — SEPA Transfer',       currency:'EUR', sym:'€',    ibanPrefix:'IT', ibanLen:27 },
+  nl: { flag:'🇳🇱', name:'Netherlands', title:'Netherlands — SEPA Transfer', currency:'EUR', sym:'€',    ibanPrefix:'NL', ibanLen:18 },
+  be: { flag:'🇧🇪', name:'Belgium',     title:'Belgium — SEPA Transfer',     currency:'EUR', sym:'€',    ibanPrefix:'BE', ibanLen:16 },
+  ch: { flag:'🇨🇭', name:'Switzerland', title:'Switzerland — SEPA Transfer', currency:'CHF', sym:'CHF ', ibanPrefix:'CH', ibanLen:21 },
+};
 
-  // Store pending transfer and show PIN modal
-  pendingTransfer = { to_account, amount: parsed, description };
-  document.getElementById('pinModalAmount').textContent = `Sending ${fmt(parsed)} from your ${activeAcct} account to ${to_account}`;
-  showAlert('pinModalError','');
-  clearBoxes('transfer-pin-row');
-  document.getElementById('pinModal').classList.add('show');
-  setTimeout(() => document.querySelector('#transfer-pin-row .pin-box').focus(), 150);
+function selectDest(dest) {
+  currentDest = dest;
+  document.querySelectorAll('.dest-tab').forEach(t => t.classList.remove('active'));
+  document.querySelector(`.dest-tab[data-dest="${dest}"]`).classList.add('active');
+  showAlert('transferError',''); showAlert('transferSuccess','');
+  document.querySelectorAll('.dest-form').forEach(f => f.style.display = 'none');
+
+  if (dest === 'novara') {
+    document.getElementById('form-novara').style.display = 'block';
+  } else if (dest === 'us') {
+    document.getElementById('form-us').style.display = 'block';
+  } else if (dest === 'uk') {
+    document.getElementById('form-uk').style.display = 'block';
+  } else if (SEPA_META[dest]) {
+    sepaCountry = dest;
+    const m = SEPA_META[dest];
+    document.getElementById('sepa-flag').textContent = m.flag;
+    document.getElementById('sepa-title').textContent = m.title;
+    document.getElementById('sepa-currency-sym').textContent = m.sym;
+    document.getElementById('sepa-amount-label').textContent = `Amount (${m.currency})`;
+    document.getElementById('sepa-iban').placeholder = `e.g. ${m.ibanPrefix}...`;
+    document.getElementById('sepa-iban').value = '';
+    document.getElementById('sepa-bic').value = '';
+    document.getElementById('sepa-bank-banner').style.display = 'none';
+    document.getElementById('sepa-iban-error').style.display = 'none';
+    document.getElementById('form-sepa').style.display = 'block';
+  }
 }
 
+function setUSType(type) {
+  usAccountType = type;
+  document.getElementById('us-type-checking').classList.toggle('active', type === 'checking');
+  document.getElementById('us-type-savings').classList.toggle('active', type === 'savings');
+}
+
+function formatSortCode(input) {
+  let v = input.value.replace(/\D/g,'').slice(0,6);
+  if (v.length > 4) v = v.slice(0,2)+'-'+v.slice(2,4)+'-'+v.slice(4);
+  else if (v.length > 2) v = v.slice(0,2)+'-'+v.slice(2);
+  input.value = v;
+}
+
+// Novara internal lookup
+let novaraLookupTimer = null;
+function lookupNovara(val) {
+  clearTimeout(novaraLookupTimer);
+  document.getElementById('n-holder-banner').style.display = 'none';
+  if (!val || val.trim().length < 6) return;
+  novaraLookupTimer = setTimeout(async () => {
+    try {
+      const res = await authFetch('/api/accounts/lookup?acct=' + encodeURIComponent(val.trim()));
+      const data = await res.json();
+      if (data.found) {
+        document.getElementById('n-holder-name').textContent = data.name;
+        document.getElementById('n-holder-type').textContent = (data.account_type || 'checking') + ' Account';
+        document.getElementById('n-holder-banner').style.display = 'flex';
+      } else {
+        document.getElementById('n-holder-banner').style.display = 'none';
+      }
+    } catch(e) {}
+  }, 500);
+}
+
+// US routing lookup
+let usRoutingTimer = null;
+function lookupUSRouting(val) {
+  clearTimeout(usRoutingTimer);
+  const clean = val.replace(/\D/g,'').slice(0,9);
+  document.getElementById('us-routing').value = clean;
+  document.getElementById('us-bank-banner').style.display = 'none';
+  if (clean.length !== 9) return;
+  document.getElementById('us-routing-spin').style.display = 'block';
+  usRoutingTimer = setTimeout(async () => {
+    try {
+      const res = await authFetch('/api/accounts/bank-lookup?routing=' + clean);
+      const data = await res.json();
+      document.getElementById('us-routing-spin').style.display = 'none';
+      if (data.found) {
+        document.getElementById('us-bank-name').textContent = data.bank_name;
+        const addr = [data.city, data.state].filter(Boolean).join(', ');
+        document.getElementById('us-bank-addr').textContent = addr;
+        document.getElementById('us-bank-banner').style.display = 'block';
+      }
+    } catch(e) { document.getElementById('us-routing-spin').style.display = 'none'; }
+  }, 600);
+}
+
+// SEPA IBAN lookup
+let ibanLookupTimer = null;
+function lookupSepaIBAN(val) {
+  clearTimeout(ibanLookupTimer);
+  const clean = val.replace(/\s/g,'').toUpperCase();
+  document.getElementById('sepa-iban').value = clean;
+  document.getElementById('sepa-bank-banner').style.display = 'none';
+  document.getElementById('sepa-iban-error').style.display = 'none';
+  document.getElementById('sepa-bic').value = '';
+  if (!sepaCountry || !clean || clean.length < 8) return;
+  const meta = SEPA_META[sepaCountry];
+  if (clean.length >= 4 && !clean.startsWith(meta.ibanPrefix)) {
+    document.getElementById('sepa-iban-error').textContent = `IBAN must start with ${meta.ibanPrefix} for ${meta.name}`;
+    document.getElementById('sepa-iban-error').style.display = 'block';
+    return;
+  }
+  if (clean.length < meta.ibanLen) return;
+  document.getElementById('sepa-iban-spin').style.display = 'block';
+  ibanLookupTimer = setTimeout(async () => {
+    try {
+      const res = await authFetch('/api/accounts/bank-lookup?iban=' + encodeURIComponent(clean));
+      const data = await res.json();
+      document.getElementById('sepa-iban-spin').style.display = 'none';
+      if (data.found) {
+        document.getElementById('sepa-bank-name').textContent = data.bank_name;
+        document.getElementById('sepa-bank-banner').style.display = 'block';
+        document.getElementById('sepa-bic').value = data.bic || '';
+      } else {
+        document.getElementById('sepa-iban-error').textContent = data.error || 'IBAN not recognized';
+        document.getElementById('sepa-iban-error').style.display = 'block';
+      }
+    } catch(e) { document.getElementById('sepa-iban-spin').style.display = 'none'; }
+  }, 700);
+}
+
+// Build review summary and show modal
+function proceedToReview() {
+  showAlert('transferError','');
+  let d = null;
+
+  if (currentDest === 'novara') {
+    const acct = document.getElementById('n-account').value.trim();
+    const holderName = document.getElementById('n-holder-name').textContent.trim();
+    const amount = parseFloat(document.getElementById('n-amount').value);
+    if (!acct) { showAlert('transferError','Enter recipient account number'); return; }
+    if (!holderName) { showAlert('transferError','Account not found — verify the number'); return; }
+    if (!amount || amount <= 0) { showAlert('transferError','Enter a valid amount'); return; }
+    const activeAcct = currentUser?.account_type || 'checking';
+    const avail = activeAcct === 'savings' ? realSavings : realBalance;
+    if (amount > avail) { showAlert('transferError', `Insufficient ${activeAcct} balance. Available: ${fmt(avail)}`); return; }
+    d = { dest:'novara', flag:'🏦', destLabel:'Novara Internal Transfer',
+          name:holderName, amount, currency:currencySymbol,
+          account:acct, accountFull:acct, bank:'Novara Heritage Bank',
+          desc:document.getElementById('n-desc').value };
+
+  } else if (currentDest === 'us') {
+    const routing = document.getElementById('us-routing').value;
+    const acct = document.getElementById('us-account').value.trim();
+    const name = document.getElementById('us-name').value.trim();
+    const amount = parseFloat(document.getElementById('us-amount').value);
+    const bankName = document.getElementById('us-bank-name').textContent;
+    if (!routing || routing.length !== 9) { showAlert('transferError','Enter a valid 9-digit routing number'); return; }
+    if (!acct) { showAlert('transferError','Enter recipient account number'); return; }
+    if (!name) { showAlert('transferError','Enter recipient full name'); return; }
+    if (!amount || amount <= 0) { showAlert('transferError','Enter a valid amount'); return; }
+    d = { dest:'us', flag:'🇺🇸', destLabel:'United States — ACH / Wire',
+          name, amount, currency:'$', routing,
+          account:'•••• '+acct.slice(-4), accountFull:acct,
+          bank:bankName||'US Bank', type:usAccountType,
+          desc:document.getElementById('us-desc').value };
+
+  } else if (currentDest === 'uk') {
+    const sortCode = document.getElementById('uk-sortcode').value;
+    const acct = document.getElementById('uk-account').value.trim();
+    const name = document.getElementById('uk-name').value.trim();
+    const amount = parseFloat(document.getElementById('uk-amount').value);
+    if (!sortCode || sortCode.replace(/\D/g,'').length !== 6) { showAlert('transferError','Enter a valid sort code (XX-XX-XX)'); return; }
+    if (!acct || acct.length !== 8) { showAlert('transferError','Enter an 8-digit account number'); return; }
+    if (!name) { showAlert('transferError','Enter recipient full name'); return; }
+    if (!amount || amount <= 0) { showAlert('transferError','Enter a valid amount'); return; }
+    d = { dest:'uk', flag:'🇬🇧', destLabel:'United Kingdom — Faster Payments',
+          name, amount, currency:'£', sortCode,
+          account:'•••• '+acct.slice(-4), accountFull:acct,
+          bank:'UK Bank', desc:document.getElementById('uk-desc').value };
+
+  } else if (SEPA_META[currentDest]) {
+    const meta = SEPA_META[currentDest];
+    const iban = document.getElementById('sepa-iban').value;
+    const bic  = document.getElementById('sepa-bic').value;
+    const name = document.getElementById('sepa-name').value.trim();
+    const amount = parseFloat(document.getElementById('sepa-amount').value);
+    const bankName = document.getElementById('sepa-bank-name').textContent;
+    if (!iban || !iban.startsWith(meta.ibanPrefix)) { showAlert('transferError',`Enter a valid ${meta.name} IBAN (starts with ${meta.ibanPrefix})`); return; }
+    if (!name) { showAlert('transferError','Enter recipient full name'); return; }
+    if (!amount || amount <= 0) { showAlert('transferError','Enter a valid amount'); return; }
+    d = { dest:currentDest, flag:meta.flag, destLabel:meta.title,
+          name, amount, currency:meta.sym,
+          iban:iban.slice(0,4)+' •••• •••• '+iban.slice(-4), ibanFull:iban,
+          bic, bank:bankName||meta.name+' Bank',
+          desc:document.getElementById('sepa-desc').value };
+  }
+
+  if (!d) return;
+  window._pendingReview = d;
+  showReviewModal(d);
+}
+
+function showReviewModal(d) {
+  document.getElementById('review-dest-flag').textContent  = d.flag;
+  document.getElementById('review-dest-label').textContent = d.destLabel;
+  document.getElementById('review-amount').textContent     = d.currency + parseFloat(d.amount).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+  document.getElementById('review-name').textContent  = d.name;
+  document.getElementById('review-bank').textContent  = d.bank || '—';
+  document.getElementById('review-desc').textContent  = d.desc || '—';
+
+  const show = (id, val) => { const r = document.getElementById(id); r.style.display = val ? 'flex' : 'none'; };
+  show('review-bank-row',    d.bank);
+  show('review-routing-row', d.routing);    if (d.routing)  document.getElementById('review-routing').textContent  = d.routing;
+  show('review-account-row', d.account);   if (d.account)  document.getElementById('review-account').textContent  = d.account;
+  show('review-sortcode-row',d.sortCode);  if (d.sortCode) document.getElementById('review-sortcode').textContent = d.sortCode;
+  show('review-iban-row',    d.iban);      if (d.iban)     document.getElementById('review-iban').textContent     = d.iban;
+  show('review-bic-row',     d.bic);       if (d.bic)      document.getElementById('review-bic').textContent      = d.bic;
+  show('review-type-row',    d.type);      if (d.type)     document.getElementById('review-type').textContent     = d.type.charAt(0).toUpperCase()+d.type.slice(1);
+  show('review-desc-row',    d.desc);
+
+  showAlert('reviewPinError','');
+  clearBoxes('review-pin-row');
+  document.getElementById('transferReviewModal').style.display = 'flex';
+  setTimeout(() => document.querySelector('#review-pin-row .pin-box')?.focus(), 300);
+}
+
+function closeReviewModal() {
+  document.getElementById('transferReviewModal').style.display = 'none';
+  window._pendingReview = null;
+  clearBoxes('review-pin-row');
+}
+
+async function confirmTransfer() {
+  const pin = getBoxValue('review-pin-row');
+  const d   = window._pendingReview;
+  showAlert('reviewPinError','');
+  if (pin.length !== 4) { showAlert('reviewPinError','Please enter your 4-digit Transfer PIN'); return; }
+  if (!d) { closeReviewModal(); return; }
+
+  const btn = document.getElementById('reviewConfirmBtn');
+  btn.innerHTML = '<span class="spinner"></span> Processing...'; btn.disabled = true;
+
+  try {
+    let res, data;
+    if (d.dest === 'novara') {
+      res  = await authFetch('/api/accounts/transfer', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ to_account:d.accountFull, amount:d.amount, description:d.desc, pin })
+      });
+      data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      realBalance = parseFloat(data.new_checking_balance || 0);
+      realSavings = parseFloat(data.new_savings_balance  || 0);
+      closeReviewModal();
+      showAlert('transferSuccess', `✅ ${d.currency}${parseFloat(d.amount).toLocaleString('en-US',{minimumFractionDigits:2})} sent to ${data.recipient_name || d.name} successfully!`);
+    } else {
+      res  = await authFetch('/api/accounts/external-transfer', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          amount:d.amount, pin, description:d.desc, dest_type:d.dest,
+          recipient_name:d.name, bank_name:d.bank,
+          routing:d.routing||null, account_number:d.accountFull||null,
+          iban:d.ibanFull||null, sort_code:d.sortCode||null,
+          bic:d.bic||null, account_type:d.type||null
+        })
+      });
+      data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      realBalance = parseFloat(data.new_checking_balance || data.new_balance || realBalance);
+      realSavings = parseFloat(data.new_savings_balance  || realSavings);
+      closeReviewModal();
+      showAlert('transferSuccess', `✅ ${d.currency}${parseFloat(d.amount).toLocaleString('en-US',{minimumFractionDigits:2})} transfer initiated successfully!`);
+    }
+    if (currentUser) currentUser.balance = realBalance;
+    updateAccountUI(currentUser?.account_type || 'checking');
+    loadTransactions();
+    setTimeout(() => showAlert('transferSuccess',''), 5000);
+  } catch(e) {
+    showAlert('reviewPinError', e.message);
+    clearBoxes('review-pin-row');
+    setTimeout(() => document.querySelector('#review-pin-row .pin-box')?.focus(), 100);
+  } finally {
+    btn.innerHTML = 'Confirm Transfer 🔐'; btn.disabled = false;
+  }
+}
+
+// Keep legacy hidePinModal for settings security modal compatibility
 function hidePinModal() {
   document.getElementById('pinModal').classList.remove('show');
   pendingTransfer = null;
@@ -1142,7 +1644,6 @@ async function confirmTransferWithPIN() {
   const pin = getBoxValue('transfer-pin-row');
   showAlert('pinModalError','');
   if (pin.length !== 4) { showAlert('pinModalError','Please enter your 4-digit Transfer PIN.'); return; }
-
   const btn = document.getElementById('pinModalBtn');
   btn.innerHTML = '<span class="spinner"></span> Processing...'; btn.disabled = true;
   try {
@@ -1153,14 +1654,7 @@ async function confirmTransferWithPIN() {
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error);
-
     hidePinModal();
-    showAlert('transferSuccess', `✅ ${fmt(amount)} sent to ${data.recipient_name}. New balance: ${fmt(data.new_balance)}`);
-    document.getElementById('toAccount').value = '';
-    document.getElementById('transferAmount').value = '';
-    document.getElementById('transferDesc').value = '';
-
-    // Update local balances
     realBalance = parseFloat(data.new_checking_balance || 0);
     realSavings = parseFloat(data.new_savings_balance  || 0);
     if (currentUser) currentUser.balance = realBalance;
@@ -1170,89 +1664,7 @@ async function confirmTransferWithPIN() {
     showAlert('pinModalError', e.message);
     clearBoxes('transfer-pin-row');
     setTimeout(() => document.querySelector('#transfer-pin-row .pin-box').focus(), 100);
-  }
-  finally { btn.innerHTML = 'Confirm Transfer ✈️'; btn.disabled = false; }
-}
-
-// ──────────────────────────────────────────────────────
-// ACCOUNT / BANK LOOKUP (Transfer auto-fill)
-// ──────────────────────────────────────────────────────
-let lookupTimer = null;
-
-// Detect if a string looks like an IBAN (starts with 2 letters then digits, length 15-34)
-function isIBAN(v) { return /^[A-Z]{2}[0-9A-Z]{13,32}$/.test(v.replace(/\s/g,'')); }
-
-// Reset all lookup banners and auto-filled fields
-function clearLookup() {
-  document.getElementById('holderInfoBanner').style.display = 'none';
-  document.getElementById('bankInfoBanner').style.display   = 'none';
-  document.getElementById('transferSwiftField').value = '';
-}
-
-function lookupAccount(val) {
-  clearTimeout(lookupTimer);
-  const cleaned = val.trim().toUpperCase();
-  if (!cleaned || cleaned.length < 8) { clearLookup(); return; }
-
-  lookupTimer = setTimeout(async () => {
-    try {
-      // Check if it's an EU IBAN
-      if (isIBAN(cleaned)) { await lookupIBAN(cleaned); return; }
-
-      // Otherwise try internal Novara lookup
-      const res  = await authFetch('/api/accounts/lookup?acct=' + encodeURIComponent(val.trim()));
-      const data = await res.json();
-      clearLookup();
-      if (data.found) {
-        document.getElementById('holderName').textContent     = data.name;
-        document.getElementById('holderAcctType').textContent = data.account_type;
-        document.getElementById('transferRouting').value      = data.routing_number || '';
-        document.getElementById('transferSwiftField').value   = data.swift_code || 'NVRAUS33XXX';
-        document.getElementById('recipientName').value        = data.name;
-        const sel = document.getElementById('transferAcctTypeField');
-        if (sel) sel.value = data.account_type || 'checking';
-        document.getElementById('holderInfoBanner').style.display = 'flex';
-      }
-    } catch(e) { clearLookup(); }
-  }, 500);
-}
-
-let routingTimer = null;
-function lookupRouting(val) {
-  clearTimeout(routingTimer);
-  const clean = val.replace(/\D/g, '');
-  document.getElementById('transferRouting').value = clean;
-  document.getElementById('bankInfoBanner').style.display = 'none';
-  if (clean.length !== 9) { document.getElementById('transferSwiftField').value = ''; return; }
-  routingTimer = setTimeout(async () => {
-    try {
-      const res  = await authFetch('/api/accounts/bank-lookup?routing=' + clean);
-      const data = await res.json();
-      if (data.found) {
-        document.getElementById('bankInfoName').textContent = data.bank_name;
-        const addr = [data.city, data.state].filter(Boolean).join(', ');
-        document.getElementById('bankInfoAddr').textContent = addr + (data.phone ? ' · ' + data.phone : '');
-        document.getElementById('transferSwiftField').value = data.swift || '';
-        document.getElementById('bankInfoBanner').style.display = 'flex';
-      } else {
-        document.getElementById('bankInfoBanner').style.display = 'none';
-      }
-    } catch(e) { document.getElementById('bankInfoBanner').style.display = 'none'; }
-  }, 600);
-}
-
-async function lookupIBAN(iban) {
-  try {
-    const res  = await authFetch('/api/accounts/bank-lookup?iban=' + encodeURIComponent(iban));
-    const data = await res.json();
-    clearLookup();
-    if (data.found) {
-      document.getElementById('bankInfoName').textContent = data.bank_name;
-      document.getElementById('bankInfoAddr').textContent = data.country ? 'Country: ' + data.country : '';
-      document.getElementById('transferSwiftField').value = data.bic || '';
-      document.getElementById('bankInfoBanner').style.display = 'flex';
-    }
-  } catch(e) { clearLookup(); }
+  } finally { btn.innerHTML = 'Confirm Transfer ✈️'; btn.disabled = false; }
 }
 
 // ──────────────────────────────────────────────────────
