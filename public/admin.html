@@ -191,13 +191,15 @@
                 <tr>
                   <th>User</th>
                   <th>Account No.</th>
-                  <th>Balance</th>
+                  <th>Routing No.</th>
+                  <th>Checking</th>
+                  <th>Savings</th>
                   <th>Status</th>
                   <th>Joined</th>
                   <th>Actions</th>
                 </tr>
               </thead>
-              <tbody id="usersTable"><tr><td colspan="6" style="text-align:center; padding:30px; color:var(--muted)">Loading...</td></tr></tbody>
+              <tbody id="usersTable"><tr><td colspan="8" style="text-align:center; padding:30px; color:var(--muted)">Loading...</td></tr></tbody>
             </table>
           </div>
         </div>
@@ -399,9 +401,15 @@ function renderUsers(users) {
   if (!users.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--muted)">No users found</td></tr>'; return; }
   tbody.innerHTML = users.filter(u => u.role !== 'admin').map(u => `
     <tr>
-      <td><strong>${u.name}</strong><br><span style="color:var(--muted);font-size:12px">${u.email}</span></td>
-      <td style="font-family:monospace;font-size:12px">${u.account_number}</td>
+      <td>
+        <strong>${u.name}</strong><br>
+        <span style="color:var(--muted);font-size:11px">${u.email}</span>
+        ${u.phone ? `<br><span style="color:var(--muted);font-size:11px">📞 ${u.phone}</span>` : ''}
+      </td>
+      <td style="font-family:monospace;font-size:11px">${u.account_number}</td>
+      <td style="font-family:monospace;font-size:11px">${u.routing_number || '—'}</td>
       <td><strong>${fmt(u.balance)}</strong></td>
+      <td><strong>${fmt(u.savings_balance || 0)}</strong></td>
       <td><span class="badge badge-${u.status}">${u.status}</span></td>
       <td style="color:var(--muted);font-size:12px">${new Date(u.created_at).toLocaleDateString()}</td>
       <td><button class="btn btn-primary btn-sm" onclick="openManage(${u.id})">Manage</button></td>
@@ -460,7 +468,20 @@ function openManage(userId) {
   if (!user) return;
   selectedUserId = userId;
   document.getElementById('modalTitle').textContent = user.name;
-  document.getElementById('modalInfo').innerHTML = `<strong>Account:</strong> ${user.account_number} &nbsp;|&nbsp; <strong>Balance:</strong> ${fmt(user.balance)} &nbsp;|&nbsp; <strong>Status:</strong> <span class="badge badge-${user.status}">${user.status}</span>`;
+  const addrObj = user.address && typeof user.address === 'object' ? [user.address.street, user.address.city, user.address.state, user.address.zip].filter(Boolean).join(', ') : (user.address || '');
+  document.getElementById('modalInfo').innerHTML = `
+    <div style="line-height:2; font-size:13px;">
+      <strong>Account #:</strong> <span style="font-family:monospace">${user.account_number}</span> &nbsp;|&nbsp;
+      <strong>Routing #:</strong> <span style="font-family:monospace">${user.routing_number || '—'}</span> &nbsp;|&nbsp;
+      <strong>SWIFT:</strong> ${user.swift_code || 'NVRAUS33XXX'}<br>
+      <strong>Checking:</strong> ${fmt(user.balance)} &nbsp;|&nbsp;
+      <strong>Savings:</strong> ${fmt(user.savings_balance || 0)} &nbsp;|&nbsp;
+      <strong>Type:</strong> ${user.account_type || 'checking'} &nbsp;|&nbsp;
+      <strong>Status:</strong> <span class="badge badge-${user.status}">${user.status}</span><br>
+      ${user.phone ? `<strong>Phone:</strong> ${user.phone} &nbsp;|&nbsp; ` : ''}
+      ${addrObj ? `<strong>Address:</strong> ${addrObj}` : ''}
+    </div>
+  `;
   document.getElementById('freezeBtn').textContent = user.status === 'frozen' ? '✅ Unfreeze Account' : '🔒 Freeze Account';
   document.getElementById('freezeBtn').className = `btn btn-block ${user.status === 'frozen' ? 'btn-success' : 'btn-warning'}`;
   document.getElementById('modalAmount').value = '';
