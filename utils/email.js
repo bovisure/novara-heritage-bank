@@ -57,7 +57,7 @@ async function sendOTP(toEmail, otp, purpose) {
     },
     body: JSON.stringify({
       Messages: [{
-        From: { Email: 'noreply@novaraheritagebank.com', Name: 'Novara Heritage Bank' },
+        From: { Email: 'noreply@novaraheritagebank.io.com', Name: 'Novara Heritage Bank' },
         To: [{ Email: toEmail }],
         Subject: subject,
         HTMLPart: emailHTML(otp, purpose),
