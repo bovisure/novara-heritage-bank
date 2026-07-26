@@ -16,6 +16,8 @@ function load() {
 }
 
 function save(data) {
+  const dir = path.dirname(DB_PATH);
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2));
 }
 
