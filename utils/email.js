@@ -42,28 +42,33 @@ const emailHTML = (otp, purpose) => `
 
 async function sendOTP(toEmail, otp, purpose) {
   const subject = purpose === 'register'
-    ? '✅ Your Novara Heritage Bank Verification Code'
-    : '🔐 Your Novara Heritage Bank Login Code';
+    ? 'Your Novara Heritage Bank Verification Code'
+    : 'Your Novara Heritage Bank Login Code';
 
-  const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+  const credentials = Buffer.from(
+    `${process.env.MAILJET_API_KEY}:${process.env.MAILJET_SECRET_KEY}`
+  ).toString('base64');
+
+  const res = await fetch('https://api.mailjet.com/v3.1/send', {
     method: 'POST',
     headers: {
-      'accept': 'application/json',
-      'api-key': process.env.BREVO_API_KEY,
-      'content-type': 'application/json'
+      'Authorization': `Basic ${credentials}`,
+      'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      sender: { name: 'Novara Heritage Bank', email: 'novaraheritagebank.oi@gmail.com' },
-      to: [{ email: toEmail }],
-      subject,
-      htmlContent: emailHTML(otp, purpose),
-      textContent: `Your Novara Heritage Bank verification code is: ${otp}\n\nThis code expires in 10 minutes.\n\nIf you did not request this, please ignore this email.`
+      Messages: [{
+        From: { Email: 'novaraheritagebank.oi@gmail.com', Name: 'Novara Heritage Bank' },
+        To: [{ Email: toEmail }],
+        Subject: subject,
+        HTMLPart: emailHTML(otp, purpose),
+        TextPart: `Your Novara Heritage Bank verification code is: ${otp}\n\nThis code expires in 10 minutes.\n\nIf you did not request this, please ignore this email.`
+      }]
     })
   });
 
   if (!res.ok) {
     const err = await res.text();
-    throw new Error(`Brevo API error ${res.status}: ${err}`);
+    throw new Error(`Mailjet error ${res.status}: ${err}`);
   }
 }
 
