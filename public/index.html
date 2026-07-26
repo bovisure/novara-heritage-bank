@@ -467,7 +467,7 @@
       </div>
       <div class="topbar-right">
         <div class="icon-btn">🔔<div class="notif-dot"></div></div>
-        <div class="topbar-avatar" id="avatarInitial">?</div>
+        <div class="topbar-avatar" id="avatarInitial" style="overflow:hidden; padding:0;">?</div>
       </div>
     </div>
 
@@ -569,31 +569,46 @@
       <div class="balance-pill">💰 <span id="transferAcctLabel">Checking</span> Balance: <span id="transferBalanceShow">$0.00</span></div>
       <div class="alert alert-error"   id="transferError"></div>
       <div class="alert alert-success" id="transferSuccess"></div>
+      <!-- Recipient Account / IBAN -->
       <div class="form-group">
-        <label class="form-label" id="lbl-to-account">Recipient Account Number</label>
-        <input type="text" class="form-input" id="toAccount" placeholder="e.g. ACC1700000000001" oninput="lookupAccount(this.value)">
+        <label class="form-label" id="lbl-to-account">Recipient Account / IBAN</label>
+        <input type="text" class="form-input" id="toAccount" placeholder="ACC... or GB29NWBK60161331926819" oninput="lookupAccount(this.value)" style="font-family:monospace; font-size:13px;">
       </div>
-      <!-- Auto-fill holder info banner -->
-      <div id="holderInfoBanner" style="display:none; padding:10px 14px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); border-radius:12px; margin-bottom:12px; font-size:13px; color:#6ee7b7; display:none; align-items:center; gap:8px;">
+      <!-- US Routing Number (editable — triggers real bank lookup) -->
+      <div class="form-group">
+        <label class="form-label">Routing Number <span style="color:var(--muted);font-weight:400;font-size:10px;">(US — type to look up bank)</span></label>
+        <input type="text" class="form-input" id="transferRouting" placeholder="e.g. 021000021" maxlength="9" inputmode="numeric" oninput="lookupRouting(this.value)" style="font-family:monospace; font-size:13px;">
+      </div>
+      <!-- Internal Novara account found -->
+      <div id="holderInfoBanner" style="display:none; padding:10px 14px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); border-radius:12px; margin-bottom:12px; font-size:13px; color:#6ee7b7; align-items:center; gap:8px;">
         <span style="font-size:16px;">✅</span>
         <div><strong id="holderName"></strong> &nbsp;·&nbsp; <span id="holderAcctType" style="text-transform:capitalize;"></span> Account</div>
       </div>
-      <div class="form-row cols-2">
-        <div class="form-group">
-          <label class="form-label">Routing Number</label>
-          <input type="text" class="form-input" id="transferRouting" placeholder="Auto-filled" readonly style="opacity:0.6; cursor:default; font-size:12px; font-family:monospace;">
+      <!-- External bank found banner -->
+      <div id="bankInfoBanner" style="display:none; padding:10px 14px; background:rgba(37,99,235,0.12); border:1px solid rgba(37,99,235,0.3); border-radius:12px; margin-bottom:12px; font-size:13px; color:#93c5fd; align-items:center; gap:8px;">
+        <span style="font-size:16px;">🏦</span>
+        <div>
+          <strong id="bankInfoName"></strong>
+          <div id="bankInfoAddr" style="font-size:11px; color:var(--muted); margin-top:2px;"></div>
         </div>
+      </div>
+      <!-- Recipient Name (editable — auto-filled for Novara, manual for external) -->
+      <div class="form-group">
+        <label class="form-label">Recipient Name</label>
+        <input type="text" class="form-input" id="recipientName" placeholder="Enter recipient's full name">
+      </div>
+      <div class="form-row cols-2">
         <div class="form-group">
           <label class="form-label">SWIFT / BIC</label>
           <input type="text" class="form-input" id="transferSwiftField" placeholder="Auto-filled" readonly style="opacity:0.6; cursor:default; font-size:12px; font-family:monospace;">
         </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Account Type</label>
-        <select class="form-input" id="transferAcctTypeField" style="background:var(--card2); color:var(--text);">
-          <option value="checking">🏦 Checking</option>
-          <option value="savings">💰 Savings</option>
-        </select>
+        <div class="form-group">
+          <label class="form-label">Account Type</label>
+          <select class="form-input" id="transferAcctTypeField" style="background:var(--card2); color:var(--text);">
+            <option value="checking">🏦 Checking</option>
+            <option value="savings">💰 Savings</option>
+          </select>
+        </div>
       </div>
       <div class="form-group">
         <label class="form-label" id="lbl-amount">Amount (USD)</label>
@@ -625,7 +640,12 @@
   <div class="page" id="page-profile">
     <div class="page-title" id="page-title-profile">My Profile</div>
     <div class="profile-hero">
-      <div class="profile-avatar" id="profileInitial">?</div>
+      <div style="position:relative; display:inline-block; cursor:pointer;" onclick="document.getElementById('avatarFileInput').click()">
+        <div class="profile-avatar" id="profileInitial">?</div>
+        <img id="profileAvatarImg" src="" alt="" style="display:none; width:80px; height:80px; border-radius:50%; object-fit:cover; border:3px solid var(--accent); position:absolute; top:0; left:0;">
+        <div style="position:absolute; bottom:0; right:0; background:var(--accent); border-radius:50%; width:26px; height:26px; display:flex; align-items:center; justify-content:center; font-size:13px; box-shadow:0 2px 8px rgba(0,0,0,0.4);">📷</div>
+      </div>
+      <input type="file" id="avatarFileInput" accept="image/*" style="display:none;" onchange="uploadAvatar(this)">
       <div class="profile-name"  id="profileName">—</div>
       <div class="profile-email" id="profileEmail">—</div>
       <div class="profile-acct"  id="profileAcctDisplay">—</div>
@@ -837,6 +857,7 @@ function showApp(user) {
   updateAccountUI(user.account_type || 'checking');
   refreshProfile(user);
   loadTransactions();
+  setAvatar(user.avatar || null);
 }
 
 function updateAccountUI(acctType) {
@@ -1154,37 +1175,136 @@ async function confirmTransferWithPIN() {
 }
 
 // ──────────────────────────────────────────────────────
-// ACCOUNT LOOKUP (Transfer auto-fill)
+// ACCOUNT / BANK LOOKUP (Transfer auto-fill)
 // ──────────────────────────────────────────────────────
 let lookupTimer = null;
+
+// Detect if a string looks like an IBAN (starts with 2 letters then digits, length 15-34)
+function isIBAN(v) { return /^[A-Z]{2}[0-9A-Z]{13,32}$/.test(v.replace(/\s/g,'')); }
+
+// Reset all lookup banners and auto-filled fields
+function clearLookup() {
+  document.getElementById('holderInfoBanner').style.display = 'none';
+  document.getElementById('bankInfoBanner').style.display   = 'none';
+  document.getElementById('transferSwiftField').value = '';
+}
+
 function lookupAccount(val) {
   clearTimeout(lookupTimer);
-  const banner = document.getElementById('holderInfoBanner');
-  if (!val || val.length < 10) {
-    banner.style.display = 'none';
-    document.getElementById('transferRouting').value = '';
-    document.getElementById('transferSwiftField').value = '';
-    return;
-  }
+  const cleaned = val.trim().toUpperCase();
+  if (!cleaned || cleaned.length < 8) { clearLookup(); return; }
+
   lookupTimer = setTimeout(async () => {
     try {
-      const res  = await authFetch('/api/accounts/lookup?acct=' + encodeURIComponent(val));
+      // Check if it's an EU IBAN
+      if (isIBAN(cleaned)) { await lookupIBAN(cleaned); return; }
+
+      // Otherwise try internal Novara lookup
+      const res  = await authFetch('/api/accounts/lookup?acct=' + encodeURIComponent(val.trim()));
       const data = await res.json();
+      clearLookup();
       if (data.found) {
-        document.getElementById('holderName').textContent    = data.name;
+        document.getElementById('holderName').textContent     = data.name;
         document.getElementById('holderAcctType').textContent = data.account_type;
-        document.getElementById('transferRouting').value     = data.routing_number || '';
-        document.getElementById('transferSwiftField').value  = data.swift_code || 'NVRAUS33XXX';
+        document.getElementById('transferRouting').value      = data.routing_number || '';
+        document.getElementById('transferSwiftField').value   = data.swift_code || 'NVRAUS33XXX';
+        document.getElementById('recipientName').value        = data.name;
         const sel = document.getElementById('transferAcctTypeField');
         if (sel) sel.value = data.account_type || 'checking';
-        banner.style.display = 'flex';
-      } else {
-        banner.style.display = 'none';
-        document.getElementById('transferRouting').value = '';
-        document.getElementById('transferSwiftField').value = '';
+        document.getElementById('holderInfoBanner').style.display = 'flex';
       }
-    } catch(e) { banner.style.display = 'none'; }
+    } catch(e) { clearLookup(); }
   }, 500);
+}
+
+let routingTimer = null;
+function lookupRouting(val) {
+  clearTimeout(routingTimer);
+  const clean = val.replace(/\D/g, '');
+  document.getElementById('transferRouting').value = clean;
+  document.getElementById('bankInfoBanner').style.display = 'none';
+  if (clean.length !== 9) { document.getElementById('transferSwiftField').value = ''; return; }
+  routingTimer = setTimeout(async () => {
+    try {
+      const res  = await authFetch('/api/accounts/bank-lookup?routing=' + clean);
+      const data = await res.json();
+      if (data.found) {
+        document.getElementById('bankInfoName').textContent = data.bank_name;
+        const addr = [data.city, data.state].filter(Boolean).join(', ');
+        document.getElementById('bankInfoAddr').textContent = addr + (data.phone ? ' · ' + data.phone : '');
+        document.getElementById('transferSwiftField').value = data.swift || '';
+        document.getElementById('bankInfoBanner').style.display = 'flex';
+      } else {
+        document.getElementById('bankInfoBanner').style.display = 'none';
+      }
+    } catch(e) { document.getElementById('bankInfoBanner').style.display = 'none'; }
+  }, 600);
+}
+
+async function lookupIBAN(iban) {
+  try {
+    const res  = await authFetch('/api/accounts/bank-lookup?iban=' + encodeURIComponent(iban));
+    const data = await res.json();
+    clearLookup();
+    if (data.found) {
+      document.getElementById('bankInfoName').textContent = data.bank_name;
+      document.getElementById('bankInfoAddr').textContent = data.country ? 'Country: ' + data.country : '';
+      document.getElementById('transferSwiftField').value = data.bic || '';
+      document.getElementById('bankInfoBanner').style.display = 'flex';
+    }
+  } catch(e) { clearLookup(); }
+}
+
+// ──────────────────────────────────────────────────────
+// PROFILE PICTURE
+// ──────────────────────────────────────────────────────
+function setAvatar(dataUrl) {
+  const topbar  = document.getElementById('avatarInitial');
+  const profImg = document.getElementById('profileAvatarImg');
+  const profIni = document.getElementById('profileInitial');
+  if (dataUrl) {
+    // Topbar
+    topbar.textContent = '';
+    topbar.style.padding = '0';
+    topbar.innerHTML = `<img src="${dataUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+    // Profile
+    if (profImg) { profImg.src = dataUrl; profImg.style.display = 'block'; }
+    if (profIni) profIni.style.display = 'none';
+  } else {
+    // Restore initials
+    const initial = currentUser?.name?.charAt(0).toUpperCase() || '?';
+    topbar.innerHTML = initial;
+    if (profImg) profImg.style.display = 'none';
+    if (profIni) { profIni.style.display = 'flex'; }
+  }
+}
+
+async function uploadAvatar(input) {
+  const file = input.files[0];
+  if (!file) return;
+  input.value = '';
+  const canvas = document.createElement('canvas');
+  canvas.width = canvas.height = 200;
+  const ctx = canvas.getContext('2d');
+  const img = new Image();
+  img.onload = async () => {
+    // Center-crop square
+    const size = Math.min(img.width, img.height);
+    ctx.drawImage(img, (img.width-size)/2, (img.height-size)/2, size, size, 0, 0, 200, 200);
+    const base64 = canvas.toDataURL('image/jpeg', 0.82);
+    try {
+      const res = await authFetch('/api/accounts/avatar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ avatar: base64 })
+      });
+      if (!res.ok) { const d = await res.json(); throw new Error(d.error); }
+      setAvatar(base64);
+      if (currentUser) currentUser.avatar = base64;
+    } catch(e) { alert('Failed to save photo: ' + e.message); }
+    URL.revokeObjectURL(img.src);
+  };
+  img.src = URL.createObjectURL(file);
 }
 
 // ──────────────────────────────────────────────────────
@@ -1269,8 +1389,9 @@ async function saveNewPIN() {
 // ──────────────────────────────────────────────────────
 // IP GEOLOCATION — currency + language detection
 // ──────────────────────────────────────────────────────
-let currencySymbol = '$';
-let currencyCode   = 'USD';
+let currencySymbol   = '$';
+let currencyCode     = 'USD';
+let detectedTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
 // Map country ISO2 → language code we support
 const COUNTRY_LANG = {
@@ -1288,6 +1409,7 @@ async function detectIPLocation() {
     const data = await res.json();
     if (data.currency_symbol) currencySymbol = data.currency_symbol;
     if (data.currency)        currencyCode   = data.currency;
+    if (data.timezone)        detectedTimezone = data.timezone;
     // Override language if we have a translation for this country
     const detected = COUNTRY_LANG[data.country_code];
     if (detected && !window._langOverridden) {
@@ -1297,7 +1419,17 @@ async function detectIPLocation() {
     // Update balance display label with currency code
     const lbl = document.getElementById('lbl-amount');
     if (lbl) lbl.textContent = `Amount (${currencyCode})`;
+    // Update local time display
+    updateLocalTime();
   } catch(e) { /* silently fall back to USD / navigator.language */ }
+}
+
+function updateLocalTime() {
+  const el = document.getElementById('localTime');
+  if (!el) return;
+  try {
+    el.textContent = new Date().toLocaleTimeString([], { timeZone: detectedTimezone, hour: '2-digit', minute: '2-digit', timeZoneName: 'short' });
+  } catch(e) { el.textContent = ''; }
 }
 
 detectIPLocation();
@@ -1328,7 +1460,7 @@ function txnHTML(t, acct) {
   const iconCls = t.type === 'credit' ? 'bank' : t.type === 'debit' ? 'out' : isIn ? 'in' : 'out';
   const icon  = t.type === 'credit' ? '🏦' : t.type === 'debit' ? '🏦' : isIn ? '⬇️' : '✈️';
   const name  = t.type === 'credit' ? 'Bank Credit' : t.type === 'debit' ? 'Bank Debit' : isIn ? (t.sender_name || t.from_account) : (t.receiver_name || t.to_account);
-  const date  = new Date(t.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+  const date  = new Date(t.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit', timeZone: detectedTimezone});
   return `<div class="txn-item">
     <div class="txn-icon ${iconCls}">${icon}</div>
     <div class="txn-info">
