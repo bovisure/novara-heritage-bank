@@ -30,6 +30,26 @@ function nextId() {
   return _nextId++;
 }
 
+// Generate a valid ABA routing number (9 digits, passes checksum)
+function generateRoutingNumber() {
+  // First digit 0-3 for US Federal Reserve routing districts
+  const d = [Math.floor(Math.random() * 4)];
+  for (let i = 1; i < 8; i++) d.push(Math.floor(Math.random() * 10));
+  // ABA checksum: 3*d0 + 7*d1 + d2 + 3*d3 + 7*d4 + d5 + 3*d6 + 7*d7 + d8 ≡ 0 (mod 10)
+  const weights = [3, 7, 1, 3, 7, 1, 3, 7];
+  const sum = d.reduce((acc, v, i) => acc + v * weights[i], 0);
+  d.push((10 - (sum % 10)) % 10);
+  return d.join('');
+}
+
+// Ensure routing numbers are unique across all users
+function uniqueRoutingNumber(existingNums) {
+  let num;
+  do { num = generateRoutingNumber(); } while (existingNums.has(num));
+  existingNums.add(num);
+  return num;
+}
+
 // Seed default admin on first run
 (function seedAdmin() {
   const data = load();
@@ -40,7 +60,12 @@ function nextId() {
       email: 'admin@bank.com',
       password_hash: bcrypt.hashSync('admin123', 10),
       account_number: 'ADM' + Date.now(),
+      routing_number: generateRoutingNumber(),
+      swift_code: 'NVRAUS33XXX',
+      bank_type: 'Online Banking',
       balance: 0,
+      savings_balance: 0,
+      account_type: 'checking',
       role: 'admin',
       status: 'active',
       created_at: new Date().toISOString()
@@ -48,6 +73,23 @@ function nextId() {
     save(data);
     console.log('Default admin created: admin@bank.com / admin123');
   }
+})();
+
+// Migration: add new fields to existing users who predate this update
+(function migrateUsers() {
+  const data = load();
+  const existingRouting = new Set(data.users.map(u => u.routing_number).filter(Boolean));
+  let changed = false;
+  data.users = data.users.map(user => {
+    if (!user.routing_number) { user.routing_number = uniqueRoutingNumber(existingRouting); changed = true; }
+    if (!user.swift_code)     { user.swift_code = 'NVRAUS33XXX'; changed = true; }
+    if (!user.bank_type)      { user.bank_type = 'Online Banking'; changed = true; }
+    if (user.savings_balance === undefined) { user.savings_balance = 0; changed = true; }
+    if (!user.account_type)   { user.account_type = 'checking'; changed = true; }
+    // transaction_pin_hash may be null for existing users — that's fine, transfer will prompt them
+    return user;
+  });
+  if (changed) { save(data); console.log('DB migration: added banking fields to existing users'); }
 })();
 
 const db = {
@@ -100,12 +142,13 @@ const db = {
       entry.id = nextId();
       entry.created_at = new Date().toISOString();
       data.activity_log.push(entry);
-      // Keep only last 5000 entries to prevent unbounded growth
+      // Keep only last 5000 entries
       if (data.activity_log.length > 5000) data.activity_log = data.activity_log.slice(-5000);
       save(data);
       return entry;
     }
-  }
+  },
+  generateRoutingNumber
 };
 
 module.exports = db;
