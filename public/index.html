@@ -7,7 +7,7 @@
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   :root {
-    --bg: #0d0f14; --card-bg: #161a24; --cafrd2: #1e2433;
+    --bg: #0d0f14; --card-bg: #161a24; --card2: #1e2433;
     --accent: #2563eb; --accent2: #1d4ed8; --gold: #f59e0b;
     --text: #f1f5f9; --muted: #94a3b8; --border: rgba(255,255,255,0.08);
     --success: #10b981; --danger: #ef4444;
@@ -395,6 +395,65 @@
   </div>
 </div>
 
+<!-- ══ SECURITY MODAL (Change PIN) ══ -->
+<div id="securityModal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:500;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px);">
+  <div style="background:var(--card-bg);border-radius:28px 28px 0 0;padding:28px 22px 44px;width:100%;max-width:480px;border-top:1px solid var(--border);">
+    <!-- Step 1: Intro / Send OTP -->
+    <div id="sec-step-1">
+      <div style="font-size:44px;text-align:center;margin-bottom:10px;">🔐</div>
+      <div style="font-size:18px;font-weight:800;text-align:center;margin-bottom:6px;">Change Transfer PIN</div>
+      <div style="font-size:13px;color:var(--muted);text-align:center;margin-bottom:20px;line-height:1.5;">
+        For security, we'll send a one-time code to your registered email before allowing a PIN change.
+      </div>
+      <div class="alert alert-error" id="secError1"></div>
+      <button class="btn-main" id="secSendOtpBtn" onclick="sendPinChangeOTP()">Send Verification Code 📧</button>
+      <div style="text-align:center;margin-top:14px;"><span style="font-size:13px;color:var(--muted);cursor:pointer;" onclick="closeSecurityModal()">Cancel</span></div>
+    </div>
+    <!-- Step 2: Enter OTP -->
+    <div id="sec-step-2" style="display:none;">
+      <div style="font-size:44px;text-align:center;margin-bottom:10px;">📧</div>
+      <div style="font-size:18px;font-weight:800;text-align:center;margin-bottom:6px;">Check Your Email</div>
+      <div style="font-size:13px;color:var(--muted);text-align:center;margin-bottom:20px;">Enter the 6-digit code sent to your email.</div>
+      <div class="alert alert-error" id="secError2"></div>
+      <div class="otp-row" id="sec-otp-row">
+        <input class="otp-box" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
+        <input class="otp-box" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
+        <input class="otp-box" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
+        <input class="otp-box" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
+        <input class="otp-box" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
+        <input class="otp-box" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
+      </div>
+      <button class="btn-main" id="secVerifyBtn" onclick="verifyPinChangeOTP()">Verify Code ✓</button>
+      <div class="resend-row">Didn't receive it? <a onclick="sendPinChangeOTP(true)">Resend Code</a></div>
+      <div style="text-align:center;margin-top:10px;"><span style="font-size:13px;color:var(--muted);cursor:pointer;" onclick="closeSecurityModal()">Cancel</span></div>
+    </div>
+    <!-- Step 3: Enter new PIN -->
+    <div id="sec-step-3" style="display:none;">
+      <div style="font-size:44px;text-align:center;margin-bottom:10px;">🔑</div>
+      <div style="font-size:18px;font-weight:800;text-align:center;margin-bottom:6px;">Set New PIN</div>
+      <div style="font-size:13px;color:var(--muted);text-align:center;margin-bottom:20px;">Choose a new 4-digit Transfer PIN.</div>
+      <div class="alert alert-error" id="secError3"></div>
+      <label class="form-label" style="text-align:center;display:block;margin-bottom:8px;">New PIN</label>
+      <div class="pin-row" id="sec-new-pin-row">
+        <input class="pin-box" type="password" maxlength="1" inputmode="numeric" pattern="[0-9]">
+        <input class="pin-box" type="password" maxlength="1" inputmode="numeric" pattern="[0-9]">
+        <input class="pin-box" type="password" maxlength="1" inputmode="numeric" pattern="[0-9]">
+        <input class="pin-box" type="password" maxlength="1" inputmode="numeric" pattern="[0-9]">
+      </div>
+      <label class="form-label" style="text-align:center;display:block;margin:12px 0 8px;">Confirm PIN</label>
+      <div class="pin-row" id="sec-confirm-pin-row">
+        <input class="pin-box" type="password" maxlength="1" inputmode="numeric" pattern="[0-9]">
+        <input class="pin-box" type="password" maxlength="1" inputmode="numeric" pattern="[0-9]">
+        <input class="pin-box" type="password" maxlength="1" inputmode="numeric" pattern="[0-9]">
+        <input class="pin-box" type="password" maxlength="1" inputmode="numeric" pattern="[0-9]">
+      </div>
+      <div class="alert alert-success" id="secSuccess3" style="margin-top:8px;"></div>
+      <button class="btn-main" id="secSavePinBtn" onclick="saveNewPIN()" style="margin-top:14px;">Save New PIN 🔐</button>
+      <div style="text-align:center;margin-top:14px;"><span style="font-size:13px;color:var(--muted);cursor:pointer;" onclick="closeSecurityModal()">Cancel</span></div>
+    </div>
+  </div>
+</div>
+
 <!-- ══ APP SCREEN ══ -->
 <div class="app-screen" id="appScreen">
 
@@ -512,7 +571,29 @@
       <div class="alert alert-success" id="transferSuccess"></div>
       <div class="form-group">
         <label class="form-label" id="lbl-to-account">Recipient Account Number</label>
-        <input type="text" class="form-input" id="toAccount" placeholder="e.g. ACC1700000000001">
+        <input type="text" class="form-input" id="toAccount" placeholder="e.g. ACC1700000000001" oninput="lookupAccount(this.value)">
+      </div>
+      <!-- Auto-fill holder info banner -->
+      <div id="holderInfoBanner" style="display:none; padding:10px 14px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); border-radius:12px; margin-bottom:12px; font-size:13px; color:#6ee7b7; display:none; align-items:center; gap:8px;">
+        <span style="font-size:16px;">✅</span>
+        <div><strong id="holderName"></strong> &nbsp;·&nbsp; <span id="holderAcctType" style="text-transform:capitalize;"></span> Account</div>
+      </div>
+      <div class="form-row cols-2">
+        <div class="form-group">
+          <label class="form-label">Routing Number</label>
+          <input type="text" class="form-input" id="transferRouting" placeholder="Auto-filled" readonly style="opacity:0.6; cursor:default; font-size:12px; font-family:monospace;">
+        </div>
+        <div class="form-group">
+          <label class="form-label">SWIFT / BIC</label>
+          <input type="text" class="form-input" id="transferSwiftField" placeholder="Auto-filled" readonly style="opacity:0.6; cursor:default; font-size:12px; font-family:monospace;">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Account Type</label>
+        <select class="form-input" id="transferAcctTypeField" style="background:var(--card2); color:var(--text);">
+          <option value="checking">🏦 Checking</option>
+          <option value="savings">💰 Savings</option>
+        </select>
       </div>
       <div class="form-group">
         <label class="form-label" id="lbl-amount">Amount (USD)</label>
@@ -628,29 +709,12 @@
       </div>
     </div>
 
-    <!-- Set / Change Transfer PIN -->
-    <div class="pin-section" id="setPinSection">
-      <div class="pin-section-title" id="pinSectionTitle">⚠️ Set Transfer PIN</div>
-      <div class="pin-section-sub" id="pinSectionSub">You need a 4-digit PIN to send money. Set one now.</div>
-      <div id="currentPinGroup" style="display:none; margin-bottom:10px;">
-        <label class="form-label">Current PIN</label>
-        <div class="pin-row" id="current-pin-row">
-          <input class="pin-box" type="password" maxlength="1" inputmode="numeric" pattern="[0-9]">
-          <input class="pin-box" type="password" maxlength="1" inputmode="numeric" pattern="[0-9]">
-          <input class="pin-box" type="password" maxlength="1" inputmode="numeric" pattern="[0-9]">
-          <input class="pin-box" type="password" maxlength="1" inputmode="numeric" pattern="[0-9]">
-        </div>
+    <!-- Security Settings Card -->
+    <div class="info-card">
+      <div class="info-row" onclick="openSecurityModal()" style="cursor:pointer;">
+        <div class="info-label">🔐 Security Settings</div>
+        <div class="info-value" style="color:var(--accent);">Change Transfer PIN ›</div>
       </div>
-      <label class="form-label">New PIN</label>
-      <div class="pin-row" id="new-pin-row">
-        <input class="pin-box" type="password" maxlength="1" inputmode="numeric" pattern="[0-9]">
-        <input class="pin-box" type="password" maxlength="1" inputmode="numeric" pattern="[0-9]">
-        <input class="pin-box" type="password" maxlength="1" inputmode="numeric" pattern="[0-9]">
-        <input class="pin-box" type="password" maxlength="1" inputmode="numeric" pattern="[0-9]">
-      </div>
-      <div class="alert alert-error"   id="setPinError"   style="margin-top:8px;"></div>
-      <div class="alert alert-success" id="setPinSuccess" style="margin-top:8px;"></div>
-      <button class="btn-main" style="margin-top:10px;" onclick="setProfilePIN()">Save PIN 🔐</button>
     </div>
 
     <div class="logout-row" onclick="logout()">🚪 Sign Out</div>
@@ -738,8 +802,9 @@ wireBoxes('reg-otp-row');
 wireBoxes('reg-pin-row');
 wireBoxes('reg-pin-confirm-row');
 wireBoxes('transfer-pin-row');
-wireBoxes('current-pin-row');
-wireBoxes('new-pin-row');
+wireBoxes('sec-otp-row');
+wireBoxes('sec-new-pin-row');
+wireBoxes('sec-confirm-pin-row');
 
 // ──────────────────────────────────────────────────────
 // AUTH SCREEN
@@ -819,12 +884,6 @@ function refreshProfile(user) {
   } else {
     document.getElementById('pf-address').textContent = '—';
   }
-
-  // PIN section
-  const hasPIN = user.has_pin;
-  document.getElementById('pinSectionTitle').textContent = hasPIN ? '🔐 Change Transfer PIN' : '⚠️ Set Transfer PIN';
-  document.getElementById('pinSectionSub').textContent   = hasPIN ? 'Enter your current PIN and a new 4-digit PIN to change it.' : 'You need a 4-digit PIN to send money. Set one now.';
-  document.getElementById('currentPinGroup').style.display = hasPIN ? 'block' : 'none';
 
   updateAccountUI(at);
 }
@@ -1095,28 +1154,153 @@ async function confirmTransferWithPIN() {
 }
 
 // ──────────────────────────────────────────────────────
-// SET PIN (Profile)
+// ACCOUNT LOOKUP (Transfer auto-fill)
 // ──────────────────────────────────────────────────────
-async function setProfilePIN() {
-  const pin          = getBoxValue('new-pin-row');
-  const current_pin  = currentUser?.has_pin ? getBoxValue('current-pin-row') : undefined;
-  showAlert('setPinError',''); showAlert('setPinSuccess','');
-  if (pin.length !== 4) { showAlert('setPinError','Please enter a 4-digit PIN.'); return; }
-  if (currentUser?.has_pin && (!current_pin || current_pin.length !== 4)) { showAlert('setPinError','Please enter your current PIN.'); return; }
+let lookupTimer = null;
+function lookupAccount(val) {
+  clearTimeout(lookupTimer);
+  const banner = document.getElementById('holderInfoBanner');
+  if (!val || val.length < 10) {
+    banner.style.display = 'none';
+    document.getElementById('transferRouting').value = '';
+    document.getElementById('transferSwiftField').value = '';
+    return;
+  }
+  lookupTimer = setTimeout(async () => {
+    try {
+      const res  = await authFetch('/api/accounts/lookup?acct=' + encodeURIComponent(val));
+      const data = await res.json();
+      if (data.found) {
+        document.getElementById('holderName').textContent    = data.name;
+        document.getElementById('holderAcctType').textContent = data.account_type;
+        document.getElementById('transferRouting').value     = data.routing_number || '';
+        document.getElementById('transferSwiftField').value  = data.swift_code || 'NVRAUS33XXX';
+        const sel = document.getElementById('transferAcctTypeField');
+        if (sel) sel.value = data.account_type || 'checking';
+        banner.style.display = 'flex';
+      } else {
+        banner.style.display = 'none';
+        document.getElementById('transferRouting').value = '';
+        document.getElementById('transferSwiftField').value = '';
+      }
+    } catch(e) { banner.style.display = 'none'; }
+  }, 500);
+}
 
+// ──────────────────────────────────────────────────────
+// SECURITY MODAL (Change PIN with OTP)
+// ──────────────────────────────────────────────────────
+let secPinOtpVerified = false;
+
+function openSecurityModal() {
+  secPinOtpVerified = false;
+  ['sec-step-1','sec-step-2','sec-step-3'].forEach((id,i) => {
+    document.getElementById(id).style.display = i === 0 ? 'block' : 'none';
+  });
+  showAlert('secError1',''); showAlert('secError2',''); showAlert('secError3',''); showAlert('secSuccess3','');
+  clearBoxes('sec-otp-row'); clearBoxes('sec-new-pin-row'); clearBoxes('sec-confirm-pin-row');
+  document.getElementById('securityModal').style.display = 'flex';
+}
+
+function closeSecurityModal() {
+  document.getElementById('securityModal').style.display = 'none';
+  secPinOtpVerified = false;
+}
+
+async function sendPinChangeOTP(resend) {
+  showAlert('secError1',''); showAlert('secError2','');
+  const btn = document.getElementById('secSendOtpBtn');
+  if (btn) { btn.innerHTML = '<span class="spinner"></span> Sending...'; btn.disabled = true; }
   try {
-    const body = current_pin ? { pin, current_pin } : { pin };
+    const res  = await authFetch('/api/accounts/pin-change-otp', { method:'POST', headers:{'Content-Type':'application/json'} });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    document.getElementById('sec-step-1').style.display = 'none';
+    document.getElementById('sec-step-2').style.display = 'block';
+    clearBoxes('sec-otp-row');
+    setTimeout(() => document.querySelector('#sec-otp-row .otp-box').focus(), 100);
+  } catch(e) { showAlert('secError1', e.message); }
+  finally { if (btn) { btn.innerHTML = 'Send Verification Code 📧'; btn.disabled = false; } }
+}
+
+async function verifyPinChangeOTP() {
+  const otp_code = getBoxValue('sec-otp-row');
+  showAlert('secError2','');
+  if (otp_code.length !== 6) { showAlert('secError2','Please enter the full 6-digit code.'); return; }
+  const btn = document.getElementById('secVerifyBtn');
+  btn.innerHTML = '<span class="spinner"></span> Verifying...'; btn.disabled = true;
+  // We store OTP to submit with the PIN; advance UI
+  secPinOtpVerified = otp_code;
+  btn.innerHTML = 'Verify Code ✓'; btn.disabled = false;
+  document.getElementById('sec-step-2').style.display = 'none';
+  document.getElementById('sec-step-3').style.display = 'block';
+  clearBoxes('sec-new-pin-row'); clearBoxes('sec-confirm-pin-row');
+  setTimeout(() => document.querySelector('#sec-new-pin-row .pin-box').focus(), 100);
+}
+
+async function saveNewPIN() {
+  const pin     = getBoxValue('sec-new-pin-row');
+  const confirm = getBoxValue('sec-confirm-pin-row');
+  showAlert('secError3',''); showAlert('secSuccess3','');
+  if (pin.length !== 4)    { showAlert('secError3','Please enter a 4-digit PIN.'); return; }
+  if (pin !== confirm)     { showAlert('secError3','PINs do not match.'); clearBoxes('sec-new-pin-row'); clearBoxes('sec-confirm-pin-row'); return; }
+  if (!secPinOtpVerified)  { showAlert('secError3','OTP verification missing. Please start over.'); return; }
+
+  const btn = document.getElementById('secSavePinBtn');
+  btn.innerHTML = '<span class="spinner"></span> Saving...'; btn.disabled = true;
+  try {
+    const body = currentUser?.has_pin
+      ? { pin, otp_code: secPinOtpVerified }
+      : { pin };
     const res  = await authFetch('/api/accounts/set-pin', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error);
-    showAlert('setPinSuccess', '✅ Transfer PIN saved successfully!');
-    clearBoxes('current-pin-row'); clearBoxes('new-pin-row');
+    showAlert('secSuccess3', '✅ Transfer PIN updated successfully!');
     if (currentUser) currentUser.has_pin = true;
-    document.getElementById('currentPinGroup').style.display = 'block';
-    document.getElementById('pinSectionTitle').textContent = '🔐 Change Transfer PIN';
-    document.getElementById('pinSectionSub').textContent   = 'Enter your current PIN and a new 4-digit PIN to change it.';
-  } catch(e) { showAlert('setPinError', e.message); clearBoxes('current-pin-row'); }
+    clearBoxes('sec-new-pin-row'); clearBoxes('sec-confirm-pin-row');
+    setTimeout(closeSecurityModal, 1800);
+  } catch(e) {
+    showAlert('secError3', e.message);
+    clearBoxes('sec-new-pin-row'); clearBoxes('sec-confirm-pin-row');
+  }
+  finally { btn.innerHTML = 'Save New PIN 🔐'; btn.disabled = false; }
 }
+
+// ──────────────────────────────────────────────────────
+// IP GEOLOCATION — currency + language detection
+// ──────────────────────────────────────────────────────
+let currencySymbol = '$';
+let currencyCode   = 'USD';
+
+// Map country ISO2 → language code we support
+const COUNTRY_LANG = {
+  FR:'fr', BE:'fr', CH:'fr', LU:'fr', MC:'fr', SN:'fr', CI:'fr', ML:'fr', BF:'fr',
+  ES:'es', MX:'es', AR:'es', CO:'es', CL:'es', PE:'es', VE:'es', EC:'es', GT:'es', CU:'es',
+  BR:'pt', PT:'pt', AO:'pt', MZ:'pt',
+  DE:'de', AT:'de',
+  CN:'zh', TW:'zh', HK:'zh', SG:'zh',
+  SA:'ar', AE:'ar', EG:'ar', MA:'ar', DZ:'ar', TN:'ar', LY:'ar', JO:'ar', LB:'ar', IQ:'ar', SY:'ar', YE:'ar',
+};
+
+async function detectIPLocation() {
+  try {
+    const res  = await fetch('https://ipapi.co/json/');
+    const data = await res.json();
+    if (data.currency_symbol) currencySymbol = data.currency_symbol;
+    if (data.currency)        currencyCode   = data.currency;
+    // Override language if we have a translation for this country
+    const detected = COUNTRY_LANG[data.country_code];
+    if (detected && !window._langOverridden) {
+      window._detectedLang = detected;
+    }
+    applyTranslations();
+    // Update balance display label with currency code
+    const lbl = document.getElementById('lbl-amount');
+    if (lbl) lbl.textContent = `Amount (${currencyCode})`;
+  } catch(e) { /* silently fall back to USD / navigator.language */ }
+}
+
+detectIPLocation();
 
 // ──────────────────────────────────────────────────────
 // TRANSACTIONS
@@ -1193,7 +1377,7 @@ function logout() {
 // ──────────────────────────────────────────────────────
 // UTILS
 // ──────────────────────────────────────────────────────
-function fmt(n) { return '$' + parseFloat(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function fmt(n) { return currencySymbol + parseFloat(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
 function showAlert(id, msg) { const el=document.getElementById(id); if(!el) return; el.textContent=msg; el.style.display=msg?'block':'none'; }
 async function authFetch(url, opts={}) {
   return fetch(API+url, {...opts, headers:{...(opts.headers||{}),'Authorization':'Bearer '+token}});
@@ -1228,6 +1412,7 @@ const TRANSLATIONS = {
 };
 
 function getLang() {
+  if (window._detectedLang && TRANSLATIONS[window._detectedLang]) return window._detectedLang;
   const lang = (navigator.language || 'en').toLowerCase().split('-')[0];
   return TRANSLATIONS[lang] ? lang : 'en';
 }
