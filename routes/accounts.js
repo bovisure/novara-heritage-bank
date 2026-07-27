@@ -4,7 +4,7 @@ const https = require('https');
 const db = require('../database');
 const { authenticate } = require('../middleware/auth');
 const { setOTP, checkOTP } = require('../utils/otp');
-const { sendOTP } = require('../utils/email');
+const { sendOTP, sendTransactionEmail } = require('../utils/email');
 const router = express.Router();
 
 // Helper: simple HTTPS GET → parsed JSON
@@ -103,6 +103,29 @@ router.post('/transfer', authenticate, (req, res) => {
     details: `Sent $${parsed} from ${activeAcct} to ${recipient.name} (${recipient.account_number})${description ? ' — ' + description : ''}`,
     page: 'transfer'
   });
+
+  // In-app notifications
+  db.notifications.insert({
+    user_id: sender.id, title: '📤 Transfer Sent',
+    message: `$${parsed.toFixed(2)} sent to ${recipient.name}. New balance: $${updated[balField].toFixed(2)}`,
+    type: 'info'
+  });
+  db.notifications.insert({
+    user_id: recipient.id, title: '📥 Money Received',
+    message: `$${parsed.toFixed(2)} received from ${sender.name}${description ? ' — ' + description : ''}`,
+    type: 'success'
+  });
+
+  // Transaction emails (non-blocking)
+  const recipientUpdated = db.users.findOne(u => u.id === recipient.id);
+  sendTransactionEmail(sender.email, 'debit', {
+    amount: parsed, counterparty: recipient.name, description,
+    new_balance: updated[balField]
+  }).catch(e => console.error('Sender txn email error:', e.message));
+  sendTransactionEmail(recipient.email, 'credit', {
+    amount: parsed, counterparty: sender.name, description,
+    new_balance: recipientUpdated.balance
+  }).catch(e => console.error('Recipient txn email error:', e.message));
 
   res.json({
     message: 'Transfer successful',
@@ -285,6 +308,18 @@ router.post('/external-transfer', authenticate, (req, res) => {
     page: 'transfer'
   });
 
+  // In-app notification + email (non-blocking)
+  db.notifications.insert({
+    user_id: sender.id, title: '📤 External Transfer Sent',
+    message: `$${parsed.toFixed(2)} sent to ${recipient_name || 'external account'} via ${(dest_type||'').toUpperCase()}`,
+    type: 'info'
+  });
+  sendTransactionEmail(sender.email, 'debit', {
+    amount: parsed, counterparty: recipient_name || 'External Account',
+    description: description || `${(dest_type||'').toUpperCase()} transfer to ${bank_name || 'external bank'}`,
+    new_balance: updated[balField]
+  }).catch(e => console.error('External txn email error:', e.message));
+
   res.json({
     message: 'Transfer initiated successfully',
     transaction_id: txn.id,
@@ -292,6 +327,22 @@ router.post('/external-transfer', authenticate, (req, res) => {
     new_checking_balance: updated.balance,
     new_savings_balance: updated.savings_balance || 0
   });
+});
+
+// ── GET /api/accounts/notifications ──────────────────────────
+router.get('/notifications', authenticate, (req, res) => {
+  const notifs = db.notifications
+    .findWhere(n => n.user_id === req.user.id)
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+    .slice(0, 50);
+  res.json(notifs);
+});
+
+// ── PATCH /api/accounts/notifications/read-all ───────────────
+router.patch('/notifications/read-all', authenticate, (req, res) => {
+  const notifs = db.notifications.findWhere(n => n.user_id === req.user.id && !n.read);
+  notifs.forEach(n => db.notifications.update(n.id, { read: true }));
+  res.json({ ok: true, count: notifs.length });
 });
 
 // ── POST /api/accounts/activity ───────────────────────────────────────────────

@@ -1,6 +1,7 @@
 const express = require('express');
 const db = require('../database');
 const { authenticate, adminOnly } = require('../middleware/auth');
+const { sendAccountEmail } = require('../utils/email');
 const router = express.Router();
 
 router.use(authenticate, adminOnly);
@@ -28,15 +29,93 @@ router.get('/users', (req, res) => {
   res.json(users);
 });
 
-router.patch('/users/:id/status', (req, res) => {
-  const { status } = req.body;
+router.patch('/users/:id/status', async (req, res) => {
+  const { status, reason } = req.body;
   if (!['active', 'frozen'].includes(status)) return res.status(400).json({ error: 'Status must be active or frozen' });
   const user = db.users.findOne(u => u.id === uid(req.params.id));
   if (!user) return res.status(404).json({ error: 'User not found' });
   if (user.role === 'admin') return res.status(400).json({ error: 'Cannot freeze admin account' });
   db.users.update(user.id, { status });
-  logAdminAction(req, status === 'frozen' ? 'freeze_account' : 'unfreeze_account', `${status === 'frozen' ? 'Froze' : 'Unfroze'} account of ${user.name} (${user.email})`);
-  res.json({ message: `Account ${status === 'frozen' ? 'frozen' : 'unfrozen'} successfully` });
+
+  const isFrozen = status === 'frozen';
+  // Create in-app notification
+  db.notifications.insert({
+    user_id: user.id,
+    title: isFrozen ? '🔒 Account Suspended' : '🔓 Account Reactivated',
+    message: isFrozen
+      ? `Your account has been suspended${reason ? ': ' + reason : '. Contact support for details.'}`
+      : 'Your account has been reactivated. You can now log in normally.',
+    type: isFrozen ? 'danger' : 'success'
+  });
+
+  // Send email notification (non-blocking)
+  sendAccountEmail(user.email, isFrozen ? 'frozen' : 'unfrozen', { name: user.name, reason }).catch(e =>
+    console.error('Freeze email error:', e.message)
+  );
+
+  logAdminAction(req, isFrozen ? 'freeze_account' : 'unfreeze_account',
+    `${isFrozen ? 'Froze' : 'Unfroze'} account of ${user.name} (${user.email})${reason ? ' — ' + reason : ''}`);
+  res.json({ message: `Account ${isFrozen ? 'frozen' : 'unfrozen'} successfully` });
+});
+
+// ── GET /api/admin/pending-users ──────────────────────────────
+router.get('/pending-users', (req, res) => {
+  const pending = db.users.findAll()
+    .filter(u => u.status === 'pending_admin')
+    .map(({ password_hash, transaction_pin_hash, ...u }) => u)
+    .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+  res.json(pending);
+});
+
+// ── POST /api/admin/users/:id/approve ────────────────────────
+router.post('/users/:id/approve', async (req, res) => {
+  const user = db.users.findOne(u => u.id === uid(req.params.id));
+  if (!user) return res.status(404).json({ error: 'User not found' });
+  if (user.status !== 'pending_admin') return res.status(400).json({ error: 'Account is not pending approval' });
+  db.users.update(user.id, { status: 'active' });
+
+  // In-app notification
+  db.notifications.insert({
+    user_id: user.id,
+    title: '🎉 Account Approved!',
+    message: `Welcome, ${user.name}! Your Novara Heritage Bank account has been verified and is ready to use.`,
+    type: 'success'
+  });
+
+  // Approval email (non-blocking)
+  sendAccountEmail(user.email, 'approved', {
+    name: user.name,
+    account_number: user.account_number,
+    routing_number: user.routing_number
+  }).catch(e => console.error('Approval email error:', e.message));
+
+  logAdminAction(req, 'approve_account', `Approved account for ${user.name} (${user.email})`);
+  res.json({ message: 'Account approved successfully' });
+});
+
+// ── POST /api/admin/users/:id/reject ─────────────────────────
+router.post('/users/:id/reject', async (req, res) => {
+  const { reason } = req.body;
+  const user = db.users.findOne(u => u.id === uid(req.params.id));
+  if (!user) return res.status(404).json({ error: 'User not found' });
+  if (user.status !== 'pending_admin') return res.status(400).json({ error: 'Account is not pending approval' });
+
+  // Send rejection email before deleting
+  sendAccountEmail(user.email, 'rejected', { name: user.name, reason })
+    .catch(e => console.error('Rejection email error:', e.message));
+
+  logAdminAction(req, 'reject_account', `Rejected account for ${user.name} (${user.email})${reason ? ' — ' + reason : ''}`);
+
+  // Remove user record
+  const data = require('../database').users.findAll();
+  // Direct DB manipulation to delete
+  const dbData = require('fs').existsSync(process.env.DB_PATH || require('path').join(__dirname, '../banking.db.json'))
+    ? JSON.parse(require('fs').readFileSync(process.env.DB_PATH || require('path').join(__dirname, '../banking.db.json'), 'utf8'))
+    : { users: [] };
+  dbData.users = dbData.users.filter(u => u.id !== user.id);
+  require('fs').writeFileSync(process.env.DB_PATH || require('path').join(__dirname, '../banking.db.json'), JSON.stringify(dbData, null, 2));
+
+  res.json({ message: 'Account rejected and removed' });
 });
 
 router.post('/users/:id/credit', (req, res) => {
@@ -119,6 +198,7 @@ router.get('/stats', (req, res) => {
     total_users:        users.length,
     active_users:       users.filter(u => u.status === 'active').length,
     frozen_users:       users.filter(u => u.status === 'frozen').length,
+    pending_users:      users.filter(u => u.status === 'pending_admin').length,
     total_transactions: txns.length,
     total_volume:       txns.filter(t => t.type === 'transfer').reduce((s, t) => s + t.amount, 0),
     total_balance:      users.reduce((s, u) => s + u.balance, 0),

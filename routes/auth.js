@@ -73,19 +73,18 @@ router.post('/register', async (req, res) => {
       balance: 0,         // checking balance
       savings_balance: 0, // savings balance
       role: 'user',
-      status: 'active',
+      status: 'pending_admin',  // requires admin approval before login
       email_verified: true
     });
 
     db.activity.insert({
       user_id: user.id, user_name: user.name, user_email: user.email,
       account_no: user.account_number, action: 'register',
-      details: `New account registered (${user.account_type} account)`, page: 'auth'
+      details: `New account registered (${user.account_type} account) — awaiting admin approval`, page: 'auth'
     });
 
-    const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '24h' });
-    const { password_hash, transaction_pin_hash, ...safeUser } = user;
-    res.status(201).json({ token, user: safeUser });
+    // Do NOT issue a token yet — account must be approved first
+    res.status(201).json({ pending: true, name: user.name, email: user.email });
   } catch (err) {
     console.error('Registration error:', err);
     res.status(500).json({ error: 'Registration failed. Please try again.' });
@@ -101,7 +100,9 @@ router.post('/login', async (req, res) => {
   const user = db.users.findOne(u => u.email === email);
   if (!user) return res.status(401).json({ error: 'Invalid email or password' });
   if (user.status === 'frozen')
-    return res.status(403).json({ error: 'Your account has been frozen. Please contact support.' });
+    return res.status(403).json({ error: 'Your account has been suspended. Please contact support.' });
+  if (user.status === 'pending_admin')
+    return res.status(403).json({ error: 'Your account is pending administrator approval. You will receive an email when it is approved.', pending_admin: true });
   if (!bcrypt.compareSync(password, user.password_hash)) {
     db.activity.insert({
       user_id: user.id, user_name: user.name, user_email: user.email,
@@ -145,7 +146,9 @@ router.post('/login/verify', (req, res) => {
   const user = db.users.findOne(u => u.email === email);
   if (!user) return res.status(404).json({ error: 'Account not found' });
   if (user.status === 'frozen')
-    return res.status(403).json({ error: 'Your account has been frozen. Please contact support.' });
+    return res.status(403).json({ error: 'Your account has been suspended. Please contact support.' });
+  if (user.status === 'pending_admin')
+    return res.status(403).json({ error: 'Your account is still pending administrator approval.', pending_admin: true });
 
   const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '24h' });
   db.activity.insert({
