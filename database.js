@@ -6,13 +6,14 @@ const bcrypt = require('bcryptjs');
 const DB_PATH = process.env.DB_PATH || path.join(__dirname, 'banking.db.json');
 
 function load() {
-  if (!fs.existsSync(DB_PATH)) return { users: [], transactions: [], activity_log: [] };
+  if (!fs.existsSync(DB_PATH)) return { users: [], transactions: [], activity_log: [], notifications: [] };
   try {
     const data = JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
-    if (!data.activity_log) data.activity_log = [];
+    if (!data.activity_log)  data.activity_log  = [];
+    if (!data.notifications) data.notifications = [];
     return data;
   }
-  catch { return { users: [], transactions: [], activity_log: [] }; }
+  catch { return { users: [], transactions: [], activity_log: [], notifications: [] }; }
 }
 
 function save(data) {
@@ -148,6 +149,28 @@ const db = {
       if (data.activity_log.length > 5000) data.activity_log = data.activity_log.slice(-5000);
       save(data);
       return entry;
+    }
+  },
+  notifications: {
+    findAll()       { return load().notifications; },
+    findWhere(pred) { return load().notifications.filter(pred); },
+    insert(entry)   {
+      const data = load();
+      if (!data.notifications) data.notifications = [];
+      entry.id = nextId();
+      entry.created_at = new Date().toISOString();
+      entry.read = entry.read || false;
+      data.notifications.push(entry);
+      save(data);
+      return entry;
+    },
+    update(id, changes) {
+      const data = load();
+      const i = data.notifications.findIndex(n => n.id === id);
+      if (i === -1) return null;
+      Object.assign(data.notifications[i], changes);
+      save(data);
+      return data.notifications[i];
     }
   },
   generateRoutingNumber
