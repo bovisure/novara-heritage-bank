@@ -1414,7 +1414,7 @@ function selectRegAcctType(type) {
   document.getElementById('atBtn-savings').classList.toggle('active', type === 'savings');
 }
 
-apync function regSendOTP(resend) {
+async function regSendOTP(resend) {
   const email = document.getElementById('regEmail').value.trim();
   showAlert('regError1','');
   if (!resend) {
@@ -1922,7 +1922,7 @@ async function uploadAvatar(input) {
 // ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 let notifPanelOpen = false;
 
-apync function loadNotifications() {
+async function loadNotifications() {
   try {
     const res = await authFetch('/api/accounts/notifications');
     if (!res.ok) return;
