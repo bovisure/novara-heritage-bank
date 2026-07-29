@@ -8,6 +8,12 @@ function authenticate(req, res, next) {
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
+    // Check if admin force-logged out this user after the token was issued
+    const db = require('../database');
+    const user = db.users.findOne(u => u.id === decoded.id);
+    if (user && user.force_logout_at && user.force_logout_at > decoded.iat * 1000) {
+      return res.status(401).json({ error: 'Session terminated by administrator' });
+    }
     req.user = decoded;
     next();
   } catch (err) {
