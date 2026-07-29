@@ -14,7 +14,7 @@
   }
   body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; max-width: 480px; margin: 0 auto; }
 
-  /* ── AUTH ── */
+  /* ââ AUTH ââ */
   .auth-screen { min-height: 100vh; display: flex; flex-direction: column; }
   .auth-top { background: linear-gradient(160deg,#1e3a8a 0%,#1e40af 50%,#2563eb 100%); padding: 52px 32px 72px; text-align: center; position: relative; overflow: hidden; }
   .auth-top::before { content:''; position:absolute; width:300px; height:300px; background:rgba(255,255,255,0.05); border-radius:50%; top:-100px; right:-80px; }
@@ -82,7 +82,7 @@
   .resend-row a { color:var(--accent); cursor:pointer; font-weight:600; text-decoration:none; }
   .back-link { text-align:center; margin-top:8px; font-size:13px; color:var(--muted); cursor:pointer; }
 
-  /* ── APP ── */
+  /* ââ APP ââ */
   .app-screen { display:none; flex-direction:column; min-height:100vh; padding-bottom:80px; }
   .topbar { padding:16px 20px 12px; display:flex; align-items:center; justify-content:space-between; }
   .topbar-greeting { font-size:13px; color:var(--muted); }
@@ -209,7 +209,50 @@
   .pin-modal-title { font-size:18px; font-weight:800; text-align:center; margin-bottom:6px; }
   .pin-modal-sub   { font-size:13px; color:var(--muted); text-align:center; margin-bottom:20px; line-height:1.4; }
 
-  /* ── TRANSFER PAGE — destination tabs ── */
+  /* ââ NOVARA LOGO MARK ââ */
+  .nv-mark { display:inline-flex; align-items:center; justify-content:center; background:linear-gradient(160deg,#0f1f5e,#1a3799); border-radius:10px 10px 16px 16px; border:2px solid rgba(201,162,39,0.65); font-size:28px; font-weight:900; color:white; font-family:Georgia,serif; flex-shrink:0; }
+  .nv-mark-lg { width:72px; height:78px; font-size:38px; border-radius:12px 12px 20px 20px; }
+  .nv-mark-sm { width:32px; height:34px; font-size:16px; border-radius:6px 6px 10px 10px; border-width:1.5px; }
+  .auth-bank-icon { display:flex; align-items:center; justify-content:center; margin-bottom:14px; }
+
+  /* ââ NOTIFICATION PANEL ââ */
+  .notif-bell-wrap { position:relative; cursor:pointer; }
+  .notif-bell { width:40px; height:40px; border-radius:50%; background:var(--card2); display:flex; align-items:center; justify-content:center; font-size:18px; border:1px solid var(--border); transition:background 0.2s; }
+  .notif-bell:hover { background:var(--border); }
+  .notif-badge { position:absolute; top:-2px; right:-2px; min-width:18px; height:18px; background:#ef4444; border-radius:9px; font-size:10px; font-weight:800; color:white; display:none; align-items:center; justify-content:center; padding:0 4px; border:2px solid var(--bg); }
+  .notif-panel { position:absolute; top:50px; right:0; width:320px; background:var(--card-bg); border:1px solid var(--border); border-radius:18px; box-shadow:0 20px 60px rgba(0,0,0,0.4); z-index:300; display:none; overflow:hidden; max-height:420px; }
+  .notif-panel.open { display:flex; flex-direction:column; }
+  .notif-panel-head { padding:14px 16px 10px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-shrink:0; }
+  .notif-panel-title { font-size:14px; font-weight:800; }
+  .notif-mark-read { font-size:11px; color:var(--accent); cursor:pointer; font-weight:600; }
+  .notif-list { overflow-y:auto; flex:1; }
+  .notif-item { padding:12px 16px; border-bottom:1px solid var(--border); cursor:pointer; transition:background 0.15s; }
+  .notif-item:last-child { border-bottom:none; }
+  .notif-item.unread { background:rgba(37,99,235,0.07); }
+  .notif-item:hover { background:var(--card2); }
+  .notif-item-title { font-size:13px; font-weight:700; margin-bottom:3px; }
+  .notif-item-msg { font-size:12px; color:var(--muted); line-height:1.4; }
+  .notif-item-time { font-size:10px; color:var(--muted); margin-top:4px; }
+  .notif-empty { padding:32px 16px; text-align:center; color:var(--muted); font-size:13px; }
+
+  /* ââ AUTO-LOGOUT WARNING MODAL ââ */
+  #sessionModal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:900; display:none; align-items:center; justify-content:center; backdrop-filter:blur(8px); }
+  #sessionModal.show { display:flex; }
+  .session-modal-box { background:var(--card-bg); border-radius:24px; padding:32px 24px; width:100%; max-width:360px; text-align:center; border:1px solid var(--border); box-shadow:0 24px 80px rgba(0,0,0,0.5); }
+  .session-countdown { font-size:52px; font-weight:900; color:var(--danger); font-family:monospace; margin:10px 0; }
+
+  /* ââ PENDING APPROVAL SCREEN ââ */
+  #pendingScreen { display:none; min-height:100vh; background:var(--bg); align-items:center; justify-content:center; flex-direction:column; padding:24px; }
+  .pending-card { background:var(--card-bg); border-radius:24px; padding:36px 28px; max-width:400px; width:100%; text-align:center; border:1px solid var(--border); }
+  .pending-icon { font-size:60px; margin-bottom:16px; }
+  .pending-title { font-size:22px; font-weight:900; margin-bottom:8px; }
+  .pending-sub { font-size:14px; color:var(--muted); line-height:1.6; margin-bottom:24px; }
+  .pending-info-box { background:var(--card2); border-radius:14px; padding:16px; margin-bottom:20px; text-align:left; }
+  .pending-info-row { display:flex; justify-content:space-between; font-size:13px; padding:4px 0; }
+  .pending-info-lbl { color:var(--muted); }
+  .pending-info-val { font-weight:700; font-family:monospace; }
+
+  /* ââ TRANSFER PAGE â destination tabs ââ */
   .dest-tabs-wrap { padding:0 16px 4px; overflow:hidden; }
   .dest-tabs { display:flex; gap:10px; overflow-x:auto; padding-bottom:8px; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
   .dest-tabs::-webkit-scrollbar { display:none; }
@@ -245,12 +288,49 @@
 </head>
 <body>
 
-<!-- ══ AUTH SCREEN ══ -->
+<!-- ââ AUTO-LOGOUT WARNING MODAL ââ -->
+<div id="sessionModal">
+  <div class="session-modal-box">
+    <div style="font-size:42px;margin-bottom:8px;">â±ï¸</div>
+    <div style="font-size:17px;font-weight:800;margin-bottom:6px;">Session Expiring</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:4px;">You've been inactive. Signing out in</div>
+    <div class="session-countdown" id="sessionCountdown">30</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:20px;">seconds</div>
+    <button class="btn-main" onclick="stayLoggedIn()">Stay Logged In</button>
+  </div>
+</div>
+
+<!-- ââ PENDING APPROVAL SCREEN ââ -->
+<div id="pendingScreen">
+  <div class="pending-card">
+    <div class="pending-icon">â³</div>
+    <div class="pending-title">Account Under Review</div>
+    <div class="pending-sub">
+      Your application has been submitted successfully.<br>
+      Our team will review and verify your account within <strong>24â48 hours</strong>.
+      You'll receive an email notification once approved.
+    </div>
+    <div class="pending-info-box">
+      <div class="pending-info-row"><span class="pending-info-lbl">Name</span><span class="pending-info-val" id="pendingName">â</span></div>
+      <div class="pending-info-row"><span class="pending-info-lbl">Email</span><span class="pending-info-val" style="font-family:inherit;font-size:12px;" id="pendingEmail">â</span></div>
+      <div class="pending-info-row"><span class="pending-info-lbl">Status</span><span class="pending-info-val" style="color:#f59e0b;">Pending Approval</span></div>
+    </div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:16px;">
+      Questions? Contact us at<br>
+      <a href="mailto:novaraheritagebank.io@gmail.com" style="color:var(--accent);text-decoration:none;">novaraheritagebank.io@gmail.com</a>
+    </div>
+    <button class="btn-main" onclick="showAuth()">â Back to Sign In</button>
+  </div>
+</div>
+
+<!-- ââ AUTH SCREEN ââ -->
 <div class="auth-screen" id="authScreen">
   <div class="auth-top">
-    <div class="auth-bank-icon">🏦</div>
+    <div class="auth-bank-icon">
+      <div class="nv-mark nv-mark-lg">N</div>
+    </div>
     <div class="auth-bank-name">NOVARA HERITAGE BANK</div>
-    <div class="auth-bank-sub">Secure · Trusted · Reliable</div>
+    <div class="auth-bank-sub">Secure Â· Trusted Â· Reliable</div>
   </div>
   <div class="auth-bottom">
     <div class="auth-tabs">
@@ -258,7 +338,7 @@
       <div class="auth-tab" id="tabReg" onclick="switchTab('register')">Create Account</div>
     </div>
 
-    <!-- ── LOGIN FORM ── -->
+    <!-- ââ LOGIN FORM ââ -->
     <div id="loginForm">
       <!-- Step 1: Credentials -->
       <div id="login-step-1">
@@ -269,7 +349,7 @@
         </div>
         <div class="form-group">
           <label class="form-label" id="lbl-login-pwd">Password</label>
-          <input type="password" class="form-input" id="loginPassword" placeholder="••••••••">
+          <input type="password" class="form-input" id="loginPassword" placeholder="â¢â¢â¢â¢â¢â¢â¢â¢">
         </div>
         <button class="btn-main" id="loginBtn" onclick="loginStep1()">Sign In</button>
       </div>
@@ -277,7 +357,7 @@
       <div id="login-step-2" style="display:none">
         <div class="alert alert-error" id="loginOTPError"></div>
         <div class="otp-info">
-          <div class="otp-icon">🔐</div>
+          <div class="otp-icon">ð</div>
           <h3>Two-Factor Verification</h3>
           <p>Enter the 6-digit code sent to<br><strong id="loginEmailDisplay"></strong></p>
         </div>
@@ -289,13 +369,13 @@
           <input class="otp-box" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
           <input class="otp-box" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
         </div>
-        <button class="btn-main" id="loginVerifyBtn" onclick="loginStep2()">Verify &amp; Sign In 🔓</button>
+        <button class="btn-main" id="loginVerifyBtn" onclick="loginStep2()">Verify &amp; Sign In ð</button>
         <div class="resend-row">Didn't receive it? <a onclick="loginStep1(true)">Resend Code</a></div>
-        <div class="back-link" onclick="goLoginStep(1)">← Back to Sign In</div>
+        <div class="back-link" onclick="goLoginStep(1)">â Back to Sign In</div>
       </div>
     </div>
 
-    <!-- ── REGISTER FORM ── -->
+    <!-- ââ REGISTER FORM ââ -->
     <div id="registerForm" style="display:none">
       <!-- Progress indicator -->
       <div class="reg-steps" id="regSteps">
@@ -323,7 +403,7 @@
         </div>
         <div class="form-group">
           <label class="form-label">Street Address</label>
-          <input type="text" class="form-input" id="regStreet" placeholder="123 Main Street, Apt 4B">
+          <input type="text" class="form-input" id="regStreet" placeholder="123 Main Street, Apt 4B 
         </div>
         <div class="form-row cols-3">
           <div class="form-group">
@@ -342,8 +422,8 @@
         <div class="form-group">
           <label class="form-label">Account Type</label>
           <div class="acct-type-toggle">
-            <div class="acct-type-btn active" id="atBtn-checking" onclick="selectRegAcctType('checking')">🏦 Checking</div>
-            <div class="acct-type-btn" id="atBtn-savings" onclick="selectRegAcctType('savings')">💰 Savings</div>
+            <div class="acct-type-btn active" id="atBtn-checking" onclick="selectRegAcctType('checking')">ð¦ Checking</div>
+            <div class="acct-type-btn" id="atBtn-savings" onclick="selectRegAcctType('savings')">ð° Savings</div>
           </div>
         </div>
         <div class="form-row cols-2">
@@ -356,14 +436,14 @@
             <input type="password" class="form-input" id="regConfirmPassword" placeholder="Re-enter">
           </div>
         </div>
-        <button class="btn-main" id="regSendOtpBtn" onclick="regSendOTP()">Send Verification Code 📧</button>
+        <button class="btn-main" id="regSendOtpBtn" onclick="regSendOTP()">Send Verification Code ð§</button>
       </div>
 
       <!-- Step 2: OTP Verification -->
       <div id="reg-step-2" style="display:none">
         <div class="alert alert-error" id="regError2"></div>
         <div class="otp-info">
-          <div class="otp-icon">📧</div>
+          <div class="otp-icon">ð§</div>
           <h3>Check Your Email</h3>
           <p>We sent a 6-digit code to<br><strong id="regEmailDisplay"></strong></p>
         </div>
@@ -375,18 +455,18 @@
           <input class="otp-box" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
           <input class="otp-box" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
         </div>
-        <button class="btn-main" id="regVerifyBtn" onclick="regVerifyOTP()">Verify Code ✓</button>
+        <button class="btn-main" id="regVerifyBtn" onclick="regVerifyOTP()">Verify Code â</button>
         <div class="resend-row">Didn't receive it? <a onclick="regSendOTP(true)">Resend Code</a></div>
-        <div class="back-link" onclick="goRegStep(1)">← Back</div>
+        <div class="back-link" onclick="goRegStep(1)">â Back</div>
       </div>
 
       <!-- Step 3: Transfer PIN -->
       <div id="reg-step-3" style="display:none">
         <div class="alert alert-error" id="regError3"></div>
         <div class="otp-info">
-          <div class="otp-icon">🔐</div>
+          <div class="otp-icon">ð</div>
           <h3>Set Transfer PIN</h3>
-          <p>Create a 4-digit PIN to authorize money transfers.<br>Keep it secret — never share it.</p>
+          <p>Create a 4-digit PIN to authorize money transfers.<br>Keep it secret â never share it.</p>
         </div>
         <label class="form-label" style="text-align:center; display:block; margin-bottom:8px;">Enter PIN</label>
         <div class="pin-row" id="reg-pin-row">
@@ -402,16 +482,16 @@
           <input class="pin-box" type="password" maxlength="1" inputmode="numeric" pattern="[0-9]">
           <input class="pin-box" type="password" maxlength="1" inputmode="numeric" pattern="[0-9]">
         </div>
-        <button class="btn-main" id="regCreateBtn" onclick="completeRegistration()" style="margin-top:16px;">Create My Account 🏦</button>
+        <button class="btn-main" id="regCreateBtn" onclick="completeRegistration()" style="margin-top:16px;">Create My Account ð¦</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ══ TRANSFER PIN MODAL ══ -->
+<!-- ââ TRANSFER PIN MODAL ââ -->
 <div id="pinModal">
   <div class="pin-modal-inner">
-    <div style="font-size:44px; text-align:center; margin-bottom:10px;">🔐</div>
+    <div style="font-size:44px; text-align:center; margin-bottom:10px;">ð</div>
     <div class="pin-modal-title">Enter Transfer PIN</div>
     <div class="pin-modal-sub" id="pinModalAmount">Confirm your 4-digit PIN to authorize this transfer</div>
     <div class="alert alert-error" id="pinModalError"></div>
@@ -421,20 +501,20 @@
       <input class="pin-box" type="password" maxlength="1" inputmode="numeric" pattern="[0-9]">
       <input class="pin-box" type="password" maxlength="1" inputmode="numeric" pattern="[0-9]">
     </div>
-    <button class="btn-main" id="pinModalBtn" onclick="confirmTransferWithPIN()" style="margin-top:16px;">Confirm Transfer ✈️</button>
+    <button class="btn-main" id="pinModalBtn" onclick="confirmTransferWithPIN()" style="margin-top:16px;">Confirm Transfer âï¸</button>
     <div style="text-align:center; margin-top:12px;">
       <span style="font-size:13px; color:var(--muted); cursor:pointer;" onclick="hidePinModal()">Cancel</span>
     </div>
   </div>
 </div>
 
-<!-- ══ TRANSFER REVIEW MODAL ══ -->
+<!-- ââ TRANSFER REVIEW MODAL ââ -->
 <div id="transferReviewModal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.78);z-index:600;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(6px);">
   <div style="background:var(--card-bg);border-radius:28px 28px 0 0;width:100%;max-width:480px;padding:20px 20px 40px;max-height:92vh;overflow-y:auto;border-top:1px solid var(--border);">
     <div style="width:40px;height:4px;background:var(--border);border-radius:4px;margin:0 auto 18px;"></div>
     <div style="text-align:center;margin-bottom:18px;">
-      <div style="font-size:46px;" id="review-dest-flag">🇺🇸</div>
-      <div style="font-size:17px;font-weight:800;margin-top:8px;" id="review-dest-label">United States — ACH</div>
+      <div style="font-size:46px;" id="review-dest-flag">ðºð¸</div>
+      <div style="font-size:17px;font-weight:800;margin-top:8px;" id="review-dest-label">United States â ACH</div>
     </div>
     <!-- Summary card -->
     <div style="background:var(--card2);border-radius:16px;padding:16px;margin-bottom:18px;">
@@ -442,15 +522,15 @@
         <div style="font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">You Send</div>
         <div style="font-size:24px;font-weight:800;color:var(--text);" id="review-amount">$0.00</div>
       </div>
-      <div class="review-row"><span class="review-lbl">Recipient</span><span class="review-val" id="review-name">—</span></div>
-      <div class="review-row" id="review-bank-row"><span class="review-lbl">Bank</span><span class="review-val" id="review-bank">—</span></div>
-      <div class="review-row" id="review-routing-row"><span class="review-lbl">Routing #</span><span class="review-val review-mono" id="review-routing">—</span></div>
-      <div class="review-row" id="review-account-row"><span class="review-lbl" id="review-acct-lbl">Account</span><span class="review-val review-mono" id="review-account">—</span></div>
-      <div class="review-row" id="review-sortcode-row"><span class="review-lbl">Sort Code</span><span class="review-val review-mono" id="review-sortcode">—</span></div>
-      <div class="review-row" id="review-iban-row"><span class="review-lbl">IBAN</span><span class="review-val review-mono" id="review-iban">—</span></div>
-      <div class="review-row" id="review-bic-row"><span class="review-lbl">BIC</span><span class="review-val review-mono" id="review-bic">—</span></div>
-      <div class="review-row" id="review-type-row"><span class="review-lbl">Account Type</span><span class="review-val" id="review-type">—</span></div>
-      <div class="review-row" id="review-desc-row"><span class="review-lbl">Note</span><span class="review-val" id="review-desc">—</span></div>
+      <div class="review-row"><span class="review-lbl">Recipient</span><span class="review-val" id="review-name">â</span></div>
+      <div class="review-row" id="review-bank-row"><span class="review-lbl">Bank</span><span class="review-val" id="review-bank">â</span></div>
+      <div class="review-row" id="review-routing-row"><span class="review-lbl">Routing #</span><span class="review-val review-mono" id="review-routing">â</span></div>
+      <div class="review-row" id="review-account-row"><span class="review-lbl" id="review-acct-lbl">Account</span><span class="review-val review-mono" id="review-account">â</span></div>
+      <div class="review-row" id="review-sortcode-row"><span class="review-lbl">Sort Code</span><span class="review-val review-mono" id="review-sortcode">â</span></div>
+      <div class="review-row" id="review-iban-row"><span class="review-lbl">IBAN</span><span class="review-val review-mono" id="review-iban">â</span></div>
+      <div class="review-row" id="review-bic-row"><span class="review-lbl">BIC</span><span class="review-val review-mono" id="review-bic">â</span></div>
+      <div class="review-row" id="review-type-row"><span class="review-lbl">Account Type</span><span class="review-val" id="review-type">â</span></div>
+      <div class="review-row" id="review-desc-row"><span class="review-lbl">Note</span><span class="review-val" id="review-desc">â</span></div>
     </div>
     <!-- PIN entry -->
     <div style="text-align:center;margin-bottom:16px;">
@@ -463,28 +543,28 @@
         <input class="pin-box" type="password" maxlength="1" inputmode="numeric" pattern="[0-9]">
       </div>
     </div>
-    <button class="btn-main" id="reviewConfirmBtn" onclick="confirmTransfer()">Confirm Transfer 🔐</button>
-    <button class="btn-outline" onclick="closeReviewModal()" style="margin-top:10px;width:100%;padding:14px;border-radius:12px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font-size:14px;font-weight:600;cursor:pointer;">← Edit Details</button>
+    <button class="btn-main" id="reviewConfirmBtn" onclick="confirmTransfer()">Confirm Transfer ð</button>
+    <button class="btn-outline" onclick="closeReviewModal()" style="margin-top:10px;width:100%;padding:14px;border-radius:12px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font-size:14px;font-weight:600;cursor:pointer;">â Edit Details</button>
   </div>
 </div>
 
-<!-- ══ SECURITY MODAL (Change PIN) ══ -->
+<!-- ââ SECURITY MODAL (Change PIN) ââ -->
 <div id="securityModal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:500;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px);">
   <div style="background:var(--card-bg);border-radius:28px 28px 0 0;padding:28px 22px 44px;width:100%;max-width:480px;border-top:1px solid var(--border);">
     <!-- Step 1: Intro / Send OTP -->
     <div id="sec-step-1">
-      <div style="font-size:44px;text-align:center;margin-bottom:10px;">🔐</div>
+      <div style="font-size:44px;text-align:center;margin-bottom:10px;">ð</div>
       <div style="font-size:18px;font-weight:800;text-align:center;margin-bottom:6px;">Change Transfer PIN</div>
       <div style="font-size:13px;color:var(--muted);text-align:center;margin-bottom:20px;line-height:1.5;">
         For security, we'll send a one-time code to your registered email before allowing a PIN change.
       </div>
       <div class="alert alert-error" id="secError1"></div>
-      <button class="btn-main" id="secSendOtpBtn" onclick="sendPinChangeOTP()">Send Verification Code 📧</button>
+      <button class="btn-main" id="secSendOtpBtn" onclick="sendPinChangeOTP()">Send Verification Code ð§</button>
       <div style="text-align:center;margin-top:14px;"><span style="font-size:13px;color:var(--muted);cursor:pointer;" onclick="closeSecurityModal()">Cancel</span></div>
     </div>
     <!-- Step 2: Enter OTP -->
     <div id="sec-step-2" style="display:none;">
-      <div style="font-size:44px;text-align:center;margin-bottom:10px;">📧</div>
+      <div style="font-size:44px;text-align:center;margin-bottom:10px;">ð§</div>
       <div style="font-size:18px;font-weight:800;text-align:center;margin-bottom:6px;">Check Your Email</div>
       <div style="font-size:13px;color:var(--muted);text-align:center;margin-bottom:20px;">Enter the 6-digit code sent to your email.</div>
       <div class="alert alert-error" id="secError2"></div>
@@ -496,13 +576,13 @@
         <input class="otp-box" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
         <input class="otp-box" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]">
       </div>
-      <button class="btn-main" id="secVerifyBtn" onclick="verifyPinChangeOTP()">Verify Code ✓</button>
+      <button class="btn-main" id="secVerifyBtn" onclick="verifyPinChangeOTP()">Verify Code â</button>
       <div class="resend-row">Didn't receive it? <a onclick="sendPinChangeOTP(true)">Resend Code</a></div>
       <div style="text-align:center;margin-top:10px;"><span style="font-size:13px;color:var(--muted);cursor:pointer;" onclick="closeSecurityModal()">Cancel</span></div>
     </div>
     <!-- Step 3: Enter new PIN -->
     <div id="sec-step-3" style="display:none;">
-      <div style="font-size:44px;text-align:center;margin-bottom:10px;">🔑</div>
+      <div style="font-size:44px;text-align:center;margin-bottom:10px;">ð</div>
       <div style="font-size:18px;font-weight:800;text-align:center;margin-bottom:6px;">Set New PIN</div>
       <div style="font-size:13px;color:var(--muted);text-align:center;margin-bottom:20px;">Choose a new 4-digit Transfer PIN.</div>
       <div class="alert alert-error" id="secError3"></div>
@@ -521,25 +601,35 @@
         <input class="pin-box" type="password" maxlength="1" inputmode="numeric" pattern="[0-9]">
       </div>
       <div class="alert alert-success" id="secSuccess3" style="margin-top:8px;"></div>
-      <button class="btn-main" id="secSavePinBtn" onclick="saveNewPIN()" style="margin-top:14px;">Save New PIN 🔐</button>
+      <button class="btn-main" id="secSavePinBtn" onclick="saveNewPIN()" style="margin-top:14px;">Save New PIN ð</button>
       <div style="text-align:center;margin-top:14px;"><span style="font-size:13px;color:var(--muted);cursor:pointer;" onclick="closeSecurityModal()">Cancel</span></div>
     </div>
   </div>
 </div>
 
-<!-- ══ APP SCREEN ══ -->
+<!-- ââ APP SCREEN ââ -->
 <div class="app-screen" id="appScreen">
 
   <!-- HOME PAGE -->
   <div class="page active" id="page-home">
     <div class="topbar">
       <div>
-        <div class="topbar-greeting" id="greeting">Good Morning 👋</div>
-        <div class="topbar-name" id="navName">—</div>
+        <div class="topbar-greeting" id="greeting">Good Morning ð</div>
+        <div class="topbar-name" id="navName">â</div>
         <div id="localTime" style="font-size:11px; color:var(--muted); margin-top:1px;"></div>
       </div>
       <div class="topbar-right">
-        <div class="icon-btn">🔔<div class="notif-dot"></div></div>
+        <div class="notif-bell-wrap" onclick="toggleNotifPanel()">
+          <div class="notif-bell">ð</div>
+          <div class="notif-badge" id="notifBadge"></div>
+        </div>
+        <div id="notifPanel" class="notif-panel">
+          <div class="notif-panel-head">
+            <div class="notif-panel-title">Notifications</div>
+            <div class="notif-mark-read" onclick="markAllRead()">Mark all read</div>
+          </div>
+          <div class="notif-list" id="notifList"><div class="notif-empty">No notifications yet</div></div>
+        </div>
         <div class="topbar-avatar" id="avatarInitial" style="overflow:hidden; padding:0;">?</div>
       </div>
     </div>
@@ -549,25 +639,25 @@
         <div class="card-top">
           <div>
             <div class="card-bank-name">Novara Heritage Bank</div>
-            <div class="card-holder" id="cardHolder">—</div>
+            <div class="card-holder" id="cardHolder">â</div>
           </div>
           <div style="text-align:right">
             <div class="card-type" id="cardAccountTypeLabel">Online Banking</div>
-            <div class="card-acct" id="cardAcctShort">——</div>
+            <div class="card-acct" id="cardAcctShort">ââ</div>
           </div>
         </div>
         <div class="card-acct-switch">
-          <div class="card-switch-btn active" id="cardBtnChecking" onclick="switchAccount('checking')">🏦 Checking</div>
-          <div class="card-switch-btn" id="cardBtnSavings" onclick="switchAccount('savings')">💰 Savings</div>
+          <div class="card-switch-btn active" id="cardBtnChecking" onclick="switchAccount('checking')">ð¦ Checking</div>
+          <div class="card-switch-btn" id="cardBtnSavings" onclick="switchAccount('savings')">ð° Savings</div>
         </div>
         <div class="balance-label" id="balance-label">Available Balance</div>
         <div class="balance-amount">
           <span id="balanceDisplay">$0.00</span>
-          <button class="eye-btn" onclick="toggleBalance()">👁</button>
+          <button class="eye-btn" onclick="toggleBalance()">ð</button>
         </div>
         <div class="card-footer">
           <div class="card-status"><div class="status-dot"></div><span id="cardStatusText">Active</span></div>
-          <div class="card-updated" id="cardUpdated">—</div>
+          <div class="card-updated" id="cardUpdated">â</div>
         </div>
       </div>
       <div class="card-dots"><div class="card-dot active"></div><div class="card-dot"></div></div>
@@ -575,19 +665,19 @@
 
     <div class="actions">
       <div class="action-btn" onclick="showPage('transfer')">
-        <div class="action-circle gold">➕</div>
+        <div class="action-circle gold">â</div>
         <div class="action-label">Top Up</div>
       </div>
       <div class="action-btn" onclick="showPage('transfer')">
-        <div class="action-circle dark">✈️</div>
+        <div class="action-circle dark">âï¸</div>
         <div class="action-label" id="act-send">Send</div>
       </div>
       <div class="action-btn" onclick="showPage('history')">
-        <div class="action-circle dark">⬇️</div>
+        <div class="action-circle dark">â¬ï¸</div>
         <div class="action-label">Receive</div>
       </div>
       <div class="action-btn" onclick="showPage('profile')">
-        <div class="action-circle dark">⋯</div>
+        <div class="action-circle dark">â¯</div>
         <div class="action-label">More</div>
       </div>
     </div>
@@ -595,15 +685,15 @@
     <div class="section">
       <div class="section-header">
         <div class="section-title" id="section-quick-transfer">Quick Transfer</div>
-        <div class="view-all" onclick="showPage('transfer')">View All ›</div>
+        <div class="view-all" onclick="showPage('transfer')">View All âº</div>
       </div>
       <div class="beneficiaries">
         <div class="benef-add" onclick="showPage('transfer')">
-          <div class="benef-circle">＋</div>
+          <div class="benef-circle">ï¼</div>
           <div class="benef-name">Add New</div>
         </div>
         <div class="benef-add">
-          <div class="benef-circle" style="border-style:solid; border-color:rgba(255,255,255,0.1); background:var(--card2); font-size:14px; color:var(--muted)">👥</div>
+          <div class="benef-circle" style="border-style:solid; border-color:rgba(255,255,255,0.1); background:var(--card2); font-size:14px; color:var(--muted)">ð¥</div>
           <div class="benef-name">No saved<br>beneficiaries</div>
         </div>
       </div>
@@ -612,15 +702,15 @@
     <div class="section">
       <div class="section-header">
         <div class="section-title" id="section-recent-activity">Recent Activity</div>
-        <div class="view-all" onclick="showPage('history')">View All ›</div>
+        <div class="view-all" onclick="showPage('history')">View All âº</div>
       </div>
       <div id="recentTxns">
-        <div class="empty-state"><div>💳</div><p>No transactions yet</p></div>
+        <div class="empty-state"><div>ð³</div><p>No transactions yet</p></div>
       </div>
     </div>
 
     <div class="contact-banner">
-      <div style="font-size:22px;">💬</div>
+      <div style="font-size:22px;">ð¬</div>
       <div>
         <div style="font-size:11px; color:var(--muted); margin-bottom:6px;" id="contact-support-label">Customer Support (WhatsApp)</div>
         <a href="https://wa.me/12159194436?text=i%20need%20help%20on%20my%20account" target="_blank" style="text-decoration:none; display:flex; align-items:center; gap:10px;">
@@ -630,7 +720,7 @@
             <div style="font-size:11px; color:var(--muted);">Tap to chat on WhatsApp</div>
           </div>
         </a>
-        <a href="mailto:novaraheritagebank.io@gmail.com" style="font-size:11px; color:var(--accent); margin-top:6px; display:block; text-decoration:none;">✉️ novaraheritagebank.io@gmail.com</a>
+        <a href="mailto:novaraheritagebank.io@gmail.com" style="font-size:11px; color:var(--accent); margin-top:6px; display:block; text-decoration:none;">âï¸ novaraheritagebank.io@gmail.com</a>
       </div>
     </div>
   </div>
@@ -641,50 +731,50 @@
 
     <!-- Balance pill -->
     <div style="padding:0 16px 10px;">
-      <div class="balance-pill">💰 <span id="transferAcctLabel">Checking</span>: <span id="transferBalanceShow">$0.00</span></div>
+      <div class="balance-pill">ð° <span id="transferAcctLabel">Checking</span>: <span id="transferBalanceShow">$0.00</span></div>
     </div>
 
     <!-- Destination country tabs -->
     <div class="dest-tabs-wrap">
       <div class="dest-tabs" id="destTabs">
         <div class="dest-tab active" data-dest="novara" onclick="selectDest('novara')">
-          <div class="dest-tab-flag">🏦</div>
+          <div class="dest-tab-flag">ð¦</div>
           <div class="dest-tab-name">Novara</div>
         </div>
         <div class="dest-tab" data-dest="us" onclick="selectDest('us')">
-          <div class="dest-tab-flag">🇺🇸</div>
+          <div class="dest-tab-flag">ðºð¸</div>
           <div class="dest-tab-name">United States</div>
         </div>
         <div class="dest-tab" data-dest="uk" onclick="selectDest('uk')">
-          <div class="dest-tab-flag">🇬🇧</div>
+          <div class="dest-tab-flag">ð¬ð§</div>
           <div class="dest-tab-name">United Kingdom</div>
         </div>
         <div class="dest-tab" data-dest="de" onclick="selectDest('de')">
-          <div class="dest-tab-flag">🇩🇪</div>
+          <div class="dest-tab-flag">ð©ðª</div>
           <div class="dest-tab-name">Germany</div>
         </div>
         <div class="dest-tab" data-dest="fr" onclick="selectDest('fr')">
-          <div class="dest-tab-flag">🇫🇷</div>
+          <div class="dest-tab-flag">ð«ð·</div>
           <div class="dest-tab-name">France</div>
         </div>
         <div class="dest-tab" data-dest="es" onclick="selectDest('es')">
-          <div class="dest-tab-flag">🇪🇸</div>
+          <div class="dest-tab-flag">ðªð¸</div>
           <div class="dest-tab-name">Spain</div>
         </div>
         <div class="dest-tab" data-dest="it" onclick="selectDest('it')">
-          <div class="dest-tab-flag">🇮🇹</div>
+          <div class="dest-tab-flag">ð®ð¹</div>
           <div class="dest-tab-name">Italy</div>
         </div>
         <div class="dest-tab" data-dest="nl" onclick="selectDest('nl')">
-          <div class="dest-tab-flag">🇳🇱</div>
+          <div class="dest-tab-flag">ð³ð±</div>
           <div class="dest-tab-name">Netherlands</div>
         </div>
         <div class="dest-tab" data-dest="be" onclick="selectDest('be')">
-          <div class="dest-tab-flag">🇧🇪</div>
+          <div class="dest-tab-flag">ð§ðª</div>
           <div class="dest-tab-name">Belgium</div>
         </div>
         <div class="dest-tab" data-dest="ch" onclick="selectDest('ch')">
-          <div class="dest-tab-flag">🇨🇭</div>
+          <div class="dest-tab-flag">ð¨ð­</div>
           <div class="dest-tab-name">Switzerland</div>
         </div>
       </div>
@@ -698,19 +788,38 @@
       <!-- NOVARA form -->
       <div id="form-novara" class="dest-form">
         <div class="dest-form-header">
-          <div class="dest-form-icon">🏦</div>
+          <div class="dest-form-icon"><div class="nv-mark nv-mark-sm">N</div></div>
           <div>
             <div class="dest-form-title">Novara Internal Transfer</div>
-            <div class="dest-form-sub">Instant · No fees · 24/7</div>
+            <div class="dest-form-sub">Instant Â· No fees Â· Available 24/7</div>
           </div>
+        </div>
+        <!-- Novara bank info (always shown) -->
+        <div style="padding:10px 14px;background:rgba(37,99,235,0.1);border:1px solid rgba(37,99,235,0.25);border-radius:12px;margin-bottom:14px;font-size:12px;color:#93c5fd;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="color:var(--muted);">Bank</span><strong>Novara Heritage Bank</strong></div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="color:var(--muted);">Routing</span><span id="n-routing-display" style="font-family:monospace;">Loading...</span></div>
+          <div style="display:flex;justify-content:space-between;"><span style="color:var(--muted);">SWIFT</span><span style="font-family:monospace;">NVRAUS33XXX</span></div>
         </div>
         <div class="form-group">
           <label class="form-label">Recipient Account Number</label>
           <input type="text" class="form-input" id="n-account" placeholder="e.g. ACC1700000000001" oninput="lookupNovara(this.value)" style="font-family:monospace;font-size:13px;" autocomplete="off">
         </div>
         <div id="n-holder-banner" style="display:none;padding:10px 14px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);border-radius:12px;margin-bottom:12px;font-size:13px;color:#6ee7b7;align-items:center;gap:8px;">
-          <span style="font-size:16px;">✅</span>
-          <div><strong id="n-holder-name"></strong> &nbsp;·&nbsp; <span id="n-holder-type" style="text-transform:capitalize;"></span></div>
+          <span style="font-size:16px;">â</span>
+          <div>
+            <strong id="n-holder-name"></strong>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px;"><span id="n-holder-type" style="text-transform:capitalize;"></span></div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Recipient Name</label>
+          <input type="text" class="form-input" id="n-recipient-name" placeholder="Auto-filled from account lookup" style="opacity:0.7;" readonly>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Account Type</label>
+          <div class="acct-type-toggle">
+            <div class="acct-type-btn active" id="n-type-display" style="flex:1;cursor:default;opacity:0.7;">ð¦ Checking</div>
+          </div>
         </div>
         <div class="form-group">
           <label class="form-label">Amount</label>
@@ -728,17 +837,17 @@
       <!-- US form -->
       <div id="form-us" class="dest-form" style="display:none;">
         <div class="dest-form-header">
-          <div class="dest-form-icon">🇺🇸</div>
+          <div class="dest-form-icon">ðºð¸</div>
           <div>
-            <div class="dest-form-title">United States — ACH / Wire</div>
-            <div class="dest-form-sub">1–3 business days · Fees may apply</div>
+            <div class="dest-form-title">United States â ACH / Wire</div>
+            <div class="dest-form-sub">1â3 business days Â· Fees may apply</div>
           </div>
         </div>
         <div class="form-group">
           <label class="form-label">ABA Routing Number</label>
           <div class="lookup-input-wrap">
             <input type="text" class="form-input" id="us-routing" placeholder="9-digit routing number" maxlength="9" inputmode="numeric" oninput="lookupUSRouting(this.value)" style="font-family:monospace;font-size:13px;" autocomplete="off">
-            <div class="lookup-spinner" id="us-routing-spin" style="display:none;">⏳</div>
+            <div class="lookup-spinner" id="us-routing-spin" style="display:none;">â³</div>
           </div>
           <div id="us-bank-banner" style="display:none;padding:8px 12px;background:rgba(37,99,235,0.12);border:1px solid rgba(37,99,235,0.25);border-radius:10px;margin-top:8px;font-size:12px;color:#93c5fd;">
             <strong id="us-bank-name"></strong> &nbsp;<span id="us-bank-addr" style="color:var(--muted);"></span>
@@ -751,8 +860,8 @@
         <div class="form-group">
           <label class="form-label">Account Type</label>
           <div class="acct-type-toggle">
-            <div class="acct-type-btn active" id="us-type-checking" onclick="setUSType('checking')">🏦 Checking</div>
-            <div class="acct-type-btn" id="us-type-savings" onclick="setUSType('savings')">💰 Savings</div>
+            <div class="acct-type-btn active" id="us-type-checking" onclick="setUSType('checking')">ð¦ Checking</div>
+            <div class="acct-type-btn" id="us-type-savings" onclick="setUSType('savings')">ð° Savings</div>
           </div>
         </div>
         <div class="form-group">
@@ -775,10 +884,10 @@
       <!-- UK form -->
       <div id="form-uk" class="dest-form" style="display:none;">
         <div class="dest-form-header">
-          <div class="dest-form-icon">🇬🇧</div>
+          <div class="dest-form-icon">ð¬ð§</div>
           <div>
-            <div class="dest-form-title">United Kingdom — Faster Payments</div>
-            <div class="dest-form-sub">Same day · Fees may apply</div>
+            <div class="dest-form-title">United Kingdom â Faster Payments</div>
+            <div class="dest-form-sub">Same day Â· Fees may apply</div>
           </div>
         </div>
         <div class="form-group">
@@ -796,7 +905,7 @@
         <div class="form-group">
           <label class="form-label">Amount (GBP)</label>
           <div class="amount-input-wrap">
-            <span class="amount-currency">£</span>
+            <span class="amount-currency">Â£</span>
             <input type="number" class="form-input amount-input" id="uk-amount" placeholder="0.00" min="0.01" step="0.01">
           </div>
         </div>
@@ -809,17 +918,17 @@
       <!-- SEPA form (DE, FR, ES, IT, NL, BE, CH) -->
       <div id="form-sepa" class="dest-form" style="display:none;">
         <div class="dest-form-header">
-          <div class="dest-form-icon" id="sepa-flag">🇩🇪</div>
+          <div class="dest-form-icon" id="sepa-flag">ð©ðª</div>
           <div>
-            <div class="dest-form-title" id="sepa-title">Germany — SEPA Transfer</div>
-            <div class="dest-form-sub" id="sepa-sub">1–2 business days · SEPA Zone</div>
+            <div class="dest-form-title" id="sepa-title">Germany â SEPA Transfer</div>
+            <div class="dest-form-sub" id="sepa-sub">1â2 business days Â· SEPA Zone</div>
           </div>
         </div>
         <div class="form-group">
           <label class="form-label">IBAN</label>
           <div class="lookup-input-wrap">
             <input type="text" class="form-input" id="sepa-iban" placeholder="e.g. DE89370400440532013000" oninput="lookupSepaIBAN(this.value)" style="font-family:monospace;font-size:12px;" autocomplete="off">
-            <div class="lookup-spinner" id="sepa-iban-spin" style="display:none;">⏳</div>
+            <div class="lookup-spinner" id="sepa-iban-spin" style="display:none;">â³</div>
           </div>
           <div id="sepa-bank-banner" style="display:none;padding:8px 12px;background:rgba(37,99,235,0.12);border:1px solid rgba(37,99,235,0.25);border-radius:10px;margin-top:8px;font-size:12px;color:#93c5fd;">
             <strong id="sepa-bank-name"></strong>
@@ -837,7 +946,7 @@
         <div class="form-group">
           <label class="form-label" id="sepa-amount-label">Amount (EUR)</label>
           <div class="amount-input-wrap">
-            <span class="amount-currency" id="sepa-currency-sym">€</span>
+            <span class="amount-currency" id="sepa-currency-sym">â¬</span>
             <input type="number" class="form-input amount-input" id="sepa-amount" placeholder="0.00" min="0.01" step="0.01">
           </div>
         </div>
@@ -847,11 +956,11 @@
         </div>
       </div>
 
-      <button class="btn-main" id="transferContinueBtn" onclick="proceedToReview()">Continue →</button>
+      <button class="btn-main" id="transferContinueBtn" onclick="proceedToReview()">Continue â</button>
     </div>
 
     <div class="contact-banner" style="margin-top:4px;">
-      <div style="font-size:20px;">⚠️</div>
+      <div style="font-size:20px;">â ï¸</div>
       <div style="font-size:11px; line-height:1.5; color:var(--muted)">Transfers cannot be reversed. Always verify recipient details before confirming. Your Transfer PIN is required to authorize.</div>
     </div>
   </div>
@@ -861,7 +970,7 @@
     <div class="page-title" id="page-title-history">Transaction History</div>
     <div class="section" style="padding-top:0;">
       <div id="allTxns">
-        <div class="empty-state"><div>📋</div><p>No transactions yet</p></div>
+        <div class="empty-state"><div>ð</div><p>No transactions yet</p></div>
       </div>
     </div>
   </div>
@@ -873,78 +982,78 @@
       <div style="position:relative; display:inline-block; cursor:pointer;" onclick="document.getElementById('avatarFileInput').click()">
         <div class="profile-avatar" id="profileInitial">?</div>
         <img id="profileAvatarImg" src="" alt="" style="display:none; width:80px; height:80px; border-radius:50%; object-fit:cover; border:3px solid var(--accent); position:absolute; top:0; left:0;">
-        <div style="position:absolute; bottom:0; right:0; background:var(--accent); border-radius:50%; width:26px; height:26px; display:flex; align-items:center; justify-content:center; font-size:13px; box-shadow:0 2px 8px rgba(0,0,0,0.4);">📷</div>
+        <div style="position:absolute; bottom:0; right:0; background:var(--accent); border-radius:50%; width:26px; height:26px; display:flex; align-items:center; justify-content:center; font-size:13px; box-shadow:0 2px 8px rgba(0,0,0,0.4);">ð·</div>
       </div>
       <input type="file" id="avatarFileInput" accept="image/*" style="display:none;" onchange="uploadAvatar(this)">
-      <div class="profile-name"  id="profileName">—</div>
-      <div class="profile-email" id="profileEmail">—</div>
-      <div class="profile-acct"  id="profileAcctDisplay">—</div>
+      <div class="profile-name"  id="profileName">â</div>
+      <div class="profile-email" id="profileEmail">â</div>
+      <div class="profile-acct"  id="profileAcctDisplay">â</div>
     </div>
 
     <!-- Account Info Card -->
     <div class="info-card" style="margin-top:14px;">
       <div class="info-row">
         <div class="info-label">Account Holder</div>
-        <div class="info-value" id="pf-holder">—</div>
+        <div class="info-value" id="pf-holder">â</div>
       </div>
       <div class="info-row">
         <div class="info-label">Account Number</div>
-        <div class="info-value mono" id="pf-acct-num">—</div>
+        <div class="info-value mono" id="pf-acct-num">â</div>
       </div>
       <div class="info-row">
         <div class="info-label">Routing Number</div>
-        <div class="info-value mono" id="pf-routing">—</div>
+        <div class="info-value mono" id="pf-routing">â</div>
       </div>
       <div class="info-row">
         <div class="info-label">SWIFT / BIC</div>
-        <div class="info-value mono" id="pf-swift">—</div>
+        <div class="info-value mono" id="pf-swift">â</div>
       </div>
       <div class="info-row">
         <div class="info-label">Bank Type</div>
-        <div class="info-value" id="pf-bank-type">—</div>
+        <div class="info-value" id="pf-bank-type">â</div>
       </div>
       <div class="info-row">
         <div class="info-label">Account Type</div>
-        <div class="info-value"><span class="badge" id="pf-acct-type">—</span></div>
+        <div class="info-value"><span class="badge" id="pf-acct-type">â</span></div>
       </div>
     </div>
 
     <!-- Balances Card -->
     <div class="info-card">
       <div class="info-row">
-        <div class="info-label">🏦 Checking Balance</div>
-        <div class="info-value" id="pf-checking-bal">—</div>
+        <div class="info-label">ð¦ Checking Balance</div>
+        <div class="info-value" id="pf-checking-bal">â</div>
       </div>
       <div class="info-row">
-        <div class="info-label">💰 Savings Balance</div>
-        <div class="info-value" id="pf-savings-bal">—</div>
+        <div class="info-label">ð° Savings Balance</div>
+        <div class="info-value" id="pf-savings-bal">â</div>
       </div>
       <div class="info-row">
         <div class="info-label" id="profile-lbl-status">Account Status</div>
-        <div class="info-value"><span class="badge" id="profileStatus">—</span></div>
+        <div class="info-value"><span class="badge" id="profileStatus">â</span></div>
       </div>
       <div class="info-row">
         <div class="info-label" id="profile-lbl-since">Member Since</div>
-        <div class="info-value" id="profileDate">—</div>
+        <div class="info-value" id="profileDate">â</div>
       </div>
     </div>
 
     <!-- Contact Info Card -->
     <div class="info-card">
       <div class="info-row">
-        <div class="info-label">📞 Phone</div>
-        <div class="info-value" id="pf-phone">—</div>
+        <div class="info-label">ð Phone</div>
+        <div class="info-value" id="pf-phone">â</div>
       </div>
       <div class="info-row">
-        <div class="info-label">🏠 Address</div>
-        <div class="info-value" id="pf-address" style="font-size:12px;">—</div>
+        <div class="info-label">ð  Address</div>
+        <div class="info-value" id="pf-address" style="font-size:12px;">â</div>
       </div>
     </div>
 
     <!-- Support Card -->
     <div class="info-card">
       <div class="info-row">
-        <div class="info-label">📞 Support</div>
+        <div class="info-label">ð Support</div>
         <a href="https://wa.me/12159194436?text=i%20need%20help%20on%20my%20account" target="_blank" style="text-decoration:none; display:flex; align-items:center; gap:8px;">
           <svg width="28" height="28" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="#25D366"/><path d="M16 6C10.477 6 6 10.477 6 16c0 1.82.487 3.53 1.337 5.007L6 26l5.13-1.312A9.956 9.956 0 0016 26c5.523 0 10-4.477 10-10S21.523 6 16 6zm4.39 12.18c-.24-.12-1.42-.7-1.64-.78-.22-.08-.38-.12-.54.12-.16.24-.62.78-.76.94-.14.16-.28.18-.52.06-.24-.12-1.014-.374-1.932-1.19-.714-.636-1.196-1.422-1.336-1.662-.14-.24-.014-.37.105-.49.108-.107.24-.28.36-.42.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.54-1.3-.74-1.78-.194-.468-.392-.404-.54-.412l-.46-.008c-.16 0-.42.06-.64.3-.22.24-.84.82-.84 2s.86 2.32.98 2.48c.12.16 1.694 2.588 4.106 3.628.574.248 1.022.396 1.37.506.576.184 1.1.158 1.514.096.462-.07 1.422-.582 1.622-1.144.2-.562.2-1.044.14-1.144-.06-.1-.22-.16-.46-.28z" fill="white"/></svg>
           <div>
@@ -954,7 +1063,7 @@
         </a>
       </div>
       <div class="info-row">
-        <div class="info-label">✉️ Email</div>
+        <div class="info-label">âï¸ Email</div>
         <a href="mailto:novaraheritagebank.io@gmail.com" style="color:var(--accent); font-size:12px; text-decoration:none;">novaraheritagebank.io@gmail.com</a>
       </div>
     </div>
@@ -962,33 +1071,33 @@
     <!-- Security Settings Card -->
     <div class="info-card">
       <div class="info-row" onclick="openSecurityModal()" style="cursor:pointer;">
-        <div class="info-label">🔐 Security Settings</div>
-        <div class="info-value" style="color:var(--accent);">Change Transfer PIN ›</div>
+        <div class="info-label">ð Security Settings</div>
+        <div class="info-value" style="color:var(--accent);">Change Transfer PIN âº</div>
       </div>
     </div>
 
-    <div class="logout-row" onclick="logout()">🚪 Sign Out</div>
+    <div class="logout-row" onclick="logout()">ðª Sign Out</div>
   </div>
 
   <!-- BOTTOM NAV -->
   <div class="bottom-nav">
     <div class="nav-btn active" id="nav-home" onclick="showPage('home')">
-      <div class="nav-icon">📊</div>
+      <div class="nav-icon">ð</div>
       <div class="nav-label" id="nav-label-activity">Activity</div>
     </div>
     <div class="nav-btn" id="nav-transfer" onclick="showPage('transfer')">
-      <div class="nav-icon">✈️</div>
+      <div class="nav-icon">âï¸</div>
       <div class="nav-label" id="nav-label-transfer">Transfer</div>
     </div>
     <div class="nav-btn" id="nav-home2" onclick="showPage('home')">
-      <div class="nav-home-btn">🏠</div>
+      <div class="nav-home-btn">ð </div>
     </div>
     <div class="nav-btn" id="nav-history" onclick="showPage('history')">
-      <div class="nav-icon">📋</div>
+      <div class="nav-icon">ð</div>
       <div class="nav-label" id="nav-label-history">History</div>
     </div>
     <div class="nav-btn" id="nav-profile" onclick="showPage('profile')">
-      <div class="nav-icon">👤</div>
+      <div class="nav-icon">ð¤</div>
       <div class="nav-label" id="nav-label-profile">Profile</div>
     </div>
   </div>
@@ -1004,10 +1113,54 @@ let realSavings = 0;
 let pendingTransfer = null; // holds transfer params while PIN modal is open
 let regAcctType = 'checking';
 
+// ââ AUTO-LOGOUT (2 minutes idle) ââââââââââââââââââââââââââââââ
+const IDLE_TIMEOUT   = 2 * 60 * 1000; // 2 min
+const WARN_BEFORE    = 30 * 1000;     // warn 30 sec before
+let idleTimer        = null;
+let warnTimer        = null;
+let countdownInterval = null;
+
+function resetIdleTimer() {
+  if (!token) return;
+  clearTimeout(idleTimer); clearTimeout(warnTimer); clearInterval(countdownInterval);
+  // Hide warning if visible
+  document.getElementById('sessionModal').classList.remove('show');
+  warnTimer = setTimeout(showSessionWarning, IDLE_TIMEOUT - WARN_BEFORE);
+  idleTimer = setTimeout(forceIdleLogout,  IDLE_TIMEOUT);
+}
+
+function showSessionWarning() {
+  let secs = 30;
+  document.getElementById('sessionCountdown').textContent = secs;
+  document.getElementById('sessionModal').classList.add('show');
+  countdownInterval = setInterval(() => {
+    secs--;
+    document.getElementById('sessionCountdown').textContent = secs;
+    if (secs <= 0) { clearInterval(countdownInterval); forceIdleLogout(); }
+  }, 1000);
+}
+
+function stayLoggedIn() {
+  clearInterval(countdownInterval);
+  document.getElementById('sessionModal').classList.remove('show');
+  resetIdleTimer();
+}
+
+function forceIdleLogout() {
+  clearTimeout(idleTimer); clearTimeout(warnTimer); clearInterval(countdownInterval);
+  document.getElementById('sessionModal').classList.remove('show');
+  logout();
+}
+
+// Track activity
+['mousemove','mousedown','keydown','touchstart','click','scroll'].forEach(ev =>
+  document.addEventListener(ev, resetIdleTimer, { passive: true })
+);
+
 // Greeting
 const hr = new Date().getHours();
 document.getElementById('greeting').textContent =
-  hr < 12 ? 'Good Morning 🌅' : hr < 17 ? 'Good Afternoon 🌤' : 'Good Evening 🌙';
+  hr < 12 ? 'Good Morning ð' : hr < 17 ? 'Good Afternoon ð¤' : 'Good Evening ð';
 
 if (token) {
   fetchProfile().catch(() => { token = null; localStorage.removeItem('nhb_token'); });
@@ -1015,9 +1168,27 @@ if (token) {
   showAuth();
 }
 
-// ──────────────────────────────────────────────────────
+// ââ SESSION POLL: detect admin force-logout every 30s âââââââââ
+setInterval(async () => {
+  if (!token) return;
+  try {
+    const r = await fetch('/api/accounts/me', { headers: { Authorization: 'Bearer ' + token } });
+    if (r.status === 401) {
+      token = null;
+      localStorage.removeItem('nhb_token');
+      clearTimeout(idleTimer); clearTimeout(warnTimer); clearInterval(countdownInterval);
+      showAuth();
+      setTimeout(() => {
+        const el = document.getElementById('loginError');
+        if (el) { el.textContent = 'Your session was ended by an administrator.'; el.style.display = 'block'; }
+      }, 200);
+    }
+  } catch(e) { /* network blip â ignore */ }
+}, 30000);
+
+// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 // OTP / PIN BOX HELPERS
-// ──────────────────────────────────────────────────────
+// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 function wireBoxes(containerId) {
   const boxes = [...document.querySelectorAll('#' + containerId + ' input')];
   boxes.forEach((box, i) => {
@@ -1057,20 +1228,31 @@ wireBoxes('sec-otp-row');
 wireBoxes('sec-new-pin-row');
 wireBoxes('sec-confirm-pin-row');
 
-// ──────────────────────────────────────────────────────
+// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 // AUTH SCREEN
-// ──────────────────────────────────────────────────────
+// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 function showAuth() {
-  document.getElementById('authScreen').style.display = 'flex';
-  document.getElementById('appScreen').style.display  = 'none';
+  document.getElementById('authScreen').style.display   = 'flex';
+  document.getElementById('appScreen').style.display    = 'none';
+  document.getElementById('pendingScreen').style.display = 'none';
+  clearTimeout(idleTimer); clearTimeout(warnTimer); clearInterval(countdownInterval);
+}
+
+function showPendingScreen(name, email) {
+  document.getElementById('authScreen').style.display   = 'none';
+  document.getElementById('appScreen').style.display    = 'none';
+  document.getElementById('pendingScreen').style.display = 'flex';
+  document.getElementById('pendingName').textContent    = name || 'â';
+  document.getElementById('pendingEmail').textContent   = email || 'â';
 }
 
 function showApp(user) {
   currentUser = user;
   realBalance = parseFloat(user.balance || 0);
   realSavings = parseFloat(user.savings_balance || 0);
-  document.getElementById('authScreen').style.display = 'none';
-  document.getElementById('appScreen').style.display  = 'flex';
+  document.getElementById('authScreen').style.display   = 'none';
+  document.getElementById('appScreen').style.display    = 'flex';
+  document.getElementById('pendingScreen').style.display = 'none';
 
   const initial = user.name.charAt(0).toUpperCase();
   document.getElementById('navName').textContent        = user.name;
@@ -1079,16 +1261,22 @@ function showApp(user) {
   document.getElementById('cardHolder').textContent     = user.name.toUpperCase();
   document.getElementById('profileName').textContent    = user.name;
   document.getElementById('profileEmail').textContent   = user.email;
-  document.getElementById('profileAcctDisplay').textContent = user.account_number || '—';
+  document.getElementById('profileAcctDisplay').textContent = user.account_number || 'â';
 
   const acct = user.account_number || '';
-  document.getElementById('cardAcctShort').textContent  = '•••• ' + acct.slice(-4);
+  document.getElementById('cardAcctShort').textContent  = 'â¢â¢â¢â¢ ' + acct.slice(-4);
   document.getElementById('cardUpdated').textContent    = 'Updated: ' + new Date().toLocaleDateString('en-US', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'});
+
+  // Populate Novara routing in transfer form
+  const rte = document.getElementById('n-routing-display');
+  if (rte) rte.textContent = user.routing_number || 'NVRAUS33XXX';
 
   updateAccountUI(user.account_type || 'checking');
   refreshProfile(user);
   loadTransactions();
   setAvatar(user.avatar || null);
+  resetIdleTimer();
+  loadNotifications();
 }
 
 function updateAccountUI(acctType) {
@@ -1098,7 +1286,7 @@ function updateAccountUI(acctType) {
   document.getElementById('cardAccountTypeLabel').textContent = isChecking ? 'Checking Account' : 'Savings Account';
   document.getElementById('transferAcctLabel').textContent    = isChecking ? 'Checking' : 'Savings';
   const bal = isChecking ? realBalance : realSavings;
-  document.getElementById('balanceDisplay').textContent = balanceHidden ? '••••••' : fmt(bal);
+  document.getElementById('balanceDisplay').textContent = balanceHidden ? 'â¢â¢â¢â¢â¢â¢' : fmt(bal);
   document.getElementById('transferBalanceShow').textContent  = fmt(bal);
 }
 
@@ -1109,11 +1297,11 @@ function refreshProfile(user) {
   const s = user.status || 'active';
   document.getElementById('profileStatus').textContent = s;
   document.getElementById('profileStatus').className   = 'badge badge-' + s;
-  document.getElementById('profileDate').textContent   = user.created_at ? new Date(user.created_at).toLocaleDateString('en-US', {year:'numeric', month:'long', day:'numeric'}) : '—';
+  document.getElementById('profileDate').textContent   = user.created_at ? new Date(user.created_at).toLocaleDateString('en-US', {year:'numeric', month:'long', day:'numeric'}) : 'â';
 
-  document.getElementById('pf-holder').textContent    = user.name || '—';
-  document.getElementById('pf-acct-num').textContent  = user.account_number || '—';
-  document.getElementById('pf-routing').textContent   = user.routing_number || '—';
+  document.getElementById('pf-holder').textContent    = user.name || 'â';
+  document.getElementById('pf-acct-num').textContent  = user.account_number || 'â';
+  document.getElementById('pf-routing').textContent   = user.routing_number || 'â';
   document.getElementById('pf-swift').textContent     = user.swift_code || 'NVRAUS33XXX';
   document.getElementById('pf-bank-type').textContent = user.bank_type || 'Online Banking';
 
@@ -1124,7 +1312,7 @@ function refreshProfile(user) {
 
   document.getElementById('pf-checking-bal').textContent = fmt(user.balance || 0);
   document.getElementById('pf-savings-bal').textContent  = fmt(user.savings_balance || 0);
-  document.getElementById('pf-phone').textContent        = user.phone || '—';
+  document.getElementById('pf-phone').textContent        = user.phone || 'â';
 
   // Address
   const addr = user.address;
@@ -1134,15 +1322,15 @@ function refreshProfile(user) {
   } else if (typeof addr === 'string' && addr) {
     document.getElementById('pf-address').textContent = addr;
   } else {
-    document.getElementById('pf-address').textContent = '—';
+    document.getElementById('pf-address').textContent = 'â';
   }
 
   updateAccountUI(at);
 }
 
-// ──────────────────────────────────────────────────────
+// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 // LOGIN FLOW
-// ──────────────────────────────────────────────────────
+// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 function switchTab(tab) {
   document.getElementById('loginForm').style.display    = tab === 'login' ? 'block' : 'none';
   document.getElementById('registerForm').style.display = tab === 'register' ? 'block' : 'none';
@@ -1200,12 +1388,12 @@ async function loginStep2() {
     clearBoxes('login-otp-row');
     setTimeout(() => document.querySelector('#login-otp-row .otp-box').focus(), 100);
   }
-  finally { btn.innerHTML = 'Verify &amp; Sign In 🔓'; btn.disabled = false; }
+  finally { btn.innerHTML = 'Verify &amp; Sign In ð'; btn.disabled = false; }
 }
 
-// ──────────────────────────────────────────────────────
+// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 // REGISTRATION FLOW
-// ──────────────────────────────────────────────────────
+// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 function goRegStep(n) {
   [1,2,3].forEach(i => {
     document.getElementById('reg-step-' + i).style.display = i === n ? 'block' : 'none';
@@ -1226,7 +1414,7 @@ function selectRegAcctType(type) {
   document.getElementById('atBtn-savings').classList.toggle('active', type === 'savings');
 }
 
-async function regSendOTP(resend) {
+apync function regSendOTP(resend) {
   const email = document.getElementById('regEmail').value.trim();
   showAlert('regError1','');
   if (!resend) {
@@ -1251,7 +1439,7 @@ async function regSendOTP(resend) {
     if (resend) showAlert('regError2','');
     setTimeout(() => document.querySelector('#reg-otp-row .otp-box').focus(), 100);
   } catch(e) { showAlert('regError1', e.message); }
-  finally { btn.innerHTML = 'Send Verification Code 📧'; btn.disabled = false; }
+  finally { btn.innerHTML = 'Send Verification Code ð§'; btn.disabled = false; }
 }
 
 async function regVerifyOTP() {
@@ -1261,10 +1449,10 @@ async function regVerifyOTP() {
   if (otp_code.length !== 6) { showAlert('regError2','Please enter the full 6-digit code.'); return; }
   const btn = document.getElementById('regVerifyBtn');
   btn.innerHTML = '<span class="spinner"></span> Verifying...'; btn.disabled = true;
-  // We don't call server here — OTP is verified when registering. Just advance UI.
-  // But we need to confirm code is correct first — call a quick check endpoint.
+  // We don't call server here â OTP is verified when registering. Just advance UI.
+  // But we need to confirm code is correct first â call a quick check endpoint.
   // Actually we'll verify at register time; just advance to PIN step now.
-  btn.innerHTML = 'Verify Code ✓'; btn.disabled = false;
+  btn.innerHTML = 'Verify Code â'; btn.disabled = false;
   clearBoxes('reg-pin-row'); clearBoxes('reg-pin-confirm-row');
   goRegStep(3);
   setTimeout(() => document.querySelector('#reg-pin-row .pin-box').focus(), 100);
@@ -1299,8 +1487,8 @@ async function completeRegistration() {
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error);
-    token = data.token; localStorage.setItem('nhb_token', token);
-    showApp(data.user);
+    // Account is pending admin approval â show pending screen instead of logging in
+    showPendingScreen(data.name, data.email);
   } catch(e) {
     showAlert('regError3', e.message);
     // If OTP-related error, go back to OTP step
@@ -1308,12 +1496,12 @@ async function completeRegistration() {
       goRegStep(2);
     }
   }
-  finally { btn.innerHTML = 'Create My Account 🏦'; btn.disabled = false; }
+  finally { btn.innerHTML = 'Create My Account ð¦'; btn.disabled = false; }
 }
 
-// ──────────────────────────────────────────────────────
+// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 // PROFILE
-// ──────────────────────────────────────────────────────
+// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 async function fetchProfile() {
   const res  = await authFetch('/api/accounts/me');
   const data = await res.json();
@@ -1323,9 +1511,9 @@ async function fetchProfile() {
   showApp(data);
 }
 
-// ──────────────────────────────────────────────────────
+// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 // ACCOUNT SWITCHING (Checking / Savings)
-// ──────────────────────────────────────────────────────
+// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 async function switchAccount(type) {
   if (!currentUser || currentUser.account_type === type) return;
   currentUser.account_type = type;
@@ -1338,20 +1526,20 @@ async function switchAccount(type) {
   } catch(e) { console.error('Switch account error:', e); }
 }
 
-// ──────────────────────────────────────────────────────
-// TRANSFER PAGE — COUNTRY TABS + REVIEW FLOW
-// ──────────────────────────────────────────────────────
+// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// TRANSFER PAGE â COUNTRY TABS + REVIEW FLOW
+// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 let currentDest = 'novara';
 let usAccountType = 'checking';
 let sepaCountry = null;
 const SEPA_META = {
-  de: { flag:'🇩🇪', name:'Germany',     title:'Germany — SEPA Transfer',     currency:'EUR', sym:'€',    ibanPrefix:'DE', ibanLen:22 },
-  fr: { flag:'🇫🇷', name:'France',      title:'France — SEPA Transfer',      currency:'EUR', sym:'€',    ibanPrefix:'FR', ibanLen:27 },
-  es: { flag:'🇪🇸', name:'Spain',       title:'Spain — SEPA Transfer',       currency:'EUR', sym:'€',    ibanPrefix:'ES', ibanLen:24 },
-  it: { flag:'🇮🇹', name:'Italy',       title:'Italy — SEPA Transfer',       currency:'EUR', sym:'€',    ibanPrefix:'IT', ibanLen:27 },
-  nl: { flag:'🇳🇱', name:'Netherlands', title:'Netherlands — SEPA Transfer', currency:'EUR', sym:'€',    ibanPrefix:'NL', ibanLen:18 },
-  be: { flag:'🇧🇪', name:'Belgium',     title:'Belgium — SEPA Transfer',     currency:'EUR', sym:'€',    ibanPrefix:'BE', ibanLen:16 },
-  ch: { flag:'🇨🇭', name:'Switzerland', title:'Switzerland — SEPA Transfer', currency:'CHF', sym:'CHF ', ibanPrefix:'CH', ibanLen:21 },
+  de: { flag:'ð©ðª', name:'Germany',     title:'Germany â SEPA Transfer',     currency:'EUR', sym:'â¬',    ibanPrefix:'DE', ibanLen:22 },
+  fr: { flag:'ð«ð·', name:'France',      title:'France â SEPA Transfer',      currency:'EUR', sym:'â¬',    ibanPrefix:'FR', ibanLen:27 },
+  es: { flag:'ðªð¸', name:'Spain',       title:'Spain â SEPA Transfer',       currency:'EUR', sym:'â¬',    ibanPrefix:'ES', ibanLen:24 },
+  it: { flag:'ð®ð¹', name:'Italy',       title:'Italy â SEPA Transfer',       currency:'EUR', sym:'â¬',    ibanPrefix:'IT', ibanLen:27 },
+  nl: { flag:'ð³ð±', name:'Netherlands', title:'Netherlands â SEPA Transfer', currency:'EUR', sym:'â¬',    ibanPrefix:'NL', ibanLen:18 },
+  be: { flag:'ð§ðª', name:'Belgium',     title:'Belgium â SEPA Transfer',     currency:'EUR', sym:'â¬',    ibanPrefix:'BE', ibanLen:16 },
+  ch: { flag:'ð¨ð­', name:'Switzerland', title:'Switzerland â SEPA Transfer', currency:'CHF', sym:'CHF ', ibanPrefix:'CH', ibanLen:21 },
 };
 
 function selectDest(dest) {
@@ -1401,6 +1589,8 @@ let novaraLookupTimer = null;
 function lookupNovara(val) {
   clearTimeout(novaraLookupTimer);
   document.getElementById('n-holder-banner').style.display = 'none';
+  document.getElementById('n-recipient-name').value = '';
+  document.getElementById('n-type-display').textContent = 'ð¦ Checking';
   if (!val || val.trim().length < 6) return;
   novaraLookupTimer = setTimeout(async () => {
     try {
@@ -1408,10 +1598,14 @@ function lookupNovara(val) {
       const data = await res.json();
       if (data.found) {
         document.getElementById('n-holder-name').textContent = data.name;
-        document.getElementById('n-holder-type').textContent = (data.account_type || 'checking') + ' Account';
+        const at = data.account_type || 'checking';
+        document.getElementById('n-holder-type').textContent = at.charAt(0).toUpperCase() + at.slice(1) + ' Account';
         document.getElementById('n-holder-banner').style.display = 'flex';
+        document.getElementById('n-recipient-name').value = data.name;
+        document.getElementById('n-type-display').textContent = at === 'savings' ? 'ð° Savings' : 'ð¦ Checking';
       } else {
         document.getElementById('n-holder-banner').style.display = 'none';
+        document.getElementById('n-recipient-name').value = '';
       }
     } catch(e) {}
   }, 500);
@@ -1486,14 +1680,18 @@ function proceedToReview() {
     const holderName = document.getElementById('n-holder-name').textContent.trim();
     const amount = parseFloat(document.getElementById('n-amount').value);
     if (!acct) { showAlert('transferError','Enter recipient account number'); return; }
-    if (!holderName) { showAlert('transferError','Account not found — verify the number'); return; }
+    if (!holderName) { showAlert('transferError','Account not found â verify the number'); return; }
     if (!amount || amount <= 0) { showAlert('transferError','Enter a valid amount'); return; }
     const activeAcct = currentUser?.account_type || 'checking';
     const avail = activeAcct === 'savings' ? realSavings : realBalance;
     if (amount > avail) { showAlert('transferError', `Insufficient ${activeAcct} balance. Available: ${fmt(avail)}`); return; }
-    d = { dest:'novara', flag:'🏦', destLabel:'Novara Internal Transfer',
+    const acctType = document.getElementById('n-type-display').textContent.includes('Savings') ? 'savings' : 'checking';
+    d = { dest:'novara', flag:'<div class="nv-mark" style="width:40px;height:44px;font-size:20px;border-radius:6px 6px 10px 10px;">N</div>',
+          destLabel:'Novara Heritage Bank â Internal',
           name:holderName, amount, currency:currencySymbol,
           account:acct, accountFull:acct, bank:'Novara Heritage Bank',
+          routing: currentUser?.routing_number || 'NVRAUS33XXX',
+          type: acctType,
           desc:document.getElementById('n-desc').value };
 
   } else if (currentDest === 'us') {
@@ -1506,9 +1704,9 @@ function proceedToReview() {
     if (!acct) { showAlert('transferError','Enter recipient account number'); return; }
     if (!name) { showAlert('transferError','Enter recipient full name'); return; }
     if (!amount || amount <= 0) { showAlert('transferError','Enter a valid amount'); return; }
-    d = { dest:'us', flag:'🇺🇸', destLabel:'United States — ACH / Wire',
+    d = { dest:'us', flag:'ðºð¸', destLabel:'United States â ACH / Wire',
           name, amount, currency:'$', routing,
-          account:'•••• '+acct.slice(-4), accountFull:acct,
+          account:'â¢â¢â¢â¢ '+acct.slice(-4), accountFull:acct,
           bank:bankName||'US Bank', type:usAccountType,
           desc:document.getElementById('us-desc').value };
 
@@ -1521,9 +1719,9 @@ function proceedToReview() {
     if (!acct || acct.length !== 8) { showAlert('transferError','Enter an 8-digit account number'); return; }
     if (!name) { showAlert('transferError','Enter recipient full name'); return; }
     if (!amount || amount <= 0) { showAlert('transferError','Enter a valid amount'); return; }
-    d = { dest:'uk', flag:'🇬🇧', destLabel:'United Kingdom — Faster Payments',
-          name, amount, currency:'£', sortCode,
-          account:'•••• '+acct.slice(-4), accountFull:acct,
+    d = { dest:'uk', flag:'ð¬ð§', destLabel:'United Kingdom â Faster Payments',
+          name, amount, currency:'Â£', sortCode,
+          account:'â¢â¢â¢â¢ '+acct.slice(-4), accountFull:acct,
           bank:'UK Bank', desc:document.getElementById('uk-desc').value };
 
   } else if (SEPA_META[currentDest]) {
@@ -1538,7 +1736,7 @@ function proceedToReview() {
     if (!amount || amount <= 0) { showAlert('transferError','Enter a valid amount'); return; }
     d = { dest:currentDest, flag:meta.flag, destLabel:meta.title,
           name, amount, currency:meta.sym,
-          iban:iban.slice(0,4)+' •••• •••• '+iban.slice(-4), ibanFull:iban,
+          iban:iban.slice(0,4)+' â¢â¢â¢â¢ â¢â¢â¢â¢ '+iban.slice(-4), ibanFull:iban,
           bic, bank:bankName||meta.name+' Bank',
           desc:document.getElementById('sepa-desc').value };
   }
@@ -1553,8 +1751,8 @@ function showReviewModal(d) {
   document.getElementById('review-dest-label').textContent = d.destLabel;
   document.getElementById('review-amount').textContent     = d.currency + parseFloat(d.amount).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
   document.getElementById('review-name').textContent  = d.name;
-  document.getElementById('review-bank').textContent  = d.bank || '—';
-  document.getElementById('review-desc').textContent  = d.desc || '—';
+  document.getElementById('review-bank').textContent  = d.bank || 'â';
+  document.getElementById('review-desc').textContent  = d.desc || 'â';
 
   const show = (id, val) => { const r = document.getElementById(id); r.style.display = val ? 'flex' : 'none'; };
   show('review-bank-row',    d.bank);
@@ -1600,7 +1798,7 @@ async function confirmTransfer() {
       realBalance = parseFloat(data.new_checking_balance || 0);
       realSavings = parseFloat(data.new_savings_balance  || 0);
       closeReviewModal();
-      showAlert('transferSuccess', `✅ ${d.currency}${parseFloat(d.amount).toLocaleString('en-US',{minimumFractionDigits:2})} sent to ${data.recipient_name || d.name} successfully!`);
+      showAlert('transferSuccess', `â ${d.currency}${parseFloat(d.amount).toLocaleString('en-US',{minimumFractionDigits:3})} sent to ${data.recipient_name || d.name} successfully!`);
     } else {
       res  = await authFetch('/api/accounts/external-transfer', {
         method:'POST', headers:{'Content-Type':'application/json'},
@@ -1617,7 +1815,7 @@ async function confirmTransfer() {
       realBalance = parseFloat(data.new_checking_balance || data.new_balance || realBalance);
       realSavings = parseFloat(data.new_savings_balance  || realSavings);
       closeReviewModal();
-      showAlert('transferSuccess', `✅ ${d.currency}${parseFloat(d.amount).toLocaleString('en-US',{minimumFractionDigits:2})} transfer initiated successfully!`);
+      showAlert('transferSuccess', `â ${d.currency}${parseFloat(d.amount).toLocaleString('en-US',{minimumFractionDigits:2})} transfer initiated successfully!`);
     }
     if (currentUser) currentUser.balance = realBalance;
     updateAccountUI(currentUser?.account_type || 'checking');
@@ -1628,7 +1826,7 @@ async function confirmTransfer() {
     clearBoxes('review-pin-row');
     setTimeout(() => document.querySelector('#review-pin-row .pin-box')?.focus(), 100);
   } finally {
-    btn.innerHTML = 'Confirm Transfer 🔐'; btn.disabled = false;
+    btn.innerHTML = 'Confirm Transfer ð'; btn.disabled = false;
   }
 }
 
@@ -1664,12 +1862,12 @@ async function confirmTransferWithPIN() {
     showAlert('pinModalError', e.message);
     clearBoxes('transfer-pin-row');
     setTimeout(() => document.querySelector('#transfer-pin-row .pin-box').focus(), 100);
-  } finally { btn.innerHTML = 'Confirm Transfer ✈️'; btn.disabled = false; }
+  } finally { btn.innerHTML = 'Confirm Transfer âï¸'; btn.disabled = false; }
 }
 
-// ──────────────────────────────────────────────────────
+// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 // PROFILE PICTURE
-// ──────────────────────────────────────────────────────
+// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 function setAvatar(dataUrl) {
   const topbar  = document.getElementById('avatarInitial');
   const profImg = document.getElementById('profileAvatarImg');
@@ -1719,9 +1917,80 @@ async function uploadAvatar(input) {
   img.src = URL.createObjectURL(file);
 }
 
-// ──────────────────────────────────────────────────────
+// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// NOTIFICATIONS
+// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+let notifPanelOpen = false;
+
+apync function loadNotifications() {
+  try {
+    const res = await authFetch('/api/accounts/notifications');
+    if (!res.ok) return;
+    const notifs = await res.json();
+    renderNotifications(notifs);
+  } catch(e) {}
+}
+
+function renderNotifications(notifs) {
+  const badge = document.getElementById('notifBadge');
+  const list  = document.getElementById('notifList');
+  const unread = notifs.filter(n => !n.read).length;
+  if (unread > 0) {
+    badge.textContent = unread > 9 ? '9+' : unread;
+    badge.style.display = 'flex';
+  } else {
+    badge.style.display = 'none';
+  }
+  if (!notifs.length) {
+    list.innerHTML = '<div class="notif-empty">â All caught up! No notifications.</div>';
+    return;
+  }
+  list.innerHTML = notifs.map(n => `
+    <div class="notif-item ${n.read ? '' : 'unread'}" onclick="markNotifRead(${n.id})">
+      <div class="notif-item-title" style="color:${n.type==='danger'?'var(--danger)':n.type==='success'?'#34d399':'var(--text)'}">${n.title}</div>
+      <div class="notif-item-msg">${n.message}</div>
+      <div class="notif-item-time">${timeAgo(n.created_at)}</div>
+    </div>`).join('');
+}
+
+function toggleNotifPanel() {
+  const panel = document.getElementById('notifPanel');
+  notifPanelOpen = !notifPanelOpen;
+  panel.classList.toggle('open', notifPanelOpen);
+  if (notifPanelOpen) loadNotifications();
+}
+
+// Close when clicking outside
+document.addEventListener('click', e => {
+  if (notifPanelOpen && !e.target.closest('.notif-bell-wrap')) {
+    document.getElementById('notifPanel').classList.remove('open');
+    notifPanelOpen = false;
+  }
+}, true);
+
+async function markAllRead() {
+  try {
+    await authFetch('/api/accounts/notifications/read-all', { method:'PATCH' });
+    await loadNotifications();
+  } catch(e) {}
+}
+
+async function markNotifRead(id) {
+  // Optimistically mark as read in UI
+  await loadNotifications();
+}
+
+function timeAgo(dateStr) {
+  const secs = Math.floor((Date.now() - new Date(dateStr)) / 1000);
+  if (secs < 60)  return 'Just now';
+  if (secs < 3600) return Math.floor(secs/60) + ' min ago';
+  if (secs < 86400) return Math.floor(secs/3600) + 'h ago';
+  return Math.floor(secs/86400) + 'd ago';
+}
+
+// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 // SECURITY MODAL (Change PIN with OTP)
-// ──────────────────────────────────────────────────────
+// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 let secPinOtpVerified = false;
 
 function openSecurityModal() {
@@ -1752,7 +2021,7 @@ async function sendPinChangeOTP(resend) {
     clearBoxes('sec-otp-row');
     setTimeout(() => document.querySelector('#sec-otp-row .otp-box').focus(), 100);
   } catch(e) { showAlert('secError1', e.message); }
-  finally { if (btn) { btn.innerHTML = 'Send Verification Code 📧'; btn.disabled = false; } }
+  finally { if (btn) { btn.innerHTML = 'Send Verification Code ð§'; btn.disabled = false; } }
 }
 
 async function verifyPinChangeOTP() {
@@ -1763,7 +2032,7 @@ async function verifyPinChangeOTP() {
   btn.innerHTML = '<span class="spinner"></span> Verifying...'; btn.disabled = true;
   // We store OTP to submit with the PIN; advance UI
   secPinOtpVerified = otp_code;
-  btn.innerHTML = 'Verify Code ✓'; btn.disabled = false;
+  btn.innerHTML = 'Verify Code â'; btn.disabled = false;
   document.getElementById('sec-step-2').style.display = 'none';
   document.getElementById('sec-step-3').style.display = 'block';
   clearBoxes('sec-new-pin-row'); clearBoxes('sec-confirm-pin-row');
@@ -1787,7 +2056,7 @@ async function saveNewPIN() {
     const res  = await authFetch('/api/accounts/set-pin', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error);
-    showAlert('secSuccess3', '✅ Transfer PIN updated successfully!');
+    showAlert('secSuccess3', 'â Transfer PIN updated successfully!');
     if (currentUser) currentUser.has_pin = true;
     clearBoxes('sec-new-pin-row'); clearBoxes('sec-confirm-pin-row');
     setTimeout(closeSecurityModal, 1800);
@@ -1795,17 +2064,17 @@ async function saveNewPIN() {
     showAlert('secError3', e.message);
     clearBoxes('sec-new-pin-row'); clearBoxes('sec-confirm-pin-row');
   }
-  finally { btn.innerHTML = 'Save New PIN 🔐'; btn.disabled = false; }
+  finally { btn.innerHTML = 'Save New PIN ð'; btn.disabled = false; }
 }
 
-// ──────────────────────────────────────────────────────
-// IP GEOLOCATION — currency + language detection
-// ──────────────────────────────────────────────────────
+// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// IP GEOLOCATION â currency + language detection
+// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 let currencySymbol   = '$';
 let currencyCode     = 'USD';
 let detectedTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-// Map country ISO2 → language code we support
+// Map country ISO2 â language code we support
 const COUNTRY_LANG = {
   FR:'fr', BE:'fr', CH:'fr', LU:'fr', MC:'fr', SN:'fr', CI:'fr', ML:'fr', BF:'fr',
   ES:'es', MX:'es', AR:'es', CO:'es', CL:'es', PE:'es', VE:'es', EC:'es', GT:'es', CU:'es',
@@ -1846,9 +2115,9 @@ function updateLocalTime() {
 
 detectIPLocation();
 
-// ──────────────────────────────────────────────────────
+// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 // TRANSACTIONS
-// ──────────────────────────────────────────────────────
+// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 async function loadTransactions() {
   try {
     const res  = await authFetch('/api/accounts/transactions');
@@ -1857,7 +2126,7 @@ async function loadTransactions() {
     const render = (id, limit) => {
       const el   = document.getElementById(id);
       const list = limit ? txns.slice(0,limit) : txns;
-      if (!list.length) { el.innerHTML = '<div class="empty-state"><div>💳</div><p>No transactions yet</p></div>'; return; }
+      if (!list.length) { el.innerHTML = '<div class="empty-state"><div>ð³</div><p>No transactions yet</p></div>'; return; }
       el.innerHTML = list.map(t => txnHTML(t, acct)).join('');
     };
     render('recentTxns', 4);
@@ -1870,33 +2139,33 @@ function txnHTML(t, acct) {
   const sign  = isIn ? '+' : '-';
   const cls   = isIn ? 'pos' : 'neg';
   const iconCls = t.type === 'credit' ? 'bank' : t.type === 'debit' ? 'out' : isIn ? 'in' : 'out';
-  const icon  = t.type === 'credit' ? '🏦' : t.type === 'debit' ? '🏦' : isIn ? '⬇️' : '✈️';
+  const icon  = t.type === 'credit' ? 'ð¦' : t.type === 'debit' ? 'ð¦' : isIn ? 'â¬ï¸' : 'âï¸';
   const name  = t.type === 'credit' ? 'Bank Credit' : t.type === 'debit' ? 'Bank Debit' : isIn ? (t.sender_name || t.from_account) : (t.receiver_name || t.to_account);
   const date  = new Date(t.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit', timeZone: detectedTimezone});
   return `<div class="txn-item">
     <div class="txn-icon ${iconCls}">${icon}</div>
     <div class="txn-info">
       <div class="txn-name">${t.description || t.type}</div>
-      <div class="txn-date">${name ? name+' · ' : ''}${date}</div>
+      <div class="txn-date">${name ? name+' Â· ' : ''}${date}</div>
     </div>
     <div class="txn-amt ${cls}">${sign}${fmt(t.amount)}</div>
   </div>`;
 }
 
-// ──────────────────────────────────────────────────────
+// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 // BALANCE TOGGLE
-// ──────────────────────────────────────────────────────
+// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 function toggleBalance() {
   balanceHidden = !balanceHidden;
   const at  = currentUser?.account_type || 'checking';
   const bal = at === 'savings' ? realSavings : realBalance;
-  document.getElementById('balanceDisplay').textContent = balanceHidden ? '••••••' : fmt(bal);
+  document.getElementById('balanceDisplay').textContent = balanceHidden ? 'â¢â¢â¢â¢â¢â¢' : fmt(bal);
   logActivity('balance_toggle', balanceHidden ? 'Hid balance' : 'Revealed balance', 'home');
 }
 
-// ──────────────────────────────────────────────────────
+// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 // NAVIGATION
-// ──────────────────────────────────────────────────────
+// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 const pageNavMap = { home:['nav-home','nav-home2'], transfer:['nav-transfer'], history:['nav-history'], profile:['nav-profile'] };
 
 function showPage(id) {
@@ -1918,9 +2187,9 @@ function logout() {
   goLoginStep(1);
 }
 
-// ──────────────────────────────────────────────────────
+// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 // UTILS
-// ──────────────────────────────────────────────────────
+// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 function fmt(n) { return currencySymbol + parseFloat(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
 function showAlert(id, msg) { const el=document.getElementById(id); if(!el) return; el.textContent=msg; el.style.display=msg?'block':'none'; }
 async function authFetch(url, opts={}) {
@@ -1942,17 +2211,17 @@ document.addEventListener('keydown', e => {
   if (document.getElementById('pinModal').classList.contains('show')) { confirmTransferWithPIN(); return; }
 });
 
-// ──────────────────────────────────────────────────────
+// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 // i18n
-// ──────────────────────────────────────────────────────
+// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 const TRANSLATIONS = {
-  en: { signIn:'Sign In', createAccount:'Create Account', emailAddress:'Email Address', password:'Password', fullName:'Full Name', availableBalance:'Available Balance', sendMoney:'Send Money', txnHistory:'Transaction History', myProfile:'My Profile', activity:'Activity', transfer:'Transfer', history:'History', profile:'Profile', quickTransfer:'Quick Transfer', recentActivity:'Recent Activity', customerSupport:'Customer Support (WhatsApp)', memberSince:'Member Since', accountStatus:'Account Status', recipientAccount:'Recipient Account Number', amount:'Amount (USD)', description:'Description (optional)', sendBtn:'Send Money ✈️', greetMorning:'Good Morning 🌅', greetAfternoon:'Good Afternoon 🌤', greetEvening:'Good Evening 🌙' },
-  fr: { signIn:'Se connecter', createAccount:'Créer un compte', emailAddress:'Adresse email', password:'Mot de passe', fullName:'Nom complet', availableBalance:'Solde disponible', sendMoney:'Envoyer', txnHistory:'Historique', myProfile:'Mon profil', activity:'Activité', transfer:'Virement', history:'Historique', profile:'Profil', quickTransfer:'Virement rapide', recentActivity:'Activité récente', customerSupport:'Service client (WhatsApp)', memberSince:'Membre depuis', accountStatus:'Statut du compte', recipientAccount:'Numéro de compte', amount:'Montant (USD)', description:'Description', sendBtn:'Envoyer ✈️', greetMorning:'Bonjour 🌅', greetAfternoon:'Bon après-midi 🌤', greetEvening:'Bonsoir 🌙' },
-  es: { signIn:'Iniciar sesión', createAccount:'Crear cuenta', emailAddress:'Correo', password:'Contraseña', fullName:'Nombre completo', availableBalance:'Saldo disponible', sendMoney:'Enviar dinero', txnHistory:'Historial', myProfile:'Mi perfil', activity:'Actividad', transfer:'Transferir', history:'Historial', profile:'Perfil', quickTransfer:'Transferencia rápida', recentActivity:'Actividad reciente', customerSupport:'Soporte (WhatsApp)', memberSince:'Miembro desde', accountStatus:'Estado de cuenta', recipientAccount:'Número de cuenta', amount:'Monto (USD)', description:'Descripción', sendBtn:'Enviar ✈️', greetMorning:'Buenos días 🌅', greetAfternoon:'Buenas tardes 🌤', greetEvening:'Buenas noches 🌙' },
-  pt: { signIn:'Entrar', createAccount:'Criar conta', emailAddress:'Email', password:'Senha', fullName:'Nome completo', availableBalance:'Saldo disponível', sendMoney:'Enviar dinheiro', txnHistory:'Histórico', myProfile:'Meu perfil', activity:'Atividade', transfer:'Transferir', history:'Histórico', profile:'Perfil', quickTransfer:'Transferência rápida', recentActivity:'Atividade recente', customerSupport:'Suporte (WhatsApp)', memberSince:'Membro desde', accountStatus:'Status da conta', recipientAccount:'Número da conta', amount:'Valor (USD)', description:'Descrição', sendBtn:'Enviar ✈️', greetMorning:'Bom dia 🌅', greetAfternoon:'Boa tarde 🌤', greetEvening:'Boa noite 🌙' },
-  ar: { signIn:'تسجيل الدخول', createAccount:'إنشاء حساب', emailAddress:'البريد الإلكتروني', password:'كلمة المرور', fullName:'الاسم الكامل', availableBalance:'الرصيد المتاح', sendMoney:'إرسال الأموال', txnHistory:'سجل المعاملات', myProfile:'ملفي', activity:'النشاط', transfer:'تحويل', history:'السجل', profile:'الملف', quickTransfer:'تحويل سريع', recentActivity:'النشاط الأخير', customerSupport:'دعم العملاء', memberSince:'عضو منذ', accountStatus:'حالة الحساب', recipientAccount:'رقم حساب المستلم', amount:'المبلغ (USD)', description:'وصف', sendBtn:'إرسال ✈️', greetMorning:'صباح الخير 🌅', greetAfternoon:'مساء الخير 🌤', greetEvening:'مساء النور 🌙' },
-  de: { signIn:'Anmelden', createAccount:'Konto erstellen', emailAddress:'E-Mail', password:'Passwort', fullName:'Vollständiger Name', availableBalance:'Verfügbares Guthaben', sendMoney:'Geld senden', txnHistory:'Transaktionsverlauf', myProfile:'Mein Profil', activity:'Aktivität', transfer:'Überweisung', history:'Verlauf', profile:'Profil', quickTransfer:'Schnellüberweisung', recentActivity:'Letzte Aktivität', customerSupport:'Kundendienst', memberSince:'Mitglied seit', accountStatus:'Kontostatus', recipientAccount:'Kontonummer', amount:'Betrag (USD)', description:'Beschreibung', sendBtn:'Senden ✈️', greetMorning:'Guten Morgen 🌅', greetAfternoon:'Guten Nachmittag 🌤', greetEvening:'Guten Abend 🌙' },
-  zh: { signIn:'登录', createAccount:'创建账户', emailAddress:'邮箱', password:'密码', fullName:'全名', availableBalance:'可用余额', sendMoney:'转账', txnHistory:'交易记录', myProfile:'我的资料', activity:'动态', transfer:'转账', history:'记录', profile:'资料', quickTransfer:'快速转账', recentActivity:'最近动态', customerSupport:'客服', memberSince:'注册时间', accountStatus:'账户状态', recipientAccount:'收款账号', amount:'金额 (USD)', description:'备注', sendBtn:'发送 ✈️', greetMorning:'早上好 🌅', greetAfternoon:'下午好 🌤', greetEvening:'晚上好 🌙' },
+  en: { signIn:'Sign In', createAccount:'Create Account', emailAddress:'Email Address', password:'Password', fullName:'Full Name', availableBalance:'Available Balance', sendMoney:'Send Money', txnHistory:'Transaction History', myProfile:'My Profile', activity:'Activity', transfer:'Transfer', history:'History', profile:'Profile', quickTransfer:'Quick Transfer', recentActivity:'Recent Activity', customerSupport:'Customer Support (WhatsApp)', memberSince:'Member Since', accountStatus:'Account Status', recipientAccount:'Recipient Account Number', amount:'Amount (USD)', description:'Description (optional)', sendBtn:'Send Money âï¸', greetMorning:'Good Morning ð', greetAfternoon:'Good Afternoon ð¤', greetEvening:'Good Evening ð' },
+  fr: { signIn:'Se connecter', createAccount:'CrÃ©er un compte', emailAddress:'Adresse email', password:'Mot de passe', fullName:'Nom complet', availableBalance:'Solde disponible', sendMoney:'Envoyer', txnHistory:'Historique', myProfile:'Mon profil', activity:'ActivitÃ©', transfer:'Virement', history:'Historique', profile:'Profil', quickTransfer:'Virement rapide', recentActivity:'ActivitÃ© rÃ©cente', customerSupport:'Service client (WhatsApp)', memberSince:'Membre depuis', accountStatus:'Statut du compte', recipientAccount:'NumÃ©ro de compte', amount:'Montant (USD)', description:'Description', sendBtn:'Envoyer âï¸', greetMorning:'Bonjour ð', greetAfternoon:'Bon aprÃ¨s-midi ð¤', greetEvening:'Bonsoir ð' },
+  es: { signIn:'Iniciar sesiÃ³n', createAccount:'Crear cuenta', emailAddress:'Correo', password:'ContraseÃ±a', fullName:'Nombre completo', availableBalance:'Saldo disponible', sendMoney:'Enviar dinero', txnHistory:'Historial', myProfile:'Mi perfil', activity:'Actividad', transfer:'Transferir', history:'Historial', profile:'Perfil', quickTransfer:'Transferencia rÃ¡pida', recentActivity:'Actividad reciente', customerSupport:'Soporte (WhatsApp)', memberSince:'Miembro desde', accountStatus:'Estado de cuenta', recipientAccount:'NÃºmero de cuenta', amount:'Monto (USD)', description:'DescripciÃ³n', sendBtn:'Enviar âï¸', greetMorning:'Buenos dÃ­as ð', greetAfternoon:'Buenas tardes ð¤', greetEvening:'Buenas noches ð' },
+  pt: { signIn:'Entrar', createAccount:'Criar conta', emailAddress:'Email', password:'Senha', fullName:'Nome completo', availableBalance:'Saldo disponÃ­vel', sendMoney:'Enviar dinheiro', txnHistory:'HistÃ³rico', myProfile:'Meu perfil', activity:'Atividade', transfer:'Transferir', history:'HistÃ³rico', profile:'Perfil', quickTransfer:'TransferÃªncia rÃ¡pida', recentActivity:'Atividade recente', customerSupport:'Suporte (WhatsApp)', memberSince:'Membro desde', accountStatus:'Status da conta', recipientAccount:'NÃºmero da conta', amount:'Valor (USD)', description:'DescriÃ§Ã£o', sendBtn:'Enviar âï¸', greetMorning:'Bom dia ð', greetAfternoon:'Boa tarde ð¤', greetEvening:'Boa noite ð' },
+  ar: { signIn:'ØªØ³Ø¬ÙÙ Ø§ÙØ¯Ø®ÙÙ', createAccount:'Ø¥ÙØ´Ø§Ø¡ Ø­Ø³Ø§Ø¨', emailAddress:'Ø§ÙØ¨Ø±ÙØ¯ Ø§ÙØ¥ÙÙØªØ±ÙÙÙ', password:'ÙÙÙØ© Ø§ÙÙØ±ÙØ±', fullName:'Ø§ÙØ§Ø³Ù Ø§ÙÙØ§ÙÙ', availableBalance:'Ø§ÙØ±ØµÙØ¯ Ø§ÙÙØªØ§Ø­', sendMoney:'Ø¥Ø±Ø³Ø§Ù Ø§ÙØ£ÙÙØ§Ù', txnHistory:'Ø³Ø¬Ù Ø§ÙÙØ¹Ø§ÙÙØ§Øª', myProfile:'ÙÙÙÙ', activity:'Ø§ÙÙØ´Ø§Ø·', transfer:'ØªØ­ÙÙÙ', history:'Ø§ÙØ³Ø¬Ù', profile:'Ø§ÙÙÙÙ', quickTransfer:'ØªØ­ÙÙÙ Ø³Ø±ÙØ¹', recentActivity:'Ø§ÙÙØ´Ø§Ø· Ø§ÙØ£Ø®ÙØ±', customerSupport:'Ø¯Ø¹Ù Ø§ÙØ¹ÙÙØ§Ø¡', memberSince:'Ø¹Ø¶Ù ÙÙØ°', accountStatus:'Ø­Ø§ÙØ© Ø§ÙØ­Ø³Ø§Ø¨', recipientAccount:'Ø±ÙÙ Ø­Ø³Ø§Ø¨ Ø§ÙÙØ³ØªÙÙ', amount:'Ø§ÙÙØ¨ÙØº (USD)', description:'ÙØµÙ', sendBtn:'Ø¥Ø±Ø³Ø§Ù âï¸', greetMorning:'ØµØ¨Ø§Ø­ Ø§ÙØ®ÙØ± ð', greetAfternoon:'ÙØ³Ø§Ø¡ Ø§ÙØ®ÙØ± ð¤', greetEvening:'ÙØ³Ø§Ø¡ Ø§ÙÙÙØ± ð' },
+  de: { signIn:'Anmelden', createAccount:'Konto erstellen', emailAddress:'E-Mail', password:'Passwort', fullName:'VollstÃ¤ndiger Name', availableBalance:'VerfÃ¼gbares Guthaben', sendMoney:'Geld senden', txnHistory:'Transaktionsverlauf', myProfile:'Mein Profil', activity:'AktivitÃ¤t', transfer:'Ãberweisung', history:'Verlauf', profile:'Profil', quickTransfer:'SchnellÃ¼berweisung', recentActivity:'Letzte AktivitÃ¤t', customerSupport:'Kundendienst', memberSince:'Mitglied seit', accountStatus:'Kontostatus', recipientAccount:'Kontonummer', amount:'Betrag (USD)', description:'Beschreibung', sendBtn:'Senden âï¸', greetMorning:'Guten Morgen ð', greetAfternoon:'Guten Nachmittag ð¤', greetEvening:'Guten Abend ð' },
+  zh: { signIn:'ç»å½', createAccount:'åå»ºè´¦æ·', emailAddress:'é®ç®±', password:'å¯ç ', fullName:'å¨å', availableBalance:'å¯ç¨ä½é¢', sendMoney:'è½¬è´¦', txnHistory:'äº¤æè®°å½', myProfile:'æçèµæ', activity:'å¨æ', transfer:'è½¬è´¦', history:'è®°å½', profile:'èµæ', quickTransfer:'å¿«éè½¬è´¦', recentActivity:'æè¿å¨æ', customerSupport:'å®¢æ', memberSince:'æ³¨åæ¶é´', accountStatus:'è´¦æ·ç¶æ', recipientAccount:'æ¶æ¬¾è´¦å·', amount:'éé¢ (USD)', description:'å¤æ³¨', sendBtn:'åé âï¸', greetMorning:'æ©ä¸å¥½ ð', greetAfternoon:'ä¸åå¥½ ð¤', greetEvening:'æä¸å¥½ ð' },
 };
 
 function getLang() {
@@ -1988,7 +2257,7 @@ function startLocalClock() {
   const el = document.getElementById('localTime');
   if (!el) return;
   const update = () => {
-    el.textContent = new Date().toLocaleTimeString(navigator.language||'en',{hour:'2-digit',minute:'2-digit',second:'2-digit',timeZone:tz}) + ' · ' + tz.replace(/_/g,' ');
+    el.textContent = new Date().toLocaleTimeString(navigator.language||'en',{hour:'2-digit',minute:'2-digit',second:'2-digit',timeZone:tz}) + ' Â· ' + tz.replace(/_/g,' ');
   };
   update();
   setInterval(update, 1000);
