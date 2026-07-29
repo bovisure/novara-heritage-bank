@@ -38,7 +38,6 @@ router.patch('/users/:id/status', async (req, res) => {
   db.users.update(user.id, { status });
 
   const isFrozen = status === 'frozen';
-  // Create in-app notification
   db.notifications.insert({
     user_id: user.id,
     title: isFrozen ? '🔒 Account Suspended' : '🔓 Account Reactivated',
@@ -48,7 +47,6 @@ router.patch('/users/:id/status', async (req, res) => {
     type: isFrozen ? 'danger' : 'success'
   });
 
-  // Send email notification (non-blocking)
   sendAccountEmail(user.email, isFrozen ? 'frozen' : 'unfrozen', { name: user.name, reason }).catch(e =>
     console.error('Freeze email error:', e.message)
   );
@@ -58,7 +56,6 @@ router.patch('/users/:id/status', async (req, res) => {
   res.json({ message: `Account ${isFrozen ? 'frozen' : 'unfrozen'} successfully` });
 });
 
-// ── GET /api/admin/pending-users ──────────────────────────────
 router.get('/pending-users', (req, res) => {
   const pending = db.users.findAll()
     .filter(u => u.status === 'pending_admin')
@@ -67,14 +64,12 @@ router.get('/pending-users', (req, res) => {
   res.json(pending);
 });
 
-// ── POST /api/admin/users/:id/approve ────────────────────────
 router.post('/users/:id/approve', async (req, res) => {
   const user = db.users.findOne(u => u.id === uid(req.params.id));
   if (!user) return res.status(404).json({ error: 'User not found' });
   if (user.status !== 'pending_admin') return res.status(400).json({ error: 'Account is not pending approval' });
   db.users.update(user.id, { status: 'active' });
 
-  // In-app notification
   db.notifications.insert({
     user_id: user.id,
     title: '🎉 Account Approved!',
@@ -82,7 +77,6 @@ router.post('/users/:id/approve', async (req, res) => {
     type: 'success'
   });
 
-  // Approval email (non-blocking)
   sendAccountEmail(user.email, 'approved', {
     name: user.name,
     account_number: user.account_number,
@@ -93,22 +87,17 @@ router.post('/users/:id/approve', async (req, res) => {
   res.json({ message: 'Account approved successfully' });
 });
 
-// ── POST /api/admin/users/:id/reject ─────────────────────────
 router.post('/users/:id/reject', async (req, res) => {
   const { reason } = req.body;
   const user = db.users.findOne(u => u.id === uid(req.params.id));
   if (!user) return res.status(404).json({ error: 'User not found' });
   if (user.status !== 'pending_admin') return res.status(400).json({ error: 'Account is not pending approval' });
 
-  // Send rejection email before deleting
   sendAccountEmail(user.email, 'rejected', { name: user.name, reason })
     .catch(e => console.error('Rejection email error:', e.message));
 
   logAdminAction(req, 'reject_account', `Rejected account for ${user.name} (${user.email})${reason ? ' — ' + reason : ''}`);
 
-  // Remove user record
-  const data = require('../database').users.findAll();
-  // Direct DB manipulation to delete
   const dbData = require('fs').existsSync(process.env.DB_PATH || require('path').join(__dirname, '../banking.db.json'))
     ? JSON.parse(require('fs').readFileSync(process.env.DB_PATH || require('path').join(__dirname, '../banking.db.json'), 'utf8'))
     : { users: [] };
@@ -154,7 +143,6 @@ router.get('/transactions', (req, res) => {
   res.json(txns);
 });
 
-// PATCH /api/admin/transactions/:id/date — backdate a transaction
 router.patch('/transactions/:id/date', (req, res) => {
   const { created_at } = req.body;
   if (!created_at) return res.status(400).json({ error: 'Date is required' });
@@ -168,7 +156,6 @@ router.patch('/transactions/:id/date', (req, res) => {
   res.json({ message: 'Transaction date updated successfully' });
 });
 
-// GET /api/admin/activity — full activity log
 router.get('/activity', (req, res) => {
   const logs = db.activity.findAll()
     .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
@@ -176,14 +163,12 @@ router.get('/activity', (req, res) => {
   res.json(logs);
 });
 
-// PATCH /api/admin/users/:id/regdate — change registration date
 router.patch('/users/:id/regdate', (req, res) => {
   const { created_at } = req.body;
   if (!created_at) return res.status(400).json({ error: 'Date is required' });
   const user = db.users.findOne(u => u.id === uid(req.params.id));
   if (!user) return res.status(404).json({ error: 'User not found' });
   if (user.role === 'admin') return res.status(400).json({ error: 'Cannot modify admin account' });
-  // Accept date string and store as ISO
   const d = new Date(created_at);
   if (isNaN(d.getTime())) return res.status(400).json({ error: 'Invalid date format' });
   db.users.update(user.id, { created_at: d.toISOString() });
@@ -203,6 +188,21 @@ router.get('/stats', (req, res) => {
     total_volume:       txns.filter(t => t.type === 'transfer').reduce((s, t) => s + t.amount, 0),
     total_balance:      users.reduce((s, u) => s + u.balance, 0),
   });
+});
+
+router.post('/users/:id/force-logout', (req, res) => {
+  const user = db.users.findOne(u => u.id === uid(req.params.id));
+  if (!user) return res.status(404).json({ error: 'User not found' });
+  if (user.role === 'admin') return res.status(400).json({ error: 'Cannot force-logout admin' });
+  db.users.update(user.id, { force_logout_at: Date.now() });
+  db.notifications.insert({
+    user_id: user.id,
+    title: '🔐 Session Ended',
+    message: 'Your session was ended by an administrator. Please log in again.',
+    type: 'warning'
+  });
+  logAdminAction(req, 'force_logout', `Force-logged out ${user.name} (${user.email})`);
+  res.json({ message: `${user.name} has been logged out` });
 });
 
 module.exports = router;
