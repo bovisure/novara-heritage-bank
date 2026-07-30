@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Novara Heritage Bank â Admin Panel</title>
+<title>Novara Heritage Bank &#8211; Admin Panel</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
@@ -119,7 +119,7 @@
 <div class="auth-wrapper" id="authWrapper">
   <div class="auth-box">
     <div class="auth-logo">
-      <h1>ð Admin Portal</h1>
+      <h1>&#128272; Admin Portal</h1>
       <p>Novara Heritage Bank Administration</p>
     </div>
     <div class="alert alert-error" id="loginError"></div>
@@ -129,7 +129,7 @@
     </div>
     <div class="form-group">
       <label>Password</label>
-      <input type="password" id="loginPassword" placeholder="â¢â¢â¢â¢â¢â¢â¢â¢" value="admin123">
+      <input type="password" id="loginPassword" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" value="admin123">
     </div>
     <button class="btn btn-primary btn-block" onclick="login()" id="loginBtn">Sign In to Admin</button>
   </div>
@@ -138,7 +138,7 @@
 <!-- ADMIN APP -->
 <div class="app-wrapper" id="appWrapper">
   <div class="topbar">
-    <div class="topbar-brand">ð¦ Novara Heritage Bank <span>ADMIN</span></div>
+    <div class="topbar-brand">&#127974; Novara Heritage Bank <span>ADMIN</span></div>
     <div class="topbar-right">
       <span id="adminName">Admin</span>
       <button class="logout-btn" onclick="logout()">Logout</button>
@@ -147,11 +147,11 @@
 
   <div class="layout">
     <div class="sidebar">
-      <div class="nav-item active" onclick="showPage('overview')" id="nav-overview"><span>ð</span> Overview</div>
-      <div class="nav-item" onclick="showPage('pending')" id="nav-pending"><span>â³</span> Pending <span id="pendingCount" style="background:#e3a008;color:#111;border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px;display:none;"></span></div>
-      <div class="nav-item" onclick="showPage('users')" id="nav-users"><span>ð¥</span> Users</div>
-      <div class="nav-item" onclick="showPage('transactions')" id="nav-transactions"><span>ð³</span> Transactions</div>
-      <div class="nav-item" onclick="showPage('activity')" id="nav-activity"><span>ðµï¸</span> Activity Log</div>
+      <div class="nav-item active" onclick="showPage('overview')" id="nav-overview"><span>&#128202;</span> Overview</div>
+      <div class="nav-item" onclick="showPage('pending')" id="nav-pending"><span>&#9203;</span> Pending <span id="pendingCount" style="background:#e3a008;color:#111;border-radius:10px;padding:1px 7px;font-size:11px;margin-left:4px;display:none;"></span></div>
+      <div class="nav-item" onclick="showPage('users')" id="nav-users"><span>&#128101;</span> Users</div>
+      <div class="nav-item" onclick="showPage('transactions')" id="nav-transactions"><span>&#128179;</span> Transactions</div>
+      <div class="nav-item" onclick="showPage('activity')" id="nav-activity"><span>&#128373;&#65039;</span> Activity Log</div>
     </div>
 
     <div class="main">
@@ -162,18 +162,18 @@
           <p>Real-time banking system statistics</p>
         </div>
         <div class="stats-grid" id="statsGrid">
-          <div class="stat-card"><div class="stat-label">Total Users</div><div class="stat-value" id="statUsers">â</div></div>
-          <div class="stat-card"><div class="stat-label">Active</div><div class="stat-value" id="statActive">â</div></div>
-          <div class="stat-card"><div class="stat-label">Frozen</div><div class="stat-value" id="statFrozen">â</div></div>
-          <div class="stat-card" style="border:2px solid #e3a008;"><div class="stat-label" style="color:#e3a008;">â³ Pending Approval</div><div class="stat-value" id="statPending" style="color:#e3a008;">â</div></div>
-          <div class="stat-card"><div class="stat-label">Transactions</div><div class="stat-value" id="statTxns">â</div></div>
-          <div class="stat-card"><div class="stat-label">Total Volume</div><div class="stat-value" id="statVolume">â</div></div>
-          <div class="stat-card"><div class="stat-label">Total Deposits</div><div class="stat-value" id="statBalance">â</div></div>
+          <div class="stat-card"><div class="stat-label">Total Users</div><div class="stat-value" id="statUsers">&#8212;</div></div>
+          <div class="stat-card"><div class="stat-label">Active</div><div class="stat-value" id="statActive">&#8212;</div></div>
+          <div class="stat-card"><div class="stat-label">Frozen</div><div class="stat-value" id="statFrozen">&#8212;</div></div>
+          <div class="stat-card" style="border:2px solid #e3a008;"><div class="stat-label" style="color:#e3a008;">&#9203; Pending Approval</div><div class="stat-value" id="statPending" style="color:#e3a008;">&#8212;</div></div>
+          <div class="stat-card"><div class="stat-label">Transactions</div><div class="stat-value" id="statTxns">&#8212;</div></div>
+          <div class="stat-card"><div class="stat-label">Total Volume</div><div class="stat-value" id="statVolume">&#8212;</div></div>
+          <div class="stat-card"><div class="stat-label">Total Deposits</div><div class="stat-value" id="statBalance">&#8212;</div></div>
         </div>
 
         <div class="card">
           <div class="card-title">Recent Transactions</div>
-          <div id="overviewTxns"><div class="empty-state"><div>ð³</div><p>Loading...</p></div></div>
+          <div id="overviewTxns"><div class="empty-state"><div>&#128179;</div><p>Loading...</p></div></div>
         </div>
       </div>
 
@@ -181,10 +181,10 @@
       <div class="page" id="page-pending">
         <div class="page-header" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
           <div>
-            <h2>â³ Pending Approval</h2>
+            <h2>&#9203; Pending Approval</h2>
             <p>New registrations waiting for admin verification</p>
           </div>
-          <button class="btn btn-primary btn-sm" onclick="loadPendingUsers()">â» Refresh</button>
+          <button class="btn btn-primary btn-sm" onclick="loadPendingUsers()">&#8635; Refresh</button>
         </div>
         <div class="card" style="padding:0; overflow:hidden;">
           <div id="pendingTableWrap" style="overflow-x:auto;">
@@ -212,7 +212,7 @@
             <h2>User Management</h2>
             <p>View and manage all registered users</p>
           </div>
-          <input type="text" class="search-bar" id="userSearch" placeholder="ð Search by name or email..." oninput="filterUsers()">
+          <input type="text" class="search-bar" id="userSearch" placeholder="&#128269; Search by name or email..." oninput="filterUsers()">
         </div>
         <div class="card" style="padding:0; overflow:hidden;">
           <div id="usersTableWrap" style="overflow-x:auto;">
@@ -239,7 +239,7 @@
       <div class="page" id="page-transactions">
         <div class="page-header">
           <h2>All Transactions</h2>
-          <p>Complete transaction ledger â click the date to backdate any transaction</p>
+          <p>Complete transaction ledger &#8212; click the date to backdate any transaction</p>
         </div>
         <div class="card" style="padding:0; overflow:hidden;">
           <div style="overflow-x:auto;">
@@ -266,12 +266,12 @@
       <div class="page" id="page-activity">
         <div class="page-header" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
           <div>
-            <h2>ðµï¸ Activity Log</h2>
-            <p>Every login, transfer, click, and admin action â in real time</p>
+            <h2>&#128373;&#65039; Activity Log</h2>
+            <p>Every login, transfer, click, and admin action &#8212; in real time</p>
           </div>
           <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-            <input type="text" class="search-bar" id="activitySearch" placeholder="ð Filter by user, action..." oninput="filterActivity()" style="width:220px;">
-            <button class="btn btn-primary btn-sm" onclick="loadActivity()">â» Refresh</button>
+            <input type="text" class="search-bar" id="activitySearch" placeholder="&#128269; Filter by user, action..." oninput="filterActivity()" style="width:220px;">
+            <button class="btn btn-primary btn-sm" onclick="loadActivity()">&#8635; Refresh</button>
           </div>
         </div>
         <div class="card" style="padding:0; overflow:hidden;">
@@ -300,7 +300,7 @@
 <!-- Transaction Date Modal -->
 <div class="modal-overlay" id="txnDateModal">
   <div class="modal" style="max-width:360px;">
-    <h3>ð Backdate Transaction</h3>
+    <h3>&#128197; Backdate Transaction</h3>
     <div style="font-size:13px; color:var(--muted); margin-bottom:16px;" id="txnDateInfo"></div>
     <div class="alert alert-error"   id="txnDateError"></div>
     <div class="alert alert-success" id="txnDateSuccess"></div>
@@ -345,7 +345,7 @@
       <div style="margin-top:12px; padding-top:12px; border-top:1px solid var(--border);">
         <label style="display:block; font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px;">Force Logout</label>
         <p style="font-size:12px; color:var(--muted); margin:0 0 8px;">Immediately invalidate this user's active session. They will be logged out within 30 seconds.</p>
-        <button class="btn btn-block" style="background:#ef4444;color:white;border:none;" onclick="forceLogoutUser()">â Force Logout Now</button>
+        <button class="btn btn-block" style="background:#ef4444;color:white;border:none;" onclick="forceLogoutUser()">&#9167; Force Logout Now</button>
       </div>
 
       <div style="margin-top:12px; padding-top:12px; border-top:1px solid var(--border);">
@@ -438,7 +438,7 @@ async function loadPendingUsers() {
     const pending = await res.json();
     const tbody = document.getElementById('pendingTable');
     if (!pending.length) {
-      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--muted)"><div style="font-size:36px;margin-bottom:8px">â</div>No pending accounts â all caught up!</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--muted)"><div style="font-size:36px;margin-bottom:8px">&#9989;</div>No pending accounts &#8212; all caught up!</td></tr>';
       return;
     }
     tbody.innerHTML = pending.map(u => `
@@ -446,16 +446,16 @@ async function loadPendingUsers() {
         <td>
           <strong>${u.name}</strong><br>
           <span style="color:var(--muted);font-size:11px">${u.email}</span>
-          ${u.phone ? `<br><span style="color:var(--muted);font-size:11px">ð ${u.phone}</span>` : ''}
+          ${u.phone ? `<br><span style="color:var(--muted);font-size:11px">&#128222; ${u.phone}</span>` : ''}
         </td>
         <td style="font-family:monospace;font-size:11px">${u.account_number}</td>
-        <td style="font-family:monospace;font-size:11px">${u.routing_number || 'â'}</td>
+        <td style="font-family:monospace;font-size:11px">${u.routing_number || '&#8212;'}</td>
         <td>${u.account_type || 'checking'}</td>
         <td style="color:var(--muted);font-size:12px">${new Date(u.created_at).toLocaleString()}</td>
         <td>
           <div class="action-btns">
-            <button class="btn btn-success btn-sm" onclick="approvePending(${u.id}, '${u.name}')">â Approve</button>
-            <button class="btn btn-danger btn-sm" onclick="openRejectModal(${u.id}, '${u.name}')">â Reject</button>
+            <button class="btn btn-success btn-sm" onclick="approvePending(${u.id}, '${u.name}')">&#9989; Approve</button>
+            <button class="btn btn-danger btn-sm" onclick="openRejectModal(${u.id}, '${u.name}')">&#10060; Reject</button>
           </div>
         </td>
       </tr>
@@ -469,13 +469,13 @@ async function approvePending(userId, name) {
     const res = await authFetch(`/api/admin/users/${userId}/approve`, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error);
-    alert(`â ${name}'s account has been approved. A welcome email has been sent.`);
+    alert(`&#9989; ${name}'s account has been approved. A welcome email has been sent.`);
     loadPendingUsers(); loadUsers(); loadStats();
   } catch(e) { alert('Error: ' + e.message); }
 }
 
 function openRejectModal(userId, name) {
-  const reason = prompt(`Reason for rejecting ${name}'s account (optional â will be sent in the rejection email):`);
+  const reason = prompt(`Reason for rejecting ${name}'s account (optional &#8212; will be sent in the rejection email):`);
   if (reason === null) return; // cancelled
   rejectPending(userId, name, reason);
 }
@@ -488,7 +488,7 @@ async function rejectPending(userId, name, reason) {
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error);
-    alert(`â ${name}'s account has been rejected. A rejection email has been sent.`);
+    alert(`&#10060; ${name}'s account has been rejected. A rejection email has been sent.`);
     loadPendingUsers(); loadStats();
   } catch(e) { alert('Error: ' + e.message); }
 }
@@ -509,10 +509,10 @@ function renderUsers(users) {
       <td>
         <strong>${u.name}</strong><br>
         <span style="color:var(--muted);font-size:11px">${u.email}</span>
-        ${u.phone ? `<br><span style="color:var(--muted);font-size:11px">ð ${u.phone}</span>` : ''}
+        ${u.phone ? `<br><span style="color:var(--muted);font-size:11px">&#128222; ${u.phone}</span>` : ''}
       </td>
       <td style="font-family:monospace;font-size:11px">${u.account_number}</td>
-      <td style="font-family:monospace;font-size:11px">${u.routing_number || 'â'}</td>
+      <td style="font-family:monospace;font-size:11px">${u.routing_number || '&#8212;'}</td>
       <td><strong>${fmt(u.balance)}</strong></td>
       <td><strong>${fmt(u.savings_balance || 0)}</strong></td>
       <td><span class="badge badge-${u.status}">${u.status}</span></td>
@@ -536,7 +536,7 @@ async function loadTransactions() {
 
     if (!txns.length) {
       tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--muted)">No transactions</td></tr>';
-      overviewEl.innerHTML = '<div class="empty-state"><div>ð³</div><p>No transactions yet</p></div>';
+      overviewEl.innerHTML = '<div class="empty-state"><div>&#128179;</div><p>No transactions yet</p></div>';
       return;
     }
 
@@ -544,12 +544,12 @@ async function loadTransactions() {
       <tr>
         <td style="color:var(--muted)">#${t.id}</td>
         <td><span class="badge badge-${t.type}">${t.type}</span></td>
-        <td style="font-size:12px">${t.sender_name || t.from_account || 'â'}</td>
-        <td style="font-size:12px">${t.receiver_name || t.to_account || 'â'}</td>
+        <td style="font-size:12px">${t.sender_name || t.from_account || '&#8212;'}</td>
+        <td style="font-size:12px">${t.receiver_name || t.to_account || '&#8212;'}</td>
         <td><strong>${fmt(t.amount)}</strong></td>
-        <td style="color:var(--muted);font-size:12px">${t.description || 'â'}</td>
+        <td style="color:var(--muted);font-size:12px">${t.description || '&#8212;'}</td>
         <td style="color:var(--muted);font-size:12px">${new Date(t.created_at).toLocaleString()}</td>
-        <td><button class="btn btn-sm" style="background:#eff6ff;color:#1e429f;border:1px solid #bfdbfe;" onclick="openTxnDateModal(${t.id}, '${t.created_at}', '${t.description || t.type}')">ð Edit</button></td>
+        <td><button class="btn btn-sm" style="background:#eff6ff;color:#1e429f;border:1px solid #bfdbfe;" onclick="openTxnDateModal(${t.id}, '${t.created_at}', '${t.description || t.type}')">&#128197; Edit</button></td>
       </tr>
     `).join('');
 
@@ -559,8 +559,8 @@ async function loadTransactions() {
       </tr></thead>
       <tbody>${txns.slice(0,8).map(t => `<tr>
         <td><span class="badge badge-${t.type}">${t.type}</span></td>
-        <td style="font-size:12px">${t.sender_name || t.from_account || 'â'}</td>
-        <td style="font-size:12px">${t.receiver_name || t.to_account || 'â'}</td>
+        <td style="font-size:12px">${t.sender_name || t.from_account || '&#8212;'}</td>
+        <td style="font-size:12px">${t.receiver_name || t.to_account || '&#8212;'}</td>
         <td><strong>${fmt(t.amount)}</strong></td>
         <td style="color:var(--muted);font-size:12px">${new Date(t.created_at).toLocaleDateString()}</td>
       </tr>`).join('')}</tbody>
@@ -577,7 +577,7 @@ function openManage(userId) {
   document.getElementById('modalInfo').innerHTML = `
     <div style="line-height:2; font-size:13px;">
       <strong>Account #:</strong> <span style="font-family:monospace">${user.account_number}</span> &nbsp;|&nbsp;
-      <strong>Routing #:</strong> <span style="font-family:monospace">${user.routing_number || 'â'}</span> &nbsp;|&nbsp;
+      <strong>Routing #:</strong> <span style="font-family:monospace">${user.routing_number || '&#8212;'}</span> &nbsp;|&nbsp;
       <strong>SWIFT:</strong> ${user.swift_code || 'NVRAUS33XXX'}<br>
       <strong>Checking:</strong> ${fmt(user.balance)} &nbsp;|&nbsp;
       <strong>Savings:</strong> ${fmt(user.savings_balance || 0)} &nbsp;|&nbsp;
@@ -587,7 +587,7 @@ function openManage(userId) {
       ${addrObj ? `<strong>Address:</strong> ${addrObj}` : ''}
     </div>
   `;
-  document.getElementById('freezeBtn').textContent = user.status === 'frozen' ? 'â Unfreeze Account' : 'ð Freeze Account';
+  document.getElementById('freezeBtn').textContent = user.status === 'frozen' ? '&#9989; Unfreeze Account' : '&#128274; Freeze Account';
   document.getElementById('freezeBtn').className = `btn btn-block ${user.status === 'frozen' ? 'btn-success' : 'btn-warning'}`;
   document.getElementById('modalAmount').value = '';
   document.getElementById('modalDesc').value = '';
@@ -614,7 +614,7 @@ async function doCredit() {
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error);
-    showAlert('modalSuccess', `â Credited. New balance: ${fmt(data.new_balance)}`);
+    showAlert('modalSuccess', `&#9989; Credited. New balance: ${fmt(data.new_balance)}`);
     loadUsers(); loadStats(); loadTransactions();
     document.getElementById('modalInfo').innerHTML = document.getElementById('modalInfo').innerHTML.replace(/Balance:\s*\$[\d,.]+/, `Balance: ${fmt(data.new_balance)}`);
   } catch(e) { showAlert('modalError', e.message); }
@@ -631,7 +631,7 @@ async function doDebit() {
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error);
-    showAlert('modalSuccess', `â Debited. New balance: ${fmt(data.new_balance)}`);
+    showAlert('modalSuccess', `&#9989; Debited. New balance: ${fmt(data.new_balance)}`);
     loadUsers(); loadStats(); loadTransactions();
   } catch(e) { showAlert('modalError', e.message); }
 }
@@ -645,7 +645,7 @@ async function forceLogoutUser() {
     const res = await authFetch(`/api/admin/users/${selectedUserId}/force-logout`, { method: 'POST' });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error);
-    showAlert('modalSuccess', `â ${data.message}`);
+    showAlert('modalSuccess', `&#9989; ${data.message}`);
   } catch(e) { showAlert('modalError', e.message); }
 }
 
@@ -661,20 +661,20 @@ async function toggleFreeze() {
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error);
-    showAlert('modalSuccess', `â ${data.message}`);
+    showAlert('modalSuccess', `&#9989; ${data.message}`);
     user.status = newStatus;
-    document.getElementById('freezeBtn').textContent = newStatus === 'frozen' ? 'â Unfreeze Account' : 'ð Freeze Account';
+    document.getElementById('freezeBtn').textContent = newStatus === 'frozen' ? '&#9989; Unfreeze Account' : '&#128274; Freeze Account';
     document.getElementById('freezeBtn').className = `btn btn-block ${newStatus === 'frozen' ? 'btn-success' : 'btn-warning'}`;
     loadUsers(); loadStats();
   } catch(e) { showAlert('modalError', e.message); }
 }
 
-// ââ TRANSACTION DATE ââ
+// &#9472;&#9472; TRANSACTION DATE &#9472;&#9472;
 let selectedTxnId = null;
 
 function openTxnDateModal(txnId, currentDate, label) {
   selectedTxnId = txnId;
-  document.getElementById('txnDateInfo').textContent = `Transaction #${txnId} â ${label}`;
+  document.getElementById('txnDateInfo').textContent = `Transaction #${txnId} &#8212; ${label}`;
   // Convert ISO to datetime-local format (YYYY-MM-DDTHH:MM)
   const d = new Date(currentDate);
   const pad = n => String(n).padStart(2, '0');
@@ -697,13 +697,13 @@ async function saveTxnDate() {
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error);
-    showAlert('txnDateSuccess', 'â Transaction date updated successfully');
+    showAlert('txnDateSuccess', '&#9989; Transaction date updated successfully');
     loadTransactions();
     setTimeout(closeTxnDateModal, 1200);
   } catch(e) { showAlert('txnDateError', e.message); }
 }
 
-// ââ ACTIVITY LOG ââ
+// &#9472;&#9472; ACTIVITY LOG &#9472;&#9472;
 let allActivity = [];
 
 async function loadActivity() {
@@ -750,11 +750,11 @@ function renderActivity(logs) {
     return `<tr>
       <td style="color:var(--muted);font-size:12px">#${a.id}</td>
       <td style="font-size:12px;white-space:nowrap">${new Date(a.created_at).toLocaleString()}</td>
-      <td><strong style="font-size:13px">${a.user_name||'â'}</strong><br><span style="color:var(--muted);font-size:11px">${a.user_email||''}</span></td>
-      <td style="font-family:monospace;font-size:11px;color:var(--muted)">${a.account_no||'â'}</td>
+      <td><strong style="font-size:13px">${a.user_name||'&#8212;'}</strong><br><span style="color:var(--muted);font-size:11px">${a.user_email||''}</span></td>
+      <td style="font-family:monospace;font-size:11px;color:var(--muted)">${a.account_no||'&#8212;'}</td>
       <td><span class="badge" style="${style};border-radius:6px;padding:4px 10px;font-size:11px;">${a.action}</span></td>
-      <td style="font-size:12px;max-width:280px;color:var(--muted)">${a.details||'â'}</td>
-      <td style="font-size:11px;color:var(--muted)">${a.page||'â'}</td>
+      <td style="font-size:12px;max-width:280px;color:var(--muted)">${a.details||'&#8212;'}</td>
+      <td style="font-size:11px;color:var(--muted)">${a.page||'&#8212;'}</td>
     </tr>`;
   }).join('');
 }
@@ -770,7 +770,7 @@ async function changeRegDate() {
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error);
-    showAlert('modalSuccess', 'â Registration date updated successfully');
+    showAlert('modalSuccess', '&#9989; Registration date updated successfully');
     loadUsers();
   } catch(e) { showAlert('modalError', e.message); }
 }
