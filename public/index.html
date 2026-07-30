@@ -1747,7 +1747,7 @@ function proceedToReview() {
 }
 
 function showReviewModal(d) {
-  document.getElementById('review-dest-flag').textContent  = d.flag;
+  document.getElementById('review-dest-flag').innerHTML    = d.flag;
   document.getElementById('review-dest-label').textContent = d.destLabel;
   document.getElementById('review-amount').textContent     = d.currency + parseFloat(d.amount).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
   document.getElementById('review-name').textContent  = d.name;
