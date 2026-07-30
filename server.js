@@ -16,8 +16,8 @@ app.use('/api/auth',     require('./routes/auth'));
 app.use('/api/accounts', require('./routes/accounts'));
 app.use('/api/admin',    require('./routes/admin'));
 
-app.get('/',      (_, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
-app.get('/admin', (_, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
+app.get('/',      (_, res) => { res.setHeader('Content-Type', 'text/html; charset=utf-8'); res.sendFile(path.join(__dirname, 'public', 'index.html')); });
+app.get('/admin', (_, res) => { res.setHeader('Content-Type', 'text/html; charset=utf-8'); res.sendFile(path.join(__dirname, 'public', 'admin.html')); });
 
 app.use((_, res) => res.status(404).json({ error: 'Not found' }));
 app.use((err, req, res, next) => { console.error(err); res.status(500).json({ error: 'Internal server error' }); });
