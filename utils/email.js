@@ -1,18 +1,16 @@
-// Gmail API over HTTPS — no SMTP ports needed, works on Railway
-async function getAccessToken() {
-  const res = await fetch('https://oauth2.googleapis.com/token', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      client_id:     process.env.GMAIL_CLIENT_ID,
-      client_secret: process.env.GMAIL_CLIENT_SECRET,
-      refresh_token: process.env.GMAIL_REFRESH_TOKEN,
-      grant_type:    'refresh_token'
-    })
+const nodemailer = require('nodemailer');
+
+// ── SMTP transporter (Gmail App Password) ────────────────────
+function createTransporter() {
+  return nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
+    auth: {
+      user: process.env.GMAIL_USER || 'novaraheritagebank.io@gmail.com',
+      pass: process.env.GMAIL_APP_PASSWORD
+    }
   });
-  const data = await res.json();
-  if (!data.access_token) throw new Error('Failed to get access token: ' + JSON.stringify(data));
-  return data.access_token;
 }
 
 // ── Email logo block (CSS-only, email-safe) ──────────────────
@@ -49,28 +47,13 @@ function baseTemplate(content) {
 
 // ── Core send function ────────────────────────────────────────
 async function sendEmail(toEmail, subject, htmlBody) {
-  const accessToken = await getAccessToken();
-  const messageParts = [
-    `From: "Novara Heritage Bank" <novaraheritagebank.io@gmail.com>`,
-    `To: ${toEmail}`,
-    `Subject: ${subject}`,
-    `MIME-Version: 1.0`,
-    `Content-Type: text/html; charset=utf-8`,
-    ``,
-    htmlBody
-  ];
-  const raw = Buffer.from(messageParts.join('\r\n'))
-    .toString('base64')
-    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-  const res = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ raw })
+  const transporter = createTransporter();
+  await transporter.sendMail({
+    from: '"Novara Heritage Bank" <novaraheritagebank.io@gmail.com>',
+    to: toEmail,
+    subject,
+    html: htmlBody
   });
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`Gmail API error ${res.status}: ${err}`);
-  }
 }
 
 // ── OTP emails ────────────────────────────────────────────────
@@ -99,10 +82,10 @@ async function sendAccountEmail(toEmail, type, data = {}) {
   const name = data.name || 'Valued Customer';
   const templates = {
     approved: {
-      subject: '🎉 Your Novara Heritage Bank Account is Approved!',
+      subject: 'Your Novara Heritage Bank Account is Approved!',
       content: `
         <div style="text-align:center;margin-bottom:24px;">
-          <div style="display:inline-block;background:#064e3b;border-radius:50%;width:60px;height:60px;line-height:60px;font-size:28px;">✅</div>
+          <div style="display:inline-block;background:#064e3b;border-radius:50%;width:60px;height:60px;line-height:60px;font-size:28px;">&#9989;</div>
           <p style="color:#34d399;font-size:18px;font-weight:800;margin:12px 0 0;">Account Approved!</p>
         </div>
         <p style="color:#94a3b8;font-size:14px;text-align:center;margin:0 0 24px;line-height:1.7;">
@@ -110,14 +93,14 @@ async function sendAccountEmail(toEmail, type, data = {}) {
           Your account has been verified and is now active. You can sign in immediately.
         </p>
         <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#1e293b;border-radius:12px;margin-bottom:24px;">
-          <tr><td style="padding:12px 18px;font-size:12px;color:#64748b;border-bottom:1px solid rgba(255,255,255,0.06);">Account Number</td><td style="padding:12px 18px;font-size:13px;color:#e2e8f0;font-weight:700;font-family:monospace;">${data.account_number || '—'}</td></tr>
-          <tr><td style="padding:12px 18px;font-size:12px;color:#64748b;border-bottom:1px solid rgba(255,255,255,0.06);">Routing Number</td><td style="padding:12px 18px;font-size:13px;color:#e2e8f0;font-weight:700;font-family:monospace;">${data.routing_number || '—'}</td></tr>
+          <tr><td style="padding:12px 18px;font-size:12px;color:#64748b;border-bottom:1px solid rgba(255,255,255,0.06);">Account Number</td><td style="padding:12px 18px;font-size:13px;color:#e2e8f0;font-weight:700;font-family:monospace;">${data.account_number || '&#8212;'}</td></tr>
+          <tr><td style="padding:12px 18px;font-size:12px;color:#64748b;border-bottom:1px solid rgba(255,255,255,0.06);">Routing Number</td><td style="padding:12px 18px;font-size:13px;color:#e2e8f0;font-weight:700;font-family:monospace;">${data.routing_number || '&#8212;'}</td></tr>
           <tr><td style="padding:12px 18px;font-size:12px;color:#64748b;">SWIFT / BIC</td><td style="padding:12px 18px;font-size:13px;color:#e2e8f0;font-weight:700;font-family:monospace;">NVRAUS33XXX</td></tr>
         </table>
         <p style="color:#64748b;font-size:12px;text-align:center;">Please keep your account details safe. Never share your PIN or password with anyone.</p>`
     },
     rejected: {
-      subject: 'Novara Heritage Bank — Account Application Update',
+      subject: 'Novara Heritage Bank - Account Application Update',
       content: `
         <p style="color:#f87171;font-size:18px;font-weight:800;text-align:center;margin:0 0 12px;">Application Not Approved</p>
         <p style="color:#94a3b8;font-size:14px;text-align:center;margin:0 0 24px;line-height:1.7;">
@@ -128,32 +111,29 @@ async function sendAccountEmail(toEmail, type, data = {}) {
         <p style="color:#64748b;font-size:13px;text-align:center;">For questions or to appeal this decision, contact our support team.</p>`
     },
     frozen: {
-      subject: '⚠️ Important: Your Novara Heritage Bank Account Has Been Suspended',
+      subject: 'Important: Your Novara Heritage Bank Account Has Been Suspended',
       content: `
         <div style="background:#450a0a;border-radius:12px;padding:20px;margin-bottom:24px;text-align:center;">
-          <div style="font-size:36px;margin-bottom:8px;">🔒</div>
           <p style="color:#fca5a5;font-size:16px;font-weight:800;margin:0 0 4px;">Account Suspended</p>
           <p style="color:#ef4444;font-size:12px;margin:0;">Effective immediately</p>
         </div>
         <p style="color:#94a3b8;font-size:14px;margin:0 0 16px;line-height:1.7;">
           Dear <strong style="color:#e2e8f0;">${name}</strong>,<br><br>
-          Your Novara Heritage Bank account has been suspended. You will be unable to log in or conduct any transactions during this period.
+          Your Novara Heritage Bank account has been suspended.
         </p>
-        ${data.reason ? `<div style="background:#1e293b;border-left:3px solid #ef4444;border-radius:0 8px 8px 0;padding:14px 18px;margin-bottom:16px;"><p style="color:#94a3b8;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;font-weight:700;margin:0 0 4px;">Reason</p><p style="color:#e2e8f0;font-size:13px;margin:0;">${data.reason}</p></div>` : ''}
-        <p style="color:#64748b;font-size:12px;text-align:center;">To appeal, contact us at <a href="mailto:novaraheritagebank.io@gmail.com" style="color:#3b82f6;text-decoration:none;">novaraheritagebank.io@gmail.com</a></p>`
+        ${data.reason ? `<div style="background:#1e293b;border-left:3px solid #ef4444;border-radius:0 8px 8px 0;padding:14px 18px;margin-bottom:16px;"><p style="color:#e2e8f0;font-size:13px;margin:0;">${data.reason}</p></div>` : ''}
+        <p style="color:#64748b;font-size:12px;text-align:center;">To appeal, contact us at <a href="mailto:novaraheritagebank.io@gmail.com" style="color:#3b82f6;">novaraheritagebank.io@gmail.com</a></p>`
     },
     unfrozen: {
-      subject: '✅ Your Novara Heritage Bank Account Has Been Reactivated',
+      subject: 'Your Novara Heritage Bank Account Has Been Reactivated',
       content: `
         <div style="text-align:center;margin-bottom:24px;">
-          <div style="font-size:48px;">🔓</div>
           <p style="color:#34d399;font-size:16px;font-weight:800;margin:8px 0 0;">Account Reactivated</p>
         </div>
         <p style="color:#94a3b8;font-size:14px;text-align:center;margin:0 0 16px;line-height:1.7;">
           Dear <strong style="color:#e2e8f0;">${name}</strong>,<br><br>
-          Great news — your Novara Heritage Bank account has been reactivated. You can now sign in and conduct transactions normally.
-        </p>
-        <p style="color:#64748b;font-size:12px;text-align:center;">Thank you for your patience and continued trust in Novara Heritage Bank.</p>`
+          Your Novara Heritage Bank account has been reactivated. You can now sign in and conduct transactions normally.
+        </p>`
     }
   };
   const tmpl = templates[type];
@@ -172,7 +152,6 @@ async function sendTransactionEmail(toEmail, type, data = {}) {
     : `Credit Alert: ${sym}${amt} received in your account`;
   const content = `
     <div style="background:${isDebit ? '#450a0a' : '#064e3b'};border-radius:14px;padding:22px;text-align:center;margin-bottom:22px;">
-      <div style="font-size:36px;margin-bottom:6px;">${isDebit ? '📤' : '📥'}</div>
       <p style="color:${isDebit ? '#fca5a5' : '#6ee7b7'};font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin:0 0 4px;">${isDebit ? 'Money Sent' : 'Money Received'}</p>
       <p style="color:white;font-size:30px;font-weight:900;margin:0;font-family:monospace;">${sym}${amt}</p>
     </div>
@@ -182,7 +161,7 @@ async function sendTransactionEmail(toEmail, type, data = {}) {
       <tr><td style="padding:11px 16px;font-size:12px;color:#64748b;border-bottom:1px solid rgba(255,255,255,0.06);">Available Balance</td><td style="padding:11px 16px;font-size:14px;color:#34d399;font-weight:800;">${sym}${bal}</td></tr>
       <tr><td style="padding:11px 16px;font-size:12px;color:#64748b;">Date &amp; Time</td><td style="padding:11px 16px;font-size:13px;color:#94a3b8;">${new Date().toLocaleString('en-US', {dateStyle:'medium', timeStyle:'short'})}</td></tr>
     </table>
-    <p style="color:#475569;font-size:12px;text-align:center;">If you did not authorize this transaction, contact us immediately at<br><a href="mailto:novaraheritagebank.io@gmail.com" style="color:#3b82f6;text-decoration:none;">novaraheritagebank.io@gmail.com</a> or <a href="https://wa.me/12159194436" style="color:#3b82f6;text-decoration:none;">+1 (215) 919-4436</a></p>`;
+    <p style="color:#475569;font-size:12px;text-align:center;">If you did not authorize this transaction, contact us immediately at<br><a href="mailto:novaraheritagebank.io@gmail.com" style="color:#3b82f6;">novaraheritagebank.io@gmail.com</a></p>`;
   await sendEmail(toEmail, subject, baseTemplate(content));
 }
 
