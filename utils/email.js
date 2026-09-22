@@ -1,5 +1,6 @@
-// ── Brevo (Sendinblue) HTTP API — works on Render free tier ──
-const BREVO_API_KEY = process.env.BREVO_API_KEY;
+// ── Mailjet HTTP API — works on Render free tier ──────────────
+const MJ_API_KEY    = process.env.MAILJET_API_KEY;
+const MJ_SECRET_KEY = process.env.MAILJET_SECRET_KEY;
 const SENDER_EMAIL  = 'novaraheritagebank.io@gmail.com';
 const SENDER_NAME   = 'Novara Heritage Bank';
 
@@ -35,25 +36,27 @@ function baseTemplate(content) {
 </html>`;
 }
 
-// ── Core send function (Brevo HTTPS API) ─────────────────────
+// ── Core send function (Mailjet HTTPS API) ────────────────────
 async function sendEmail(toEmail, subject, htmlBody) {
-  const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+  const credentials = Buffer.from(`${MJ_API_KEY}:${MJ_SECRET_KEY}`).toString('base64');
+  const res = await fetch('https://api.mailjet.com/v3.1/send', {
     method: 'POST',
     headers: {
-      'api-key': BREVO_API_KEY,
-      'content-type': 'application/json',
-      'accept': 'application/json'
+      'Authorization': `Basic ${credentials}`,
+      'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      sender: { name: SENDER_NAME, email: SENDER_EMAIL },
-      to: [{ email: toEmail }],
-      subject,
-      htmlContent: htmlBody
+      Messages: [{
+        From: { Email: SENDER_EMAIL, Name: SENDER_NAME },
+        To:   [{ Email: toEmail }],
+        Subject: subject,
+        HTMLPart: htmlBody
+      }]
     })
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(err.message || `Brevo error ${res.status}`);
+    throw new Error(JSON.stringify(err) || `Mailjet error ${res.status}`);
   }
 }
 
@@ -122,7 +125,7 @@ async function sendAccountEmail(toEmail, type, data = {}) {
           Dear <strong style="color:#e2e8f0;">${name}</strong>,<br><br>
           Your Novara Heritage Bank account has been suspended.
         </p>
-        ${data.reason ? `<div style="background:#1e293b;border-left:3px solid #ef4444;border-radius:0 8px 8px 0;padding:14px 18px;margin-bottom:16px;"><p style="color:#e2e8f0;font-size:13px;margin:0;">${data.reason}</p></div>` : ''}
+        ${data.reason ? '<div style="background:#1e293b;border-left:3px solid #ef4444;border-radius:0 8px 8px 0;padding:14px 18px;margin-bottom:16px;"><p style="color:#e2e8f0;font-size:13px;margin:0;">' + data.reason + '</p></div>' : ''}
         <p style="color:#64748b;font-size:12px;text-align:center;">To appeal, contact us at <a href="mailto:novaraheritagebank.io@gmail.com" style="color:#3b82f6;">novaraheritagebank.io@gmail.com</a></p>`
     },
     unfrozen: {
@@ -157,8 +160,8 @@ async function sendTransactionEmail(toEmail, type, data = {}) {
       <p style="color:white;font-size:30px;font-weight:900;margin:0;font-family:monospace;">${sym}${amt}</p>
     </div>
     <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#1e293b;border-radius:12px;margin-bottom:20px;">
-      ${data.counterparty ? `<tr><td style="padding:11px 16px;font-size:12px;color:#64748b;border-bottom:1px solid rgba(255,255,255,0.06);">${isDebit ? 'Sent To' : 'Received From'}</td><td style="padding:11px 16px;font-size:13px;color:#e2e8f0;font-weight:600;">${data.counterparty}</td></tr>` : ''}
-      ${data.description ? `<tr><td style="padding:11px 16px;font-size:12px;color:#64748b;border-bottom:1px solid rgba(255,255,255,0.06);">Description</td><td style="padding:11px 16px;font-size:13px;color:#94a3b8;">${data.description}</td></tr>` : ''}
+      ${data.counterparty ? '<tr><td style="padding:11px 16px;font-size:12px;color:#64748b;border-bottom:1px solid rgba(255,255,255,0.06);">' + (isDebit ? 'Sent To' : 'Received From') + '</td><td style="padding:11px 16px;font-size:13px;color:#e2e8f0;font-weight:600;">' + data.counterparty + '</td></tr>' : ''}
+      ${data.description ? '<tr><td style="padding:11px 16px;font-size:12px;color:#64748b;border-bottom:1px solid rgba(255,255,255,0.06);">Description</td><td style="padding:11px 16px;font-size:13px;color:#94a3b8;">' + data.description + '</td></tr>' : ''}
       <tr><td style="padding:11px 16px;font-size:12px;color:#64748b;border-bottom:1px solid rgba(255,255,255,0.06);">Available Balance</td><td style="padding:11px 16px;font-size:14px;color:#34d399;font-weight:800;">${sym}${bal}</td></tr>
       <tr><td style="padding:11px 16px;font-size:12px;color:#64748b;">Date &amp; Time</td><td style="padding:11px 16px;font-size:13px;color:#94a3b8;">${new Date().toLocaleString('en-US', {dateStyle:'medium', timeStyle:'short'})}</td></tr>
     </table>
