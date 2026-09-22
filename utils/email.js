@@ -1,17 +1,7 @@
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 
-// ── SMTP transporter (Gmail App Password) ────────────────────
-function createTransporter() {
-  return nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true,
-    auth: {
-      user: process.env.GMAIL_USER || 'novaraheritagebank.io@gmail.com',
-      pass: process.env.GMAIL_APP_PASSWORD
-    }
-  });
-}
+// ── Resend client (uses HTTPS, not SMTP — works on Render free tier) ─
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // ── Email logo block (CSS-only, email-safe) ──────────────────
 const logoBlock = `<div style="text-align:center;margin-bottom:8px;"><div style="display:inline-flex;align-items:center;justify-content:center;width:54px;height:58px;background:linear-gradient(160deg,#0f1f5e,#1a3799);border-radius:8px 8px 14px 14px;border:2px solid rgba(201,162,39,0.6);font-size:28px;font-weight:900;color:white;font-family:Georgia,serif;">N</div></div>`;
@@ -47,13 +37,13 @@ function baseTemplate(content) {
 
 // ── Core send function ────────────────────────────────────────
 async function sendEmail(toEmail, subject, htmlBody) {
-  const transporter = createTransporter();
-  await transporter.sendMail({
-    from: '"Novara Heritage Bank" <novaraheritagebank.io@gmail.com>',
+  const { error } = await resend.emails.send({
+    from: 'Novara Heritage Bank <onboarding@resend.dev>',
     to: toEmail,
     subject,
     html: htmlBody
   });
+  if (error) throw new Error(error.message);
 }
 
 // ── OTP emails ────────────────────────────────────────────────
