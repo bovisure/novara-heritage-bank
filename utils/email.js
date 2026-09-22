@@ -1,8 +1,28 @@
-// ── Mailjet HTTP API — works on Render free tier ──────────────
-const MJ_API_KEY    = process.env.MAILJET_API_KEY;
-const MJ_SECRET_KEY = process.env.MAILJET_SECRET_KEY;
-const SENDER_EMAIL  = 'novaraheritagebank.io@gmail.com';
-const SENDER_NAME   = 'Novara Heritage Bank';
+// ── Gmail API over HTTPS (works on Render free tier) ─────────
+// No SMTP — uses googleapis.com:443 which Render never blocks
+
+const CLIENT_ID     = process.env.GMAIL_CLIENT_ID;
+const CLIENT_SECRET = process.env.GMAIL_CLIENT_SECRET;
+const REFRESH_TOKEN = process.env.GMAIL_REFRESH_TOKEN;
+const FROM_EMAIL    = 'novaraheritagebank.io@gmail.com';
+const FROM_NAME     = 'Novara Heritage Bank';
+
+// ── Get a fresh access token ──────────────────────────────────
+async function getAccessToken() {
+  const res = await fetch('https://oauth2.googleapis.com/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      client_id:     CLIENT_ID,
+      client_secret: CLIENT_SECRET,
+      refresh_token: REFRESH_TOKEN,
+      grant_type:    'refresh_token'
+    })
+  });
+  const data = await res.json();
+  if (data.error) throw new Error(`OAuth error: ${data.error} — ${data.error_description}`);
+  return data.access_token;
+}
 
 // ── Email logo block ──────────────────────────────────────────
 const logoBlock = `<div style="text-align:center;margin-bottom:8px;"><div style="display:inline-flex;align-items:center;justify-content:center;width:54px;height:58px;background:linear-gradient(160deg,#0f1f5e,#1a3799);border-radius:8px 8px 14px 14px;border:2px solid rgba(201,162,39,0.6);font-size:28px;font-weight:900;color:white;font-family:Georgia,serif;">N</div></div>`;
@@ -36,27 +56,38 @@ function baseTemplate(content) {
 </html>`;
 }
 
-// ── Core send function (Mailjet HTTPS API) ────────────────────
+// ── Core send via Gmail API ───────────────────────────────────
 async function sendEmail(toEmail, subject, htmlBody) {
-  const credentials = Buffer.from(`${MJ_API_KEY}:${MJ_SECRET_KEY}`).toString('base64');
-  const res = await fetch('https://api.mailjet.com/v3.1/send', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Basic ${credentials}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      Messages: [{
-        From: { Email: SENDER_EMAIL, Name: SENDER_NAME },
-        To:   [{ Email: toEmail }],
-        Subject: subject,
-        HTMLPart: htmlBody
-      }]
-    })
-  });
+  const accessToken = await getAccessToken();
+
+  const raw = [
+    `From: "${FROM_NAME}" <${FROM_EMAIL}>`,
+    `To: ${toEmail}`,
+    `Subject: ${subject}`,
+    `MIME-Version: 1.0`,
+    `Content-Type: text/html; charset=UTF-8`,
+    ``,
+    htmlBody
+  ].join('\r\n');
+
+  const encoded = Buffer.from(raw).toString('base64')
+    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+
+  const res = await fetch(
+    `https://gmail.googleapis.com/gmail/v1/users/${encodeURIComponent(FROM_EMAIL)}/messages/send`,
+    {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ raw: encoded })
+    }
+  );
+
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(JSON.stringify(err) || `Mailjet error ${res.status}`);
+    throw new Error(err.error?.message || `Gmail API ${res.status}`);
   }
 }
 
