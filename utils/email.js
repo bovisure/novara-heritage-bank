@@ -1,9 +1,9 @@
-const { Resend } = require('resend');
+// ── Brevo (Sendinblue) HTTP API — works on Render free tier ──
+const BREVO_API_KEY = process.env.BREVO_API_KEY;
+const SENDER_EMAIL  = 'novaraheritagebank.io@gmail.com';
+const SENDER_NAME   = 'Novara Heritage Bank';
 
-// ── Resend client (uses HTTPS, not SMTP — works on Render free tier) ─
-const resend = new Resend(process.env.RESEND_API_KEY);
-
-// ── Email logo block (CSS-only, email-safe) ──────────────────
+// ── Email logo block ──────────────────────────────────────────
 const logoBlock = `<div style="text-align:center;margin-bottom:8px;"><div style="display:inline-flex;align-items:center;justify-content:center;width:54px;height:58px;background:linear-gradient(160deg,#0f1f5e,#1a3799);border-radius:8px 8px 14px 14px;border:2px solid rgba(201,162,39,0.6);font-size:28px;font-weight:900;color:white;font-family:Georgia,serif;">N</div></div>`;
 
 // ── Base email template ───────────────────────────────────────
@@ -35,15 +35,26 @@ function baseTemplate(content) {
 </html>`;
 }
 
-// ── Core send function ────────────────────────────────────────
+// ── Core send function (Brevo HTTPS API) ─────────────────────
 async function sendEmail(toEmail, subject, htmlBody) {
-  const { error } = await resend.emails.send({
-    from: 'Novara Heritage Bank <onboarding@resend.dev>',
-    to: toEmail,
-    subject,
-    html: htmlBody
+  const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+    method: 'POST',
+    headers: {
+      'api-key': BREVO_API_KEY,
+      'content-type': 'application/json',
+      'accept': 'application/json'
+    },
+    body: JSON.stringify({
+      sender: { name: SENDER_NAME, email: SENDER_EMAIL },
+      to: [{ email: toEmail }],
+      subject,
+      htmlContent: htmlBody
+    })
   });
-  if (error) throw new Error(error.message);
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || `Brevo error ${res.status}`);
+  }
 }
 
 // ── OTP emails ────────────────────────────────────────────────
