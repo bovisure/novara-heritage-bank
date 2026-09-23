@@ -6,9 +6,9 @@ const router = express.Router();
 
 router.use(authenticate, adminOnly);
 
-function logAdminAction(req, action, details) {
+async function logAdminAction(req, action, details) {
   try {
-    db.activity.insert({
+    await db.activity.insert({
       user_id:    req.user.id,
       user_name:  'Admin',
       user_email: req.user.email,
@@ -22,8 +22,8 @@ function logAdminAction(req, action, details) {
 
 function uid(id) { return parseInt(id); }
 
-router.get('/users', (req, res) => {
-  const users = db.users.findAll()
+router.get('/users', async (req, res) => {
+  const users = (await db.users.findAll())
     .map(({ password_hash, ...u }) => u)
     .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
   res.json(users);
@@ -32,13 +32,13 @@ router.get('/users', (req, res) => {
 router.patch('/users/:id/status', async (req, res) => {
   const { status, reason } = req.body;
   if (!['active', 'frozen'].includes(status)) return res.status(400).json({ error: 'Status must be active or frozen' });
-  const user = db.users.findOne(u => u.id === uid(req.params.id));
+  const user = await db.users.findOne(u => u.id === uid(req.params.id));
   if (!user) return res.status(404).json({ error: 'User not found' });
   if (user.role === 'admin') return res.status(400).json({ error: 'Cannot freeze admin account' });
-  db.users.update(user.id, { status });
+  await db.users.update(user.id, { status });
 
   const isFrozen = status === 'frozen';
-  db.notifications.insert({
+  await db.notifications.insert({
     user_id: user.id,
     title: isFrozen ? '🔒 Account Suspended' : '🔓 Account Reactivated',
     message: isFrozen
@@ -51,13 +51,13 @@ router.patch('/users/:id/status', async (req, res) => {
     console.error('Freeze email error:', e.message)
   );
 
-  logAdminAction(req, isFrozen ? 'freeze_account' : 'unfreeze_account',
+  await logAdminAction(req, isFrozen ? 'freeze_account' : 'unfreeze_account',
     `${isFrozen ? 'Froze' : 'Unfroze'} account of ${user.name} (${user.email})${reason ? ' — ' + reason : ''}`);
   res.json({ message: `Account ${isFrozen ? 'frozen' : 'unfrozen'} successfully` });
 });
 
-router.get('/pending-users', (req, res) => {
-  const pending = db.users.findAll()
+router.get('/pending-users', async (req, res) => {
+  const pending = (await db.users.findAll())
     .filter(u => u.status === 'pending_admin')
     .map(({ password_hash, transaction_pin_hash, ...u }) => u)
     .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
@@ -65,12 +65,12 @@ router.get('/pending-users', (req, res) => {
 });
 
 router.post('/users/:id/approve', async (req, res) => {
-  const user = db.users.findOne(u => u.id === uid(req.params.id));
+  const user = await db.users.findOne(u => u.id === uid(req.params.id));
   if (!user) return res.status(404).json({ error: 'User not found' });
   if (user.status !== 'pending_admin') return res.status(400).json({ error: 'Account is not pending approval' });
-  db.users.update(user.id, { status: 'active' });
+  await db.users.update(user.id, { status: 'active' });
 
-  db.notifications.insert({
+  await db.notifications.insert({
     user_id: user.id,
     title: '🎉 Account Approved!',
     message: `Welcome, ${user.name}! Your Novara Heritage Bank account has been verified and is ready to use.`,
@@ -83,56 +83,52 @@ router.post('/users/:id/approve', async (req, res) => {
     routing_number: user.routing_number
   }).catch(e => console.error('Approval email error:', e.message));
 
-  logAdminAction(req, 'approve_account', `Approved account for ${user.name} (${user.email})`);
+  await logAdminAction(req, 'approve_account', `Approved account for ${user.name} (${user.email})`);
   res.json({ message: 'Account approved successfully' });
 });
 
 router.post('/users/:id/reject', async (req, res) => {
   const { reason } = req.body;
-  const user = db.users.findOne(u => u.id === uid(req.params.id));
+  const user = await db.users.findOne(u => u.id === uid(req.params.id));
   if (!user) return res.status(404).json({ error: 'User not found' });
   if (user.status !== 'pending_admin') return res.status(400).json({ error: 'Account is not pending approval' });
 
   sendAccountEmail(user.email, 'rejected', { name: user.name, reason })
     .catch(e => console.error('Rejection email error:', e.message));
 
-  logAdminAction(req, 'reject_account', `Rejected account for ${user.name} (${user.email})${reason ? ' — ' + reason : ''}`);
+  await logAdminAction(req, 'reject_account', `Rejected account for ${user.name} (${user.email})${reason ? ' — ' + reason : ''}`);
 
-  const dbData = require('fs').existsSync(process.env.DB_PATH || require('path').join(__dirname, '../banking.db.json'))
-    ? JSON.parse(require('fs').readFileSync(process.env.DB_PATH || require('path').join(__dirname, '../banking.db.json'), 'utf8'))
-    : { users: [] };
-  dbData.users = dbData.users.filter(u => u.id !== user.id);
-  require('fs').writeFileSync(process.env.DB_PATH || require('path').join(__dirname, '../banking.db.json'), JSON.stringify(dbData, null, 2));
+  await db.users.delete(user.id);
 
   res.json({ message: 'Account rejected and removed' });
 });
 
-router.post('/users/:id/credit', (req, res) => {
+router.post('/users/:id/credit', async (req, res) => {
   const parsed = parseFloat(req.body.amount);
   if (isNaN(parsed) || parsed <= 0) return res.status(400).json({ error: 'Invalid amount' });
-  const user = db.users.findOne(u => u.id === uid(req.params.id));
+  const user = await db.users.findOne(u => u.id === uid(req.params.id));
   if (!user) return res.status(404).json({ error: 'User not found' });
-  const updated = db.users.update(user.id, { balance: Math.round((user.balance + parsed) * 100) / 100 });
-  db.transactions.insert({ from_account: 'BANK', to_account: user.account_number, amount: parsed, type: 'credit', description: req.body.description || 'Admin credit' });
-  logAdminAction(req, 'admin_credit', `Credited $${parsed} to ${user.name} (${user.email}). New balance: $${updated.balance}`);
+  const updated = await db.users.update(user.id, { balance: Math.round((user.balance + parsed) * 100) / 100 });
+  await db.transactions.insert({ from_account: 'BANK', to_account: user.account_number, amount: parsed, type: 'credit', description: req.body.description || 'Admin credit' });
+  await logAdminAction(req, 'admin_credit', `Credited $${parsed} to ${user.name} (${user.email}). New balance: $${updated.balance}`);
   res.json({ message: 'Credit applied', new_balance: updated.balance });
 });
 
-router.post('/users/:id/debit', (req, res) => {
+router.post('/users/:id/debit', async (req, res) => {
   const parsed = parseFloat(req.body.amount);
   if (isNaN(parsed) || parsed <= 0) return res.status(400).json({ error: 'Invalid amount' });
-  const user = db.users.findOne(u => u.id === uid(req.params.id));
+  const user = await db.users.findOne(u => u.id === uid(req.params.id));
   if (!user) return res.status(404).json({ error: 'User not found' });
   if (user.balance < parsed) return res.status(400).json({ error: 'Insufficient user balance' });
-  const updated = db.users.update(user.id, { balance: Math.round((user.balance - parsed) * 100) / 100 });
-  db.transactions.insert({ from_account: user.account_number, to_account: 'BANK', amount: parsed, type: 'debit', description: req.body.description || 'Admin debit' });
-  logAdminAction(req, 'admin_debit', `Debited $${parsed} from ${user.name} (${user.email}). New balance: $${updated.balance}`);
+  const updated = await db.users.update(user.id, { balance: Math.round((user.balance - parsed) * 100) / 100 });
+  await db.transactions.insert({ from_account: user.account_number, to_account: 'BANK', amount: parsed, type: 'debit', description: req.body.description || 'Admin debit' });
+  await logAdminAction(req, 'admin_debit', `Debited $${parsed} from ${user.name} (${user.email}). New balance: $${updated.balance}`);
   res.json({ message: 'Debit applied', new_balance: updated.balance });
 });
 
-router.get('/transactions', (req, res) => {
-  const allUsers = db.users.findAll();
-  const txns = db.transactions.findAll()
+router.get('/transactions', async (req, res) => {
+  const allUsers = await db.users.findAll();
+  const txns = (await db.transactions.findAll())
     .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
     .slice(0, 200)
     .map(t => ({
@@ -143,42 +139,43 @@ router.get('/transactions', (req, res) => {
   res.json(txns);
 });
 
-router.patch('/transactions/:id/date', (req, res) => {
+router.patch('/transactions/:id/date', async (req, res) => {
   const { created_at } = req.body;
   if (!created_at) return res.status(400).json({ error: 'Date is required' });
   const txnId = uid(req.params.id);
-  const txn = db.transactions.findAll().find(t => t.id === txnId);
+  const txns = await db.transactions.findAll();
+  const txn = txns.find(t => t.id === txnId);
   if (!txn) return res.status(404).json({ error: 'Transaction not found' });
   const d = new Date(created_at);
   if (isNaN(d.getTime())) return res.status(400).json({ error: 'Invalid date format' });
-  db.transactions.update(txnId, { created_at: d.toISOString() });
-  logAdminAction(req, 'backdate_transaction', `Changed date of transaction #${txnId} to ${d.toISOString()}`);
+  await db.transactions.update(txnId, { created_at: d.toISOString() });
+  await logAdminAction(req, 'backdate_transaction', `Changed date of transaction #${txnId} to ${d.toISOString()}`);
   res.json({ message: 'Transaction date updated successfully' });
 });
 
-router.get('/activity', (req, res) => {
-  const logs = db.activity.findAll()
+router.get('/activity', async (req, res) => {
+  const logs = (await db.activity.findAll())
     .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
     .slice(0, 500);
   res.json(logs);
 });
 
-router.patch('/users/:id/regdate', (req, res) => {
+router.patch('/users/:id/regdate', async (req, res) => {
   const { created_at } = req.body;
   if (!created_at) return res.status(400).json({ error: 'Date is required' });
-  const user = db.users.findOne(u => u.id === uid(req.params.id));
+  const user = await db.users.findOne(u => u.id === uid(req.params.id));
   if (!user) return res.status(404).json({ error: 'User not found' });
   if (user.role === 'admin') return res.status(400).json({ error: 'Cannot modify admin account' });
   const d = new Date(created_at);
   if (isNaN(d.getTime())) return res.status(400).json({ error: 'Invalid date format' });
-  db.users.update(user.id, { created_at: d.toISOString() });
-  logAdminAction(req, 'change_reg_date', `Changed registration date of ${user.name} (${user.email}) to ${d.toISOString()}`);
+  await db.users.update(user.id, { created_at: d.toISOString() });
+  await logAdminAction(req, 'change_reg_date', `Changed registration date of ${user.name} (${user.email}) to ${d.toISOString()}`);
   res.json({ message: 'Registration date updated successfully' });
 });
 
-router.get('/stats', (req, res) => {
-  const users = db.users.findAll().filter(u => u.role === 'user');
-  const txns  = db.transactions.findAll();
+router.get('/stats', async (req, res) => {
+  const users = (await db.users.findAll()).filter(u => u.role === 'user');
+  const txns  = await db.transactions.findAll();
   res.json({
     total_users:        users.length,
     active_users:       users.filter(u => u.status === 'active').length,
@@ -190,18 +187,18 @@ router.get('/stats', (req, res) => {
   });
 });
 
-router.post('/users/:id/force-logout', (req, res) => {
-  const user = db.users.findOne(u => u.id === uid(req.params.id));
+router.post('/users/:id/force-logout', async (req, res) => {
+  const user = await db.users.findOne(u => u.id === uid(req.params.id));
   if (!user) return res.status(404).json({ error: 'User not found' });
   if (user.role === 'admin') return res.status(400).json({ error: 'Cannot force-logout admin' });
-  db.users.update(user.id, { force_logout_at: Date.now() });
-  db.notifications.insert({
+  await db.users.update(user.id, { force_logout_at: Date.now() });
+  await db.notifications.insert({
     user_id: user.id,
     title: '🔐 Session Ended',
     message: 'Your session was ended by an administrator. Please log in again.',
     type: 'warning'
   });
-  logAdminAction(req, 'force_logout', `Force-logged out ${user.name} (${user.email})`);
+  await logAdminAction(req, 'force_logout', `Force-logged out ${user.name} (${user.email})`);
   res.json({ message: `${user.name} has been logged out` });
 });
 

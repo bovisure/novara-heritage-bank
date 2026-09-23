@@ -2,8 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 
-// DB initializes synchronously on require (tables + admin seed)
-require('./database');
+const db = require('./database');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -22,8 +21,11 @@ app.get('/admin', (_, res) => { res.setHeader('Content-Type', 'text/html; charse
 app.use((_, res) => res.status(404).json({ error: 'Not found' }));
 app.use((err, req, res, next) => { console.error(err); res.status(500).json({ error: 'Internal server error' }); });
 
-app.listen(PORT, () => {
-  console.log(`\n🏦  Banking App  →  http://localhost:${PORT}`);
-  console.log(`📊  Admin Panel  →  http://localhost:${PORT}/admin`);
-  console.log(`\n🔑  Admin login: admin@bank.com / admin123\n`);
+// Wait for DB tables to be ready before accepting connections
+db.ready.then(() => {
+  app.listen(PORT, () => {
+    console.log(`\n🏦  Banking App  →  http://localhost:${PORT}`);
+    console.log(`📊  Admin Panel  →  http://localhost:${PORT}/admin`);
+    console.log(`\n🔑  Admin login: admin@bank.com / admin123\n`);
+  });
 });
