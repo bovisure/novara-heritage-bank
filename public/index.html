@@ -1801,7 +1801,7 @@ async function confirmTransfer() {
         body: JSON.stringify({ to_account:d.accountFull, amount:d.amount, description:d.desc, pin })
       });
       data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      if (!res.ok) { const _ie = new Error(data.error); _ie.status = res.status; throw _ie; }
       realBalance = parseFloat(data.new_checking_balance || 0);
       realSavings = parseFloat(data.new_savings_balance  || 0);
       closeReviewModal();
@@ -1819,7 +1819,7 @@ async function confirmTransfer() {
         })
       });
       data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      if (!res.ok) { const _ee = new Error(data.error); _ee.status = res.status; throw _ee; }
       realBalance = parseFloat(data.new_checking_balance || data.new_balance || realBalance);
       realSavings = parseFloat(data.new_savings_balance  || realSavings);
       closeReviewModal();
@@ -1831,9 +1831,25 @@ async function confirmTransfer() {
     loadTransactions();
     setTimeout(() => showAlert('transferSuccess',''), 5000);
   } catch(e) {
-    showAlert('reviewPinError', e.message);
-    clearBoxes('review-pin-row');
-    setTimeout(() => document.querySelector('#review-pin-row .pin-box')?.focus(), 100);
+    if (e.status === 401) {
+      showAlert('reviewPinError', e.message);
+      clearBoxes('review-pin-row');
+      setTimeout(() => document.querySelector('#review-pin-row .pin-box')?.focus(), 100);
+    } else {
+      closeReviewModal();
+      const _d2 = window._pendingReview || {};
+      showReceipt({
+        amount: _d2.amount || 0, currency: _d2.currency || '$',
+        ref: 'BLK-' + Date.now(),
+        from: (currentUser?.name || 'You') + ' (' + maskAcct(currentUser?.account_number) + ')',
+        to: _d2.name || _d2.accountFull || '—',
+        bank: _d2.bank || null,
+        desc: _d2.desc || 'Transfer',
+        type: _d2.dest === 'novara' ? 'Internal Transfer' : 'External Transfer',
+        status: 'blocked',
+        reason: e.message
+      });
+    }
   } finally {
     btn.innerHTML = 'Confirm Transfer 🔐'; btn.disabled = false;
   }
@@ -2284,7 +2300,7 @@ function maskAcct(acct) {
   return s.length > 4 ? '•••• ' + s.slice(-4) : s;
 }
 
-function showReceipt({ amount, currency, ref, from, to, bank, desc, type }) {
+function showReceipt({ amount, currency, ref, from, to, bank, desc, type, status, reason }) {
   _rcptBlob = null;
   currency = currency || '$';
   document.getElementById('rcptAmount').textContent = currency + parseFloat(amount).toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 });
@@ -2295,6 +2311,30 @@ function showReceipt({ amount, currency, ref, from, to, bank, desc, type }) {
   document.getElementById('rcptBank').textContent   = bank  || '—';
   document.getElementById('rcptDesc').textContent   = desc  || 'Transfer';
   document.getElementById('rcptType').textContent   = type  || 'Bank Transfer';
+  // ── status theming ──────────────────────────────────────────────
+  const _card = document.getElementById('receiptCard');
+  const _amtEl = document.getElementById('rcptAmount');
+  const _stEl  = document.getElementById('rcptStatus');
+  const _rRow  = document.getElementById('rcptReasonRow');
+  const _rEl   = document.getElementById('rcptReason');
+  status = status || 'success';
+  if (status === 'success') {
+    _card.style.borderTopColor = '#16a34a'; _amtEl.style.color = '#16a34a';
+    _stEl.style.background = '#dcfce7'; _stEl.style.color = '#15803d';
+    _stEl.textContent = '\u2705 Successful';
+    if (_rRow) _rRow.style.display = 'none';
+  } else if (status === 'blocked') {
+    _card.style.borderTopColor = '#dc2626'; _amtEl.style.color = '#dc2626';
+    _stEl.style.background = '#fee2e2'; _stEl.style.color = '#dc2626';
+    _stEl.textContent = '\u{1F6AB} Transfer Blocked';
+    if (_rRow) { _rRow.style.display = reason ? 'flex' : 'none'; if (_rEl && reason) _rEl.textContent = reason; }
+  } else if (status === 'pending') {
+    _card.style.borderTopColor = '#d97706'; _amtEl.style.color = '#d97706';
+    _stEl.style.background = '#fef3c7'; _stEl.style.color = '#b45309';
+    _stEl.textContent = '\u23f3 Pending Approval';
+    if (_rRow) _rRow.style.display = 'none';
+  }
+  // ─────────────────────────────────────────────────────────────────
   document.getElementById('rcptBankRow').style.display = bank ? 'flex' : 'none';
   document.getElementById('receiptModal').style.display = 'flex';
 }
@@ -2350,7 +2390,7 @@ async function shareReceipt(btn) {
 <div id="receiptModal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.88);z-index:900;display:none;align-items:flex-start;justify-content:center;overflow-y:auto;padding:24px 16px 40px;box-sizing:border-box;">
   <div style="width:100%;max-width:390px;margin:auto;">
     <!-- printable card -->
-    <div id="receiptCard" style="background:#fff;border-radius:20px;padding:28px 22px 22px;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+    <div id="receiptCard" style="background:#fff;border-radius:20px;padding:28px 22px 22px;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;border-top:6px solid #16a34a;">
       <div style="text-align:center;padding-bottom:18px;border-bottom:2px dashed #e0e0e0;margin-bottom:20px;">
         <div style="font-size:20px;font-weight:800;letter-spacing:-0.3px;">&#127974; Novara Heritage Bank</div>
         <div style="font-size:11px;color:#999;margin-top:4px;letter-spacing:1.5px;text-transform:uppercase;">Transfer Receipt</div>
@@ -2370,6 +2410,7 @@ async function shareReceipt(btn) {
         <div class="rcpt-row" id="rcptBankRow"><span>Bank</span><strong id="rcptBank">&#8212;</strong></div>
         <div class="rcpt-row"><span>Description</span><strong id="rcptDesc">&#8212;</strong></div>
         <div class="rcpt-row"><span>Type</span><strong id="rcptType">&#8212;</strong></div>
+        <div class="rcpt-row" id="rcptReasonRow" style="display:none;"><span>Reason</span><strong id="rcptReason" style="color:#dc2626;">&#8212;</strong></div>
       </div>
       <div style="text-align:center;font-size:10px;color:#ccc;margin-top:14px;border-top:2px dashed #e0e0e0;padding-top:14px;line-height:1.6;">
         This receipt confirms your transaction.<br>Keep it for your records.
