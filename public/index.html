@@ -284,7 +284,14 @@
   .review-lbl { font-size:12px; color:var(--muted); font-weight:600; flex-shrink:0; }
   .review-val { font-size:13px; font-weight:600; text-align:right; max-width:62%; word-break:break-all; }
   .review-mono { font-family:monospace; font-size:12px; }
+
+  /* ── Receipt ── */
+  .rcpt-row { display:flex; justify-content:space-between; align-items:flex-start; padding:9px 0; border-bottom:1px solid #eee; font-size:13px; gap:12px; }
+  .rcpt-row:last-child { border-bottom:none; }
+  .rcpt-row span { color:#888; flex-shrink:0; }
+  .rcpt-row strong { color:#1a1a2e; text-align:right; word-break:break-all; }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
 
@@ -1799,6 +1806,7 @@ async function confirmTransfer() {
       realSavings = parseFloat(data.new_savings_balance  || 0);
       closeReviewModal();
       showAlert('transferSuccess', `✅ ${d.currency}${parseFloat(d.amount).toLocaleString('en-US',{minimumFractionDigits:2})} sent to ${data.recipient_name || d.name} successfully!`);
+      showReceipt({ amount:d.amount, currency:d.currency, ref:'TXN-'+data.transaction_id, from:(currentUser?.name||'You')+' ('+maskAcct(currentUser?.account_number)+')', to:(data.recipient_name||d.name)+' ('+maskAcct(d.accountFull)+')', bank:null, desc:d.desc||'Transfer', type:'Internal Transfer' });
     } else {
       res  = await authFetch('/api/accounts/external-transfer', {
         method:'POST', headers:{'Content-Type':'application/json'},
@@ -1816,6 +1824,7 @@ async function confirmTransfer() {
       realSavings = parseFloat(data.new_savings_balance  || realSavings);
       closeReviewModal();
       showAlert('transferSuccess', `✅ ${d.currency}${parseFloat(d.amount).toLocaleString('en-US',{minimumFractionDigits:2})} transfer initiated successfully!`);
+      showReceipt({ amount:d.amount, currency:d.currency, ref:'TXN-'+data.transaction_id, from:(currentUser?.name||'You')+' ('+maskAcct(currentUser?.account_number)+')', to:d.name+(d.accountFull?' ('+maskAcct(d.accountFull)+')':d.ibanFull?' ('+d.ibanFull+')':''), bank:d.bank||'External Bank', desc:d.desc||'Transfer', type:'External Transfer' });
     }
     if (currentUser) currentUser.balance = realBalance;
     updateAccountUI(currentUser?.account_type || 'checking');
@@ -2265,6 +2274,121 @@ function startLocalClock() {
 
 applyTranslations();
 startLocalClock();
+
+// ══ RECEIPT ══════════════════════════════════════════════════════════════════
+let _rcptBlob = null;
+
+function maskAcct(acct) {
+  if (!acct) return '';
+  const s = String(acct);
+  return s.length > 4 ? '•••• ' + s.slice(-4) : s;
+}
+
+function showReceipt({ amount, currency, ref, from, to, bank, desc, type }) {
+  _rcptBlob = null;
+  currency = currency || '$';
+  document.getElementById('rcptAmount').textContent = currency + parseFloat(amount).toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 });
+  document.getElementById('rcptRef').textContent    = ref   || ('TXN-' + Date.now());
+  document.getElementById('rcptDate').textContent   = new Date().toLocaleString('en-US', { dateStyle:'medium', timeStyle:'short' });
+  document.getElementById('rcptFrom').textContent   = from  || '—';
+  document.getElementById('rcptTo').textContent     = to    || '—';
+  document.getElementById('rcptBank').textContent   = bank  || '—';
+  document.getElementById('rcptDesc').textContent   = desc  || 'Transfer';
+  document.getElementById('rcptType').textContent   = type  || 'Bank Transfer';
+  document.getElementById('rcptBankRow').style.display = bank ? 'flex' : 'none';
+  document.getElementById('receiptModal').style.display = 'flex';
+}
+
+function closeReceipt() {
+  document.getElementById('receiptModal').style.display = 'none';
+  _rcptBlob = null;
+}
+
+async function _captureReceipt() {
+  if (_rcptBlob) return _rcptBlob;
+  const card = document.getElementById('receiptCard');
+  const canvas = await html2canvas(card, { scale: 2.5, backgroundColor: '#ffffff', useCORS: true, logging: false });
+  return new Promise(resolve => canvas.toBlob(b => { _rcptBlob = b; resolve(b); }, 'image/png'));
+}
+
+async function downloadReceipt(btn) {
+  const orig = btn.textContent;
+  btn.textContent = 'Generating...'; btn.disabled = true;
+  try {
+    const blob = await _captureReceipt();
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url; a.download = 'Novara-Receipt-' + Date.now() + '.png'; a.click();
+    URL.revokeObjectURL(url);
+  } catch(e) { alert('Could not generate receipt image.'); console.error(e); }
+  finally { btn.textContent = orig; btn.disabled = false; }
+}
+
+async function shareReceipt(btn) {
+  const orig = btn.innerHTML;
+  btn.textContent = 'Preparing...'; btn.disabled = true;
+  try {
+    const blob = await _captureReceipt();
+    const file = new File([blob], 'Novara-Receipt-' + Date.now() + '.png', { type: 'image/png' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file], title: 'Transfer Receipt', text: 'My Novara Heritage Bank transfer receipt' });
+    } else if (navigator.share) {
+      const ref = document.getElementById('rcptRef').textContent;
+      const amt = document.getElementById('rcptAmount').textContent;
+      const to  = document.getElementById('rcptTo').textContent;
+      await navigator.share({ title: 'Transfer Receipt', text: 'Novara Heritage Bank\nAmount: ' + amt + '\nTo: ' + to + '\nRef: ' + ref + '\nStatus: Successful' });
+    } else {
+      await downloadReceipt(document.getElementById('rcptDownloadBtn'));
+    }
+  } catch(e) { if (e.name !== 'AbortError') { alert('Could not share. Try downloading instead.'); } }
+  finally { btn.innerHTML = orig; btn.disabled = false; }
+}
+// ═════════════════════════════════════════════════════════════════════════════
 </script>
+
+<!-- ══ RECEIPT MODAL ══ -->
+<div id="receiptModal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.88);z-index:900;display:none;align-items:flex-start;justify-content:center;overflow-y:auto;padding:24px 16px 40px;box-sizing:border-box;">
+  <div style="width:100%;max-width:390px;margin:auto;">
+    <!-- printable card -->
+    <div id="receiptCard" style="background:#fff;border-radius:20px;padding:28px 22px 22px;color:#1a1a2e;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+      <div style="text-align:center;padding-bottom:18px;border-bottom:2px dashed #e0e0e0;margin-bottom:20px;">
+        <div style="font-size:20px;font-weight:800;letter-spacing:-0.3px;">&#127974; Novara Heritage Bank</div>
+        <div style="font-size:11px;color:#999;margin-top:4px;letter-spacing:1.5px;text-transform:uppercase;">Transfer Receipt</div>
+      </div>
+      <div style="text-align:center;margin-bottom:20px;">
+        <div style="font-size:11px;color:#999;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Amount Transferred</div>
+        <div id="rcptAmount" style="font-size:38px;font-weight:800;color:#16a34a;line-height:1;">$0.00</div>
+        <div style="margin-top:10px;">
+          <span id="rcptStatus" style="background:#dcfce7;color:#15803d;padding:4px 16px;border-radius:100px;font-size:12px;font-weight:700;display:inline-block;">&#10003; Successful</span>
+        </div>
+      </div>
+      <div style="background:#f8fafc;border-radius:14px;padding:14px 16px;margin-bottom:6px;">
+        <div class="rcpt-row"><span>Reference</span><strong id="rcptRef">&#8212;</strong></div>
+        <div class="rcpt-row"><span>Date &amp; Time</span><strong id="rcptDate">&#8212;</strong></div>
+        <div class="rcpt-row"><span>From</span><strong id="rcptFrom">&#8212;</strong></div>
+        <div class="rcpt-row"><span>To</span><strong id="rcptTo">&#8212;</strong></div>
+        <div class="rcpt-row" id="rcptBankRow"><span>Bank</span><strong id="rcptBank">&#8212;</strong></div>
+        <div class="rcpt-row"><span>Description</span><strong id="rcptDesc">&#8212;</strong></div>
+        <div class="rcpt-row"><span>Type</span><strong id="rcptType">&#8212;</strong></div>
+      </div>
+      <div style="text-align:center;font-size:10px;color:#ccc;margin-top:14px;border-top:2px dashed #e0e0e0;padding-top:14px;line-height:1.6;">
+        This receipt confirms your transaction.<br>Keep it for your records.
+      </div>
+    </div>
+    <!-- share buttons (outside card so they don't appear in screenshot) -->
+    <div style="margin-top:14px;display:flex;flex-direction:column;gap:10px;">
+      <button id="rcptShareBtn" onclick="shareReceipt(this)" style="background:#25D366;color:#fff;border:none;border-radius:14px;padding:15px;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Share (WhatsApp / Other Apps)
+      </button>
+      <button id="rcptDownloadBtn" onclick="downloadReceipt(this)" style="background:#1d4ed8;color:#fff;border:none;border-radius:14px;padding:15px;font-size:15px;font-weight:700;cursor:pointer;">
+        &#8595; Download Receipt
+      </button>
+      <button onclick="closeReceipt()" style="background:transparent;color:#fff;border:2px solid rgba(255,255,255,0.25);border-radius:14px;padding:13px;font-size:15px;font-weight:600;cursor:pointer;">
+        Done
+      </button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
